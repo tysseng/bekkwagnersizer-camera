@@ -1,5 +1,6 @@
 import jsfeat from 'jsfeat';
 
+
 const drawImageOnCanvas = (ctx) => {
   const img = document.getElementById("sourceImage");
   ctx.drawImage(img, 0, 0);
@@ -136,7 +137,7 @@ const findCorners = (img) => {
   return corners.slice(0, count);
 };
 
-const process = (ctx, width, height) => {
+const process = (ctx, targetCtx, width, height) => {
   const image_data = ctx.getImageData(0, 0, width, height);
   const gray_img = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.imgproc.grayscale(image_data.data, width, height, gray_img);
@@ -149,13 +150,15 @@ const process = (ctx, width, height) => {
   console.log('orderedCorners', orderedCorners);
 
 
-  writeToGrayscaleImageData(image_data, gray_img);
+  //writeToGrayscaleImageData(image_data, gray_img);
   ctx.putImageData(image_data, 0, 0);
   drawBoundingBox(ctx, boundingBox);
   drawCorners(ctx, orderedCorners);
+
+
 };
 
-export default (ctx, width, height) => {
+export default (ctx, targetCtx, width, height) => {
   drawImageOnCanvas(ctx);
-  process(ctx, width, height);
+  process(ctx, targetCtx, width, height);
 }

@@ -9,14 +9,18 @@ class CanvasComponent extends React.Component {
 
     if(this.props.imageLoaded !== imageLoaded && imageLoaded===true){
       const ctx = this.refs.canvas.getContext('2d');
-      this.props.processor(ctx, width, height)
+      const targetCtx = this.refs.targetCanvas.getContext('2d');
+      this.props.processor(ctx, targetCtx, width, height)
     }
   }
 
   render() {
     const {width, height} = this.props;
     return (
-      <canvas id='sourceCanvas' ref="canvas" width={width} height={height}/>
+      <div>
+        <canvas ref="canvas" width={width} height={height}/>
+        <canvas ref="targetCanvas" width={width} height={height}/>
+      </div>
     );
   }
 }
