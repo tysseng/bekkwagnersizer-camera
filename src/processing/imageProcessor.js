@@ -1,4 +1,5 @@
 import jsfeat from 'jsfeat';
+import { correctPerspective, getPerspectiveCorrectionTransform } from "./perspectiveFixer";
 
 
 const drawImageOnCanvas = (ctx) => {
@@ -155,7 +156,8 @@ const process = (ctx, targetCtx, width, height) => {
   drawBoundingBox(ctx, boundingBox);
   drawCorners(ctx, orderedCorners);
 
-
+  const transform = getPerspectiveCorrectionTransform(orderedCorners, width, height);
+  correctPerspective(ctx, targetCtx, boundingBox, transform, width, height, orderedCorners);
 };
 
 export default (ctx, targetCtx, width, height) => {
