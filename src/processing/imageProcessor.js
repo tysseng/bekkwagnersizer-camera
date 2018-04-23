@@ -1,4 +1,5 @@
 import jsfeat from 'jsfeat';
+import 'floodfill';
 import { correctPerspective, getPerspectiveCorrectionTransform } from "./perspectiveFixer";
 
 
@@ -138,6 +139,11 @@ const findCorners = (img) => {
   return corners.slice(0, count);
 };
 
+const floodFillOutline = (ctx) => {
+  ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+  ctx.fillFlood(20, 20, 32);
+};
+
 const process = (ctx, targetCtx, width, height) => {
   const image_data = ctx.getImageData(0, 0, width, height);
   const gray_img = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
@@ -158,6 +164,10 @@ const process = (ctx, targetCtx, width, height) => {
 
   const transform = getPerspectiveCorrectionTransform(orderedCorners, width, height);
   correctPerspective(ctx, targetCtx, boundingBox, transform, width, height, orderedCorners);
+
+  // TODO: adjust white balance to get a white paper
+  // TODO: expand outline to make floodfill work even if someone draws to the edge of the paper
+  floodFillOutline(targetCtx);
 };
 
 export default (ctx, targetCtx, width, height) => {
