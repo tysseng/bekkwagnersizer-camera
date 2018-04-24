@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import CanvasComponent from "./Canvas";
-import imageToProcess from './assets/images/image.jpg';
+import imageToProcess from './assets/images/IMG_6307.jpg';
 import processImage from './processing/imageProcessor';
 
-const width=600;
-const height=800;
+const width=1024;
+const height=1365;
 
 class App extends Component {
 

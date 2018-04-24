@@ -2,6 +2,9 @@ import jsfeat from 'jsfeat';
 import 'floodfill';
 import { correctPerspective, getPerspectiveCorrectionTransform } from "./perspectiveFixer";
 
+const padding = 20;
+const threshold = 15;
+const blurRadius = 3; // 3 box blur with radius 3 seems to remove dust from a 1024 x 1365 image
 
 const drawImageOnCanvas = (ctx) => {
   const img = document.getElementById("sourceImage");
@@ -32,7 +35,8 @@ const findBoundingCorners = (boundingBox, corners) => {
       topLeft = topCorners[1];
       topRight = topCorners[0];
     }
-    // TODO: find remaining corners, find ordering
+    // TODO: find remaining corners, find ordering.
+    // TODO: find corners even if one is not at an extreme
   } else if (topCorners.length === 1) {
     const topCorner = topCorners[0];
     const leftCorner = corners.find(corner => corner.x === boundingBox.topLeft.x);
@@ -119,10 +123,15 @@ const drawCorners = (ctx, orderedCorners) => {
   drawPoint(ctx, orderedCorners.bottomLeft, 'blue');
 };
 
+const drawAllCorners = (ctx, corners) => {
+  // draw in clockwise order
+  corners.forEach(corner => drawPoint(ctx, corner, 'red'))
+};
+
+
 const findCorners = (img) => {
   // threshold on difference between intensity of the central pixel
   // and pixels of a circle around this pixel
-  const threshold = 30;
   const border = 3;
 
   jsfeat.fast_corners.set_threshold(threshold);
@@ -141,13 +150,72 @@ const findCorners = (img) => {
 
 const floodFillOutline = (ctx) => {
   ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-  ctx.fillFlood(20, 20, 32);
+  ctx.fillFlood(padding*2, padding*2, 32);
 };
 
-const process = (ctx, targetCtx, width, height) => {
+const distToWhite = (r, g, b) => {
+  const rDist = 255 - r;
+  const gDist = 255 - g;
+  const bDist = 255 - b;
+
+  const rgVector = Math.sqrt(rDist * rDist + gDist * gDist);
+  return Math.sqrt(rgVector * rgVector + bDist * bDist);
+};
+
+const findWhitePoint = (ctx, width, height) => {
+  let r;
+  let g;
+  let b;
+  let minimalDist = Number.MAX_SAFE_INTEGER;
+  let index;
+
+  const data = ctx.getImageData(padding, padding, width-padding*2, height-padding*2).data;
+  for (let i = 0; i < data.length; i += 4) {
+    const dist = distToWhite(data[i], data[i + 1], data[i + 2]);
+    if (dist < minimalDist) {
+      minimalDist = dist;
+      r = data[i];
+      g = data[i + 1];
+      b = data[i + 2];
+      index = i;
+    }
+  }
+  //TODO: these are most likely not correct.
+  const x = (index / 4) % width;
+  const y = Math.floor((index / 4) / height);
+  console.log('max white is', { r, g, b, x, y });
+  //drawPoint(ctx, { x, y }, 'red');
+  return { r, g, b, x, y, index }
+};
+
+const adjustColor = (original, wp) => {
+  // shift colors upwards to prevent stretching from breaking flow fill.
+  const adjusted = original + (255 - wp);
+  if (adjusted > 255) {
+    return 255;
+  }
+  return adjusted;
+};
+
+const adjustWhitePoint = (wp, ctx, target, width, height) => {
+  const image_data = ctx.getImageData(padding, padding, width-padding*2, height-padding*2);
+  const data = image_data.data;
+
+  for (let i = 0; i < data.length; i += 4) {
+    data[i] = adjustColor(data[i], wp.r);
+    data[i + 1] = adjustColor(data[i + 1], wp.g);
+    data[i + 2] = adjustColor(data[i + 2], wp.b);
+  }
+  target.putImageData(image_data, padding, padding);
+};
+
+const process = (ctx, targetCtx, targetCtx2, width, height) => {
   const image_data = ctx.getImageData(0, 0, width, height);
   const gray_img = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.imgproc.grayscale(image_data.data, width, height, gray_img);
+
+  // remove dust! without this it corner detection will trigger on the dust particles
+  jsfeat.imgproc.box_blur_gray(gray_img, gray_img, blurRadius);
 
   const corners = findCorners(gray_img);
   const boundingBox = findBoundingBox(corners);
@@ -157,20 +225,30 @@ const process = (ctx, targetCtx, width, height) => {
   console.log('orderedCorners', orderedCorners);
 
 
-  //writeToGrayscaleImageData(image_data, gray_img);
+ // writeToGrayscaleImageData(image_data, gray_img);
   ctx.putImageData(image_data, 0, 0);
   drawBoundingBox(ctx, boundingBox);
-  drawCorners(ctx, orderedCorners);
-
+ // drawCorners(ctx, orderedCorners);
+  drawAllCorners(ctx, corners);
+/*
   const transform = getPerspectiveCorrectionTransform(orderedCorners, width, height);
   correctPerspective(ctx, targetCtx, boundingBox, transform, width, height, orderedCorners);
 
-  // TODO: adjust white balance to get a white paper
+  const whitePoint = findWhitePoint(targetCtx, width, height);
+  adjustWhitePoint(whitePoint, targetCtx, targetCtx2, width, height);
+  // check https://github.com/licson0729/CanvasEffects
+  // eller test histogram på alle kanaler. Se også https://en.wikipedia.org/wiki/Histogram_equalization
+
+
+  // TODO: slightly crop outlines to make sure edges are straight
+  // TODO: Remove any logo, barcode, marker etc.
+  // TODO: adjust white balance to get a white paper to be able to expand:
   // TODO: expand outline to make floodfill work even if someone draws to the edge of the paper
-  floodFillOutline(targetCtx);
+  floodFillOutline(targetCtx2);
+*/
 };
 
-export default (ctx, targetCtx, width, height) => {
+export default (ctx, targetCtx, targetCtx2, width, height) => {
   drawImageOnCanvas(ctx);
-  process(ctx, targetCtx, width, height);
+  process(ctx, targetCtx, targetCtx2, width, height);
 }
