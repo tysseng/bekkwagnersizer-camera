@@ -1,10 +1,13 @@
 import jsfeat from 'jsfeat';
 import 'floodfill';
 import { correctPerspective, getPerspectiveCorrectionTransform } from "./perspectiveFixer";
+import {
+  detectCornersUsingBlurredImage,
+  detectCornersUsingDownscaledImage, detectCornersUsingOriginalImage
+} from "./cornerDetection";
 
 const padding = 20;
-const threshold = 15;
-const blurRadius = 3; // 3 box blur with radius 3 seems to remove dust from a 1024 x 1365 image
+
 
 const drawImageOnCanvas = (ctx) => {
   const img = document.getElementById("sourceImage");
@@ -128,26 +131,6 @@ const drawAllCorners = (ctx, corners) => {
   corners.forEach(corner => drawPoint(ctx, corner, 'red'))
 };
 
-
-const findCorners = (img) => {
-  // threshold on difference between intensity of the central pixel
-  // and pixels of a circle around this pixel
-  const border = 3;
-
-  jsfeat.fast_corners.set_threshold(threshold);
-  const corners = [];
-
-  // you should use preallocated keypoint_t array
-  for (let i = 0; i < img.cols * img.rows; ++i) {
-    corners[i] = new jsfeat.keypoint_t(0, 0, 0, 0);
-  }
-
-  // perform detection
-  // returns the amount of detected corners
-  const count = jsfeat.fast_corners.detect(img, corners, border);
-  return corners.slice(0, count);
-};
-
 const floodFillOutline = (ctx) => {
   ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
   ctx.fillFlood(padding*2, padding*2, 32);
@@ -211,21 +194,19 @@ const adjustWhitePoint = (wp, ctx, target, width, height) => {
 
 const process = (ctx, targetCtx, targetCtx2, width, height) => {
   const image_data = ctx.getImageData(0, 0, width, height);
-  const gray_img = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
-  jsfeat.imgproc.grayscale(image_data.data, width, height, gray_img);
+  const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
+  jsfeat.imgproc.grayscale(image_data.data, width, height, grayImage);
 
-  // remove dust! without this it corner detection will trigger on the dust particles
-  jsfeat.imgproc.box_blur_gray(gray_img, gray_img, blurRadius);
-
-  const corners = findCorners(gray_img);
+  //const corners = detectCornersUsingDownscaledImage(grayImage, width, height);
+  const corners = detectCornersUsingBlurredImage(grayImage, width, height);
+  //const corners = detectCornersUsingOriginalImage(grayImage, width, height);
   const boundingBox = findBoundingBox(corners);
   const orderedCorners = findBoundingCorners(boundingBox, corners);
   console.log('corners', corners);
   console.log('bounding box', boundingBox);
   console.log('orderedCorners', orderedCorners);
 
-
- // writeToGrayscaleImageData(image_data, gray_img);
+  writeToGrayscaleImageData(image_data, grayImage);
   ctx.putImageData(image_data, 0, 0);
   drawBoundingBox(ctx, boundingBox);
  // drawCorners(ctx, orderedCorners);
