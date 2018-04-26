@@ -1,13 +1,22 @@
 import jsfeat from 'jsfeat';
 import 'floodfill';
 import { correctPerspective, getPerspectiveCorrectionTransform } from "./perspectiveFixer";
+import { findBoundingBox, findBoundingCorners } from './boundingDetection'
 import {
   detectCornersUsingBlurredImage,
-  detectCornersUsingDownscaledImage, detectCornersUsingOriginalImage
+  detectCornersUsingDownscaledImage,
+  detectCornersUsingOriginalImage
 } from "./cornerDetection";
+import logger from '../logging/logger';
+import { detectLines } from "./lineDetection";
 
 const padding = 20;
 
+const debug = {
+  drawSheetCorners: false,
+  drawBoundingBox: true,
+  drawAllCorners: true,
+};
 
 const drawImageOnCanvas = (ctx) => {
   const img = document.getElementById("sourceImage");
@@ -25,75 +34,6 @@ const writeToGrayscaleImageData = (image_data, img) => {
   }
 };
 
-const findBoundingCorners = (boundingBox, corners) => {
-
-  let topLeft, topRight, bottomLeft, bottomRight;
-
-  const topCorners = corners.filter(corner => corner.y === boundingBox.topLeft.y);
-  if (topCorners.length === 2) {
-    if (topCorners[0].x < topCorners[1].x) {
-      topLeft = topCorners[0];
-      topRight = topCorners[1];
-    } else {
-      topLeft = topCorners[1];
-      topRight = topCorners[0];
-    }
-    // TODO: find remaining corners, find ordering.
-    // TODO: find corners even if one is not at an extreme
-  } else if (topCorners.length === 1) {
-    const topCorner = topCorners[0];
-    const leftCorner = corners.find(corner => corner.x === boundingBox.topLeft.x);
-    const rightCorner = corners.find(corner => corner.x === boundingBox.bottomRight.x);
-    const bottomCorner = corners.find(corner => corner.y === boundingBox.bottomRight.y);
-
-    if (leftCorner.y < rightCorner.y) {
-      topLeft = leftCorner;
-      topRight = topCorner;
-      bottomLeft = bottomCorner;
-      bottomRight = rightCorner;
-    } else {
-      topLeft = topCorner;
-      topRight = rightCorner;
-      bottomLeft = leftCorner;
-      bottomRight = bottomCorner;
-    }
-
-    return {
-      topLeft: topLeft,
-      topRight: topRight,
-      bottomLeft: bottomLeft,
-      bottomRight: bottomRight,
-    }
-  }
-};
-
-const findBoundingBox = (corners) => {
-  let minX = Number.MAX_VALUE;
-  let maxX = -1;
-  let minY = Number.MAX_VALUE;
-  let maxY = -1;
-
-  for (let i = 0; i < corners.length; i++) {
-    const corner = corners[i];
-    if (corner.x < minX) {
-      minX = corner.x;
-    }
-    if (corner.x > maxX) {
-      maxX = corner.x;
-    }
-    if (corner.y < minY) {
-      minY = corner.y;
-    }
-    if (corner.y > maxY) {
-      maxY = corner.y;
-    }
-  }
-
-  return {
-    topLeft: { x: minX, y: minY },
-    bottomRight: { x: maxX, y: maxY }
-  };
-};
 
 const drawBoundingBox = (ctx, bb) => {
   const x = bb.topLeft.x;
@@ -133,7 +73,7 @@ const drawAllCorners = (ctx, corners) => {
 
 const floodFillOutline = (ctx) => {
   ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-  ctx.fillFlood(padding*2, padding*2, 32);
+  ctx.fillFlood(padding * 2, padding * 2, 32);
 };
 
 const distToWhite = (r, g, b) => {
@@ -152,7 +92,7 @@ const findWhitePoint = (ctx, width, height) => {
   let minimalDist = Number.MAX_SAFE_INTEGER;
   let index;
 
-  const data = ctx.getImageData(padding, padding, width-padding*2, height-padding*2).data;
+  const data = ctx.getImageData(padding, padding, width - padding * 2, height - padding * 2).data;
   for (let i = 0; i < data.length; i += 4) {
     const dist = distToWhite(data[i], data[i + 1], data[i + 2]);
     if (dist < minimalDist) {
@@ -181,7 +121,7 @@ const adjustColor = (original, wp) => {
 };
 
 const adjustWhitePoint = (wp, ctx, target, width, height) => {
-  const image_data = ctx.getImageData(padding, padding, width-padding*2, height-padding*2);
+  const image_data = ctx.getImageData(padding, padding, width - padding * 2, height - padding * 2);
   const data = image_data.data;
 
   for (let i = 0; i < data.length; i += 4) {
@@ -192,31 +132,66 @@ const adjustWhitePoint = (wp, ctx, target, width, height) => {
   target.putImageData(image_data, padding, padding);
 };
 
-const process = (ctx, targetCtx, targetCtx2, width, height) => {
-  const image_data = ctx.getImageData(0, 0, width, height);
-  const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
-  jsfeat.imgproc.grayscale(image_data.data, width, height, grayImage);
-
-  //const corners = detectCornersUsingDownscaledImage(grayImage, width, height);
-  const corners = detectCornersUsingBlurredImage(grayImage, width, height);
-  //const corners = detectCornersUsingOriginalImage(grayImage, width, height);
+const detectSheetCorners = (ctx, image, width, height) => {
+  //const corners = detectCornersUsingDownscaledImage(image, width, height);
+  const corners = detectCornersUsingBlurredImage(image, width, height);
+  //const corners = detectCornersUsingOriginalImage(image, width, height);
   const boundingBox = findBoundingBox(corners);
   const orderedCorners = findBoundingCorners(boundingBox, corners);
   console.log('corners', corners);
   console.log('bounding box', boundingBox);
-  console.log('orderedCorners', orderedCorners);
+  //console.log('orderedCorners', orderedCorners);
+  if(debug.drawBoundingBox) drawBoundingBox(ctx, boundingBox);
+  //drawCorners(ctx, orderedCorners);
+  if(debug.drawSheetCorners) drawAllCorners(ctx, corners);
+  return orderedCorners;
+};
 
+const getGrayscaleImage = (ctx, width, height) => {
+  const image_data = ctx.getImageData(0, 0, width, height);
+  const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
+  jsfeat.imgproc.grayscale(image_data.data, width, height, grayImage);
   writeToGrayscaleImageData(image_data, grayImage);
   ctx.putImageData(image_data, 0, 0);
-  drawBoundingBox(ctx, boundingBox);
- // drawCorners(ctx, orderedCorners);
-  drawAllCorners(ctx, corners);
-/*
-  const transform = getPerspectiveCorrectionTransform(orderedCorners, width, height);
-  correctPerspective(ctx, targetCtx, boundingBox, transform, width, height, orderedCorners);
+  return grayImage;
+};
 
-  const whitePoint = findWhitePoint(targetCtx, width, height);
-  adjustWhitePoint(whitePoint, targetCtx, targetCtx2, width, height);
+const process = (ctx, targetCtx, targetCtx2, width, height) => {
+  drawImageOnCanvas(ctx);
+  const grayImage = getGrayscaleImage(ctx, width, height);
+  let orderedCorners;
+  try {
+    logger.info('First corer detect try');
+    orderedCorners = detectSheetCorners(ctx, grayImage, width, height);
+  } catch (error) {
+    logger.info('Second corer detect try');
+    // if fails, rotate and try again. This seems like a good rotation, though we get some false
+    // corners close to the edge, so we need to ignore those. Drawing on top of the existing image
+    // works nicely as long as the sheet is not too close to the edge.
+    ctx.rotate(0.05);
+    drawImageOnCanvas(ctx);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const grayImage2 = getGrayscaleImage(ctx, width, height);
+
+    // TODO: Test tansforming the corners back to the original image instead of re-rotating the
+    // image (though this requires a copy of the original canvas, which we have NOT kept because
+    // we wanted to draw on the original to keep the background color nice after rotation
+    orderedCorners = detectSheetCorners(ctx, grayImage2, width, height);
+  }
+
+  const transform = getPerspectiveCorrectionTransform(orderedCorners, width, height);
+  correctPerspective(ctx, targetCtx, transform, width, height);
+
+  // Detect lines to prepare for flood fill
+  // TODO: Remove tiny islands
+  const grayImage3 = getGrayscaleImage(targetCtx, width, height);
+  const imageWithDilutedLines = detectLines(grayImage3, width, height);
+  const lineImageData = targetCtx2.getImageData(0, 0, width, height);
+  writeToGrayscaleImageData(lineImageData, imageWithDilutedLines);
+  targetCtx2.putImageData(lineImageData, 0, 0);
+
+  //const whitePoint = findWhitePoint(targetCtx, width, height);
+  //adjustWhitePoint(whitePoint, targetCtx, targetCtx2, width, height);
   // check https://github.com/licson0729/CanvasEffects
   // eller test histogram på alle kanaler. Se også https://en.wikipedia.org/wiki/Histogram_equalization
 
@@ -226,10 +201,8 @@ const process = (ctx, targetCtx, targetCtx2, width, height) => {
   // TODO: adjust white balance to get a white paper to be able to expand:
   // TODO: expand outline to make floodfill work even if someone draws to the edge of the paper
   floodFillOutline(targetCtx2);
-*/
 };
 
 export default (ctx, targetCtx, targetCtx2, width, height) => {
-  drawImageOnCanvas(ctx);
   process(ctx, targetCtx, targetCtx2, width, height);
 }

@@ -34,7 +34,7 @@ const copyPixel = (sourceImgData, targetImgData, from, to, width, height) => {
   targetImgData.data[destPos+3] = sourceImgData.data[sourcePos+3];
 };
 
-export const correctPerspective = (ctx, targetCtx, boundingBox, transform, width, height, orderedCorners) => {
+export const correctPerspective = (ctx, targetCtx, transform, width, height) => {
   let x, y;
   let i = 0;
 
