@@ -8,9 +8,10 @@ import {
   detectCornersUsingOriginalImage
 } from "./cornerDetection";
 import logger from '../logging/logger';
-import { detectLines } from "./lineDetection";
+import { detectLines, erodeMask } from "./lineDetection";
 
 const padding = 20;
+const transparency = 0.5;
 
 const debug = {
   drawSheetCorners: false,
@@ -72,7 +73,12 @@ const drawAllCorners = (ctx, corners) => {
 };
 
 const floodFillOutline = (ctx) => {
-  ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+  ctx.fillStyle = 'rgba(255, 0, 0, ' + transparency +')';
+  ctx.fillFlood(padding * 2, padding * 2, 32);
+};
+
+const floodFillMask = (ctx) => {
+  ctx.fillStyle = 'rgba(255, 255, 255, 0)';
   ctx.fillFlood(padding * 2, padding * 2, 32);
 };
 
@@ -156,7 +162,43 @@ const getGrayscaleImage = (ctx, width, height) => {
   return grayImage;
 };
 
-const process = (ctx, targetCtx, targetCtx2, width, height) => {
+const getMonocromeMask = (ctx, width, height) => {
+  const maskImage = ctx.getImageData(0, 0, width, height);
+  const data = maskImage.data;
+
+  for(let i=0; i<width * height * 4; i+=4){
+    if(data[i+3] === 255){
+      data[i] = 0;
+      data[i+1] = 0;
+      data[i+2] = 0;
+    } else {
+      data[i] = 255;
+      data[i+1] = 255;
+      data[i+2] = 255;
+    }
+  }
+  ctx.putImageData(maskImage, 0, 0);
+  const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
+  jsfeat.imgproc.grayscale(maskImage.data, width, height, grayImage);
+  return grayImage;
+};
+
+const removeMask = (maskCtx, ctx, width, height) => {
+  const mask = maskCtx.getImageData(0, 0, width, height);
+  const image = ctx.getImageData(0, 0, width, height);
+  const maskData = mask.data;
+  const imageData = image.data;
+
+  for(let i=0; i<width * height * 4; i+=4){
+    if(maskData[i] === 255  && maskData[i+1] === 255 && maskData[i+2] === 255){
+      imageData[i+3] = 0;
+    }
+  }
+
+  ctx.putImageData(image, 0, 0);
+};
+
+const process = (ctx, targetCtx, maskCtx, width, height) => {
   drawImageOnCanvas(ctx);
   const grayImage = getGrayscaleImage(ctx, width, height);
   let orderedCorners;
@@ -186,23 +228,33 @@ const process = (ctx, targetCtx, targetCtx2, width, height) => {
   // TODO: Remove tiny islands
   const grayImage3 = getGrayscaleImage(targetCtx, width, height);
   const imageWithDilutedLines = detectLines(grayImage3, width, height);
-  const lineImageData = targetCtx2.getImageData(0, 0, width, height);
+  const lineImageData = maskCtx.getImageData(0, 0, width, height);
   writeToGrayscaleImageData(lineImageData, imageWithDilutedLines);
-  targetCtx2.putImageData(lineImageData, 0, 0);
+  maskCtx.putImageData(lineImageData, 0, 0);
+  floodFillOutline(maskCtx);
 
-  //const whitePoint = findWhitePoint(targetCtx, width, height);
-  //adjustWhitePoint(whitePoint, targetCtx, targetCtx2, width, height);
-  // check https://github.com/licson0729/CanvasEffects
-  // eller test histogram på alle kanaler. Se også https://en.wikipedia.org/wiki/Histogram_equalization
+  const monocromeMask = getMonocromeMask(maskCtx, width, height);
+  console.log(monocromeMask);
+  const maskOutline = erodeMask(monocromeMask, width, height, false);
+  writeToGrayscaleImageData(lineImageData, maskOutline);
+  maskCtx.putImageData(lineImageData, 0, 0);
+  floodFillMask(maskCtx);
+
+  removeMask(maskCtx, targetCtx, width, height);
 
 
-  // TODO: slightly crop outlines to make sure edges are straight
-  // TODO: Remove any logo, barcode, marker etc.
-  // TODO: adjust white balance to get a white paper to be able to expand:
-  // TODO: expand outline to make floodfill work even if someone draws to the edge of the paper
-  floodFillOutline(targetCtx2);
+
+  // aaaaand once more make monocrome image by keeping transparency black and rest white, this
+  // removes all inner lines.
+  // use line detection
+  // run dilate with black
+  // remaining black portions are mask, transfer mask to original bitmap
 };
 
 export default (ctx, targetCtx, targetCtx2, width, height) => {
+  const startTime = new Date().getTime();
   process(ctx, targetCtx, targetCtx2, width, height);
+  const endTime = new Date().getTime();
+
+  console.log('Finished, this took ' + (endTime - startTime) + 'ms');
 }
