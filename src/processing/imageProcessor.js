@@ -14,9 +14,9 @@ const padding = 20;
 const transparency = 0.5;
 
 const debug = {
-  drawSheetCorners: false,
+  drawSheetCorners: true,
   drawBoundingBox: true,
-  drawAllCorners: true,
+  drawAllCorners: false,
 };
 
 const drawImageOnCanvas = (ctx) => {
@@ -148,8 +148,9 @@ const detectSheetCorners = (ctx, image, width, height) => {
   console.log('bounding box', boundingBox);
   //console.log('orderedCorners', orderedCorners);
   if(debug.drawBoundingBox) drawBoundingBox(ctx, boundingBox);
-  //drawCorners(ctx, orderedCorners);
-  if(debug.drawSheetCorners) drawAllCorners(ctx, corners);
+  if(debug.drawSheetCorners) drawCorners(ctx, orderedCorners);
+  if(debug.drawAllCorners) drawAllCorners(ctx, corners);
+  logger.info(orderedCorners);
   return orderedCorners;
 };
 
@@ -158,7 +159,7 @@ const getGrayscaleImage = (ctx, width, height) => {
   const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.imgproc.grayscale(image_data.data, width, height, grayImage);
   writeToGrayscaleImageData(image_data, grayImage);
-  ctx.putImageData(image_data, 0, 0);
+  //ctx.putImageData(image_data, 0, 0);
   return grayImage;
 };
 

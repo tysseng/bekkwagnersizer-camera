@@ -3,10 +3,13 @@ export const findBoundingCorners = (boundingBox, corners) => {
 
   let topLeft, topRight, bottomLeft, bottomRight;
 
-  const topCorners = corners.filter(corner => corner.y === boundingBox.topLeft.y);
-  const leftCorners = corners.filter(corner => corner.x === boundingBox.topLeft.x);
-  const rightCorners = corners.filter(corner => corner.x === boundingBox.bottomRight.x);
-  const bottomCorners = corners.filter(corner => corner.y === boundingBox.bottomRight.y);
+  // negation is to make sure a corner does not intersect to lines of the bounding box. if it does,
+  // the corner will appear in two of the corner detections and we will either get too many or
+  // too few corners.
+  const topCorners = corners.filter(corner => corner.x !== boundingBox.topLeft.x && corner.y === boundingBox.topLeft.y);
+  const leftCorners = corners.filter(corner => corner.x === boundingBox.topLeft.x && corner.y !== boundingBox.topLeft.y);
+  const rightCorners = corners.filter(corner => corner.x === boundingBox.bottomRight.x && corner.y !== boundingBox.bottomRight.y);
+  const bottomCorners = corners.filter(corner => corner.x !== boundingBox.bottomRight.x && corner.y === boundingBox.bottomRight.y);
 
   console.log({topCorners, leftCorners, rightCorners, bottomCorners});
 
@@ -36,6 +39,8 @@ export const findBoundingCorners = (boundingBox, corners) => {
     bottomRight = bottomCorner;
   }
 
+  // make sure corners are not equal
+
   return {
     topLeft: topLeft,
     topRight: topRight,
@@ -45,48 +50,6 @@ export const findBoundingCorners = (boundingBox, corners) => {
 
 };
 
-/*
-const findBoundingCorners = (boundingBox, corners) => {
-
-  let topLeft, topRight, bottomLeft, bottomRight;
-
-  const topCorners = corners.filter(corner => corner.y === boundingBox.topLeft.y);
-  if (topCorners.length === 2) {
-    if (topCorners[0].x < topCorners[1].x) {
-      topLeft = topCorners[0];
-      topRight = topCorners[1];
-    } else {
-      topLeft = topCorners[1];
-      topRight = topCorners[0];
-    }
-    // TODO: find remaining corners, find ordering.
-    // TODO: find corners even if one is not at an extreme
-  } else if (topCorners.length === 1) {
-    const topCorner = topCorners[0];
-    const leftCorner = corners.find(corner => corner.x === boundingBox.topLeft.x);
-    const rightCorner = corners.find(corner => corner.x === boundingBox.bottomRight.x);
-    const bottomCorner = corners.find(corner => corner.y === boundingBox.bottomRight.y);
-
-    if (leftCorner.y < rightCorner.y) {
-      topLeft = leftCorner;
-      topRight = topCorner;
-      bottomLeft = bottomCorner;
-      bottomRight = rightCorner;
-    } else {
-      topLeft = topCorner;
-      topRight = rightCorner;
-      bottomLeft = leftCorner;
-      bottomRight = bottomCorner;
-    }
-
-    return {
-      topLeft: topLeft,
-      topRight: topRight,
-      bottomLeft: bottomLeft,
-      bottomRight: bottomRight,
-    }
-  }
-};*/
 
 export const findBoundingBox = (corners) => {
   let minX = Number.MAX_VALUE;
