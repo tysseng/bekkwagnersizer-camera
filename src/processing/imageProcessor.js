@@ -3,7 +3,7 @@ import 'floodfill';
 import { correctPerspective } from "./perspectiveFixer";
 
 import { detectSheetCorners } from "./cornerDetection";
-import { detectAndDiluteLines, erodeMask } from "./lineDetection";
+import { detectAndDiluteLines, subMatrixTouchesMask } from "./lineDetection";
 import { timed } from "../utils/timer";
 import { drawImageOnCanvas, floodFill } from "./draw";
 
@@ -75,6 +75,36 @@ const drawImageOnCanvasAndDetectCorners = (ctx, width, height, rotation = 0) => 
   return detectSheetCorners(ctx, grayscaledImage, width, height);
 };
 
+const erodeMaskWithEdgeDetection = (maskCtx, lineImageData, monocromeMask, width, height) => {
+
+  // erode mask, removing the pixels that were added by diluting the original lines. This works
+  // by detecting the new mask outline, which is exactly one dilute distance from the real line. As
+  // dilute works in both directions, a second dilute will reclaim the missing pixels without
+  // going into the holes that were plugged by the original dilute.
+  const maskOutline = timed(() => detectAndDiluteLines(monocromeMask, width, height), 'erode mask');
+  writeToGrayscaleImageData(lineImageData, maskOutline);
+  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
+  timed(() => floodFill(maskCtx, 255, 255, 255, 0), 'flood fill mask again');
+};
+
+const erodeMask =  (maskCtx, lineImageData, monocromeMask, width, height) => {
+  const erosionWidth = 1; // must be same as dilution width;
+  const maskColor = 255;
+  const erodedMask = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
+
+  for (let x = erosionWidth; x < width - erosionWidth; x++) {
+    for (let y = erosionWidth; y < height - erosionWidth; y++) {
+      const color = subMatrixTouchesMask(monocromeMask, x, y, width, maskColor, 1) ? maskColor : 0;
+      erodedMask.data[y * width + x] = color;
+      // TODO: This can be done directly on the target image.
+    }
+  }
+
+  writeToGrayscaleImageData(lineImageData, erodedMask);
+  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
+};
+
+
 const process = (ctx, targetCtx, maskCtx, width, height) => {
   drawImageOnCanvas(ctx);
   let orderedCorners;
@@ -110,15 +140,11 @@ const process = (ctx, targetCtx, maskCtx, width, height) => {
 
   // turn image monocrome by clearing all pixels that are not part of the mask
   const monocromeMask = timed(() => getMonocromeMask(maskCtx, width, height), 'get monocrome mask');
+  timed(() => erodeMaskWithEdgeDetection(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 1');
 
-  // erode mask, removing the pixels that were added by diluting the original lines. This works
-  // by detecting the new mask outline, which is exactly one dilute distance from the real line. As
-  // dilute works in both directions, a second dilute will reclaim the missing pixels without
-  // going into the holes that were plugged by the original dilute.
-  const maskOutline = timed(() => detectAndDiluteLines(monocromeMask, width, height), 'erode mask');
-  writeToGrayscaleImageData(lineImageData, maskOutline);
-  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
-  timed(() => floodFill(maskCtx, 255, 255, 255, 0), 'flood fill mask again');
+  // erode mask without flood fill and line detect takes 63ms, the other 200. The result is almost
+  // as good.
+  //timed(() => erodeMask(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 2');
 
   timed(() => removeMask(maskCtx, targetCtx, width, height), 'remove mask');
 
