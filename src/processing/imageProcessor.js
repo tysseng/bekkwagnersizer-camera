@@ -140,11 +140,11 @@ const process = (ctx, targetCtx, maskCtx, width, height) => {
 
   // turn image monocrome by clearing all pixels that are not part of the mask
   const monocromeMask = timed(() => getMonocromeMask(maskCtx, width, height), 'get monocrome mask');
-  timed(() => erodeMaskWithEdgeDetection(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 1');
+  //timed(() => erodeMaskWithEdgeDetection(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 1');
 
   // erode mask without flood fill and line detect takes 63ms, the other 200. The result is almost
   // as good.
-  //timed(() => erodeMask(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 2');
+  timed(() => erodeMask(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 2');
 
   timed(() => removeMask(maskCtx, targetCtx, width, height), 'remove mask');
 

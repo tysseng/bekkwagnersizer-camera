@@ -8,12 +8,28 @@ export const detectAndDiluteLines = (image, width, height) => {
 };
 
 // TODO: Circular dilute
-const fillSubMatrix = (image, targetImage, x, y, width, color, dilutionWidth) => {
+const fillSubMatrix2 = (image, targetImage, x, y, width, color, dilutionWidth) => {
   for (let col = x - dilutionWidth; col <= x + dilutionWidth; col++) {
     for (let row = y - dilutionWidth; row <= y + dilutionWidth; row++) {
       targetImage.data[row * width + col] = color; // can be done more efficiently
     }
   }
+};
+
+// This only works with a 3x3 matrix but is slightly faster than the one above
+// star shaped dilution, may miss some holes!
+const fillSubMatrix = (image, targetImage, x, y, width, color, dilutionWidth) => {
+  let col = x - 1;
+  let row = y;
+  targetImage.data[row * width + col] = color; // can be done more efficiently
+
+  col++;
+  row = y-1;
+  targetImage.data[(row++) * width + col] = color; // can be done more efficiently
+  targetImage.data[(row++) * width + col] = color; // can be done more efficiently
+  targetImage.data[(row) * width + col] = color; // can be done more efficiently
+  col++;
+  targetImage.data[(y) * width + col] = color; // can be done more efficiently
 };
 
 export const diluteLines = (image, width, height, color, dilutionWidth) => {
@@ -28,7 +44,7 @@ export const diluteLines = (image, width, height, color, dilutionWidth) => {
   return targetImage;
 };
 
-export const subMatrixTouchesMask = (image, x, y, width, maskColor, erosionWidth) => {
+export const subMatrixTouchesMask2 = (image, x, y, width, maskColor, erosionWidth) => {
   for (let col = x - erosionWidth; col <= x + erosionWidth; col++) {
     for (let row = y - erosionWidth; row <= y + erosionWidth; row++) {
       if(image.data[row * width + col] === maskColor){
@@ -36,5 +52,22 @@ export const subMatrixTouchesMask = (image, x, y, width, maskColor, erosionWidth
       }
     }
   }
+  return false;
+};
+
+// This only works with a 3x3 matrix but is slightly faster than the one above
+export const subMatrixTouchesMask = (image, x, y, width, maskColor, erosionWidth) => {
+  let col = x - 1;
+  let row = y;
+  if(image.data[row * width + col] === maskColor) return true;
+
+  col++;
+  row = y-1;
+  if(image.data[(row++) * width + col] === maskColor) return true;
+  if(image.data[(row++) * width + col] === maskColor) return true;
+  if(image.data[(row) * width + col] === maskColor) return true;
+  col++;
+  if(image.data[(y) * width + col] === maskColor) return true;
+
   return false;
 };
