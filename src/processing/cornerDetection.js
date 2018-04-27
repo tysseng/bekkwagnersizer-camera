@@ -1,19 +1,14 @@
 import jsfeat from 'jsfeat';
+import { findBoundingBox, findBoundingCorners } from './boundingDetection'
+import { drawAllCorners, drawBoundingBox, drawCorners } from './draw';
+import { timed } from '../utils/timer';
+import { debug } from './config';
+import logger from "../utils/logger";
 
-const border = 5; //3 ok with fast corners
-// 3 box blur with radius 4 seems to remove dust from a 1024 x 1365 image
+const border = 5;
 const blurRadius = 4;
 
-/*
-Yape06 detected all corners with the following:
-border = 5
-blur = 4
-blurredImage
- */
-
 const findCorners = (image) => {
-
-  // TODO: Hvis man ikke finner fire hjørner som toucher bounding box, roter 20 grader og prøv igjen.
   const corners = [];
   for (let i = 0; i < image.cols * image.rows; ++i) {
     corners[i] = new jsfeat.keypoint_t(0, 0, 0, 0);
@@ -24,26 +19,20 @@ const findCorners = (image) => {
   return corners.slice(0, count);
 };
 
-export const detectCornersUsingOriginalImage = (image, width, height) => {
-  return findCorners(image);
-};
-
-export const detectCornersUsingDownscaledImage = (image, width, height) => {
-  const scaleFactor = 4;
-  const scaleHeight = Math.floor(height / scaleFactor);
-  const scaleWidth = Math.floor(width / scaleFactor);
-  const scaledImg = new jsfeat.matrix_t(Math.floor(scaleWidth), Math.floor(scaleHeight), jsfeat.U8_t | jsfeat.C1_t);
-  jsfeat.imgproc.resample(image, scaledImg, scaleWidth, scaleHeight);
-
-  return findCorners(scaledImg).map(corner => ({
-    x: corner.x * scaleFactor,
-    y: corner.y * scaleFactor
-  }));
-};
-
 export const detectCornersUsingBlurredImage = (image, width, height) => {
   // remove dust! without this it corner detection will trigger on the dust particles
   const blurredImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.imgproc.box_blur_gray(image, blurredImage, blurRadius);
   return findCorners(blurredImage);
+};
+
+export const detectSheetCorners = (ctx, image, width, height) => {
+  const corners = timed(() => detectCornersUsingBlurredImage(image, width, height), 'detect corners');
+  const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box');
+  const orderedCorners = timed(() => findBoundingCorners(boundingBox, corners), 'find bounding corners');
+  if(debug.drawBoundingBox) timed(() => drawBoundingBox(ctx, boundingBox), 'draw bounding box');
+  if(debug.drawSheetCorners) timed(() => drawCorners(ctx, orderedCorners), 'draw sheet corners');
+  if(debug.drawAllCorners) timed(() => drawAllCorners(ctx, corners), 'draw All Corners');
+  logger.info(orderedCorners);
+  return orderedCorners;
 };

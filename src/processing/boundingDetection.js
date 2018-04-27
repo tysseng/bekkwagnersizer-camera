@@ -11,8 +11,6 @@ export const findBoundingCorners = (boundingBox, corners) => {
   const rightCorners = corners.filter(corner => corner.x === boundingBox.bottomRight.x && corner.y !== boundingBox.bottomRight.y);
   const bottomCorners = corners.filter(corner => corner.x !== boundingBox.bottomRight.x && corner.y === boundingBox.bottomRight.y);
 
-  console.log({topCorners, leftCorners, rightCorners, bottomCorners});
-
   if(
     topCorners.length !== 1 ||
     leftCorners.length !== 1 ||
@@ -47,7 +45,6 @@ export const findBoundingCorners = (boundingBox, corners) => {
     bottomLeft: bottomLeft,
     bottomRight: bottomRight,
   }
-
 };
 
 

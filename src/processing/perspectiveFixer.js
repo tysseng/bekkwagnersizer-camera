@@ -1,4 +1,5 @@
 import fixperspective from 'fix-perspective';
+import { timed } from "../utils/timer";
 
 export const getPerspectiveCorrectionTransform = (orderedCorners, width, height) => {
   const from = [
@@ -34,19 +35,24 @@ const copyPixel = (sourceImgData, targetImgData, from, to, width, height) => {
   targetImgData.data[destPos+3] = sourceImgData.data[sourcePos+3];
 };
 
-export const correctPerspective = (ctx, targetCtx, transform, width, height) => {
+export const correctPerspective = (ctx, targetCtx, width, height, orderedCorners) => {
+
+  const transform = timed(() => getPerspectiveCorrectionTransform(orderedCorners, width, height), 'perspective correction transform');
+
   let x, y;
   let i = 0;
 
   const imageData = ctx.getImageData(x, y, width, height);
   const targetImageData = targetCtx.getImageData(x, y, width, height);
 
-  for(y = 0; y < height; y++){
-    for(x = 0; x < width; x++){
-      const out = transform(x, y);
-      copyPixel(imageData, targetImageData, {x,y}, out, width, height);
+  timed(() => {
+    for (y = 0; y < height; y++) {
+      for (x = 0; x < width; x++) {
+        const out = transform(x, y);
+        copyPixel(imageData, targetImageData, { x, y }, out, width, height);
+      }
     }
-  }
+  }, 'pixel copying inside correct perspective');
 
   targetCtx.putImageData(targetImageData, 0, 0);
 };

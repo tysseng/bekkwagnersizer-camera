@@ -1,11 +1,6 @@
 import jsfeat from 'jsfeat';
 
-export const detectLines = (image, width, height) => {
-  jsfeat.imgproc.canny(image, image, 30, 60);
-  return diluteLines(image, width, height, 255, 1);
-};
-
-export const erodeMask = (image, width, height) => {
+export const detectAndDiluteLines = (image, width, height) => {
   jsfeat.imgproc.canny(image, image, 30, 60);
   return diluteLines(image, width, height, 255, 1);
 };
@@ -30,9 +25,3 @@ export const diluteLines = (image, width, height, color, dilutionWidth) => {
   }
   return targetImage;
 };
-
-// dilute lines
-// fill. Make mask.
-// detect new lines
-// move along lines with transparency mask tilsvarende dilute mask og contract igjen. Så lenge line
-// detect er gjort på mask så burde dette funke (
