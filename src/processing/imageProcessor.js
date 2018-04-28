@@ -6,7 +6,7 @@ import { detectSheetCorners } from "./cornerDetection";
 import { detectAndDiluteLines, subMatrixTouchesMask } from "./lineDetection";
 import { timed } from "../utils/timer";
 import { drawImageOnCanvas, floodFill } from "./draw";
-import { findLogo } from './logoDetection';
+import { isLogoInRightCorner } from './logoDetection';
 
 const writeToGrayscaleImageData = (image_data, img) => {
   const data_u32 = new Uint32Array(image_data.data.buffer);
@@ -104,6 +104,106 @@ const erodeMask =  (maskCtx, lineImageData, monocromeMask, width, height) => {
   timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
 };
 
+const findDistance = (corner1, corner2) => {
+  const x = corner2.x - corner1.x;
+  const y = corner2.y - corner1.y;
+  return Math.sqrt(x*x + y*y);
+};
+
+const correctOrientation = (orderedCorners) => {
+  const {topLeft, topRight,bottomLeft,bottomRight} = orderedCorners;
+
+  const topLength = findDistance(topLeft, topRight);
+  const leftLength = findDistance(topLeft, bottomLeft);
+  const rightLength = findDistance(topRight, bottomRight);
+  const bottomLength = findDistance(bottomLeft, bottomRight);
+
+  if(topLength > leftLength) {
+    // sheet is placed in landscape mode, must rotate 90 degrees
+    return {
+      topLeft: bottomRight,
+      topRight: topLeft,
+      bottomRight: topRight,
+      bottomLeft: bottomLeft,
+    }
+  } else {
+    return orderedCorners;
+  }
+
+  console.log('lengths: ', {topLength, leftLength, rightLength, bottomLength});
+};
+
+const rotateGrayscale180 = (image) => {
+  const length = image.data.length;
+  for(let i=0; i< length / 2; i++){
+    const temp = image.data[i];
+    image.data[i] = image.data[length - i];
+    image.data[length -i] = temp;
+  }
+};
+
+const rotateColor180 = (data, length) => {
+  for(let i=0; i< length/2; i+=4){
+    const temp1 = data[i];
+    const temp2 = data[i+1];
+    const temp3 = data[i+2];
+    const temp4 = data[i+3];
+    data[i] = data[length - i];
+    data[i+1] = data[length - i + 1];
+    data[i+2] = data[length - i + 2];
+    data[i+3] = data[length - i + 3];
+    data[length - i] = temp1;
+    data[length - i + 1] = temp2;
+    data[length - i + 2] = temp3;
+    data[length - i + 3] = temp4;
+  }
+};
+
+const extractSheetUsingPerspectiveTransformation = (orderedCorners, ctx, targetCtx, width, height) => {
+
+  orderedCorners = correctOrientation(orderedCorners, ctx, width, height);
+
+  // TODO: This is a VERY expensive operation (approx 400ms, 1/3 of the total time). Check if
+  // we can get away with rotate and scale. This requires a better calibration of the camera's
+  // position to the table though
+  timed(() => correctPerspective(ctx, targetCtx, width, height, orderedCorners), 'correct perspective');
+
+  // Detect lines to prepare for flood fill
+  // TODO: Remove tiny islands
+  const grayPerspectiveCorrectedImage = getGrayscaleImage(targetCtx, width, height);
+
+  if(!isLogoInRightCorner(grayPerspectiveCorrectedImage, width, height)) {
+    timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
+    const imageData = targetCtx.getImageData(0, 0, width, height);
+    timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
+    targetCtx.putImageData(imageData, 0, 0);
+  }
+
+  return grayPerspectiveCorrectedImage;
+};
+
+const extractSheetUsingRotationAndScaling = (orderedCorners, ctx, targetCtx, width, height) => {
+
+  orderedCorners = correctOrientation(orderedCorners, ctx, width, height);
+
+  // TODO: This is a VERY expensive operation (approx 400ms, 1/3 of the total time). Check if
+  // we can get away with rotate and scale. This requires a better calibration of the camera's
+  // position to the table though
+  timed(() => correctPerspective(ctx, targetCtx, width, height, orderedCorners), 'correct perspective');
+
+  // Detect lines to prepare for flood fill
+  // TODO: Remove tiny islands
+  const grayPerspectiveCorrectedImage = getGrayscaleImage(targetCtx, width, height);
+
+  if(!isLogoInRightCorner(grayPerspectiveCorrectedImage, width, height)) {
+    timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
+    const imageData = targetCtx.getImageData(0, 0, width, height);
+    timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
+    targetCtx.putImageData(imageData, 0, 0);
+  }
+
+  return grayPerspectiveCorrectedImage;
+};
 
 const process = (ctx, targetCtx, maskCtx, width, height) => {
   drawImageOnCanvas(ctx);
@@ -121,16 +221,7 @@ const process = (ctx, targetCtx, maskCtx, width, height) => {
     // we wanted to draw on the original to keep the background color nice after rotation
   }
 
-  // TODO: This is a VERY expensive operation (approx 400ms, 1/3 of the total time). Check if
-  // we can get away with rotate and scale. This requires a better calibration of the camera's
-  // position to the table though
-  timed(() => correctPerspective(ctx, targetCtx, width, height, orderedCorners), 'correct perspective');
-
-  // Detect lines to prepare for flood fill
-  // TODO: Remove tiny islands
-  const grayPerspectiveCorrectedImage = getGrayscaleImage(targetCtx, width, height);
-
-  findLogo(grayPerspectiveCorrectedImage, width, height);
+  const grayPerspectiveCorrectedImage = extractSheetUsingPerspectiveTransformation(orderedCorners, ctx, targetCtx, width, height);
 
   const imageWithDilutedLines = timed(() => detectAndDiluteLines(
     grayPerspectiveCorrectedImage, width, height

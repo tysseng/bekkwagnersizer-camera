@@ -12,13 +12,15 @@ const getAverageColor = (image, x, y, width) => {
   return sum/area;
 };
 
-export const findLogo = (image, width, height) => {
+export const isLogoInRightCorner = (image, width, height) => {
   const topLeftColor = getAverageColor(image, logoCenter.x, logoCenter.y, width);
   const bottomRightColor = getAverageColor(image, width - logoCenter.x, height - logoCenter.y, width);
 
   if(topLeftColor < bottomRightColor) { // logo is black
     console.log("LOGO: logo is in correct corner");
+    return true;
   } else {
     console.log("LOGO: logo is in wrong corner, rotate sheet!");
+    return false;
   }
 }
