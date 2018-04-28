@@ -6,7 +6,7 @@ import { detectSheetCorners } from "./cornerDetection";
 import { detectAndDiluteLines, subMatrixTouchesMask } from "./lineDetection";
 import { timed } from "../utils/timer";
 import { drawImageOnCanvas, floodFill } from "./draw";
-
+import { findLogo } from './logoDetection';
 
 const writeToGrayscaleImageData = (image_data, img) => {
   const data_u32 = new Uint32Array(image_data.data.buffer);
@@ -129,6 +129,9 @@ const process = (ctx, targetCtx, maskCtx, width, height) => {
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
   const grayPerspectiveCorrectedImage = getGrayscaleImage(targetCtx, width, height);
+
+  findLogo(grayPerspectiveCorrectedImage, width, height);
+
   const imageWithDilutedLines = timed(() => detectAndDiluteLines(
     grayPerspectiveCorrectedImage, width, height
   ), 'detect lines');
