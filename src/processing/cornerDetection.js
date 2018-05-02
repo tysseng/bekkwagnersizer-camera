@@ -2,11 +2,12 @@ import jsfeat from 'jsfeat';
 import { findBoundingBox, findBoundingCorners } from './boundingDetection'
 import { drawAllCorners, drawBoundingBox, drawCorners } from './draw';
 import { timed } from '../utils/timer';
-import { debug } from './config';
+import config from './config';
 import logger from "../utils/logger";
 
 const border = 5;
 const blurRadius = 4;
+const debug = config.debug;
 
 const findCorners = (image) => {
   const corners = [];

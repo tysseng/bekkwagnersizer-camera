@@ -8,10 +8,10 @@ class CanvasComponent extends React.Component {
     const { imageLoaded, width, height } = nextProps;
 
     if(this.props.imageLoaded !== imageLoaded && imageLoaded===true){
-      const ctx = this.refs.canvas.getContext('2d');
+      const canvas = this.refs.canvas;
       const targetCtx = this.refs.targetCanvas.getContext('2d');
       const targetCtx2 = this.refs.targetCanvas2.getContext('2d');
-      this.props.processor(ctx, targetCtx, targetCtx2, width, height)
+      this.props.processor(canvas, targetCtx, targetCtx2, width, height)
     }
   }
 

@@ -1,4 +1,5 @@
 import jsfeat from 'jsfeat';
+import resizeCanvas from 'resize-canvas';
 import 'floodfill';
 import { correctPerspective } from "./perspectiveFixer";
 
@@ -7,6 +8,7 @@ import { detectAndDiluteLines, subMatrixTouchesMask } from "./lineDetection";
 import { timed } from "../utils/timer";
 import { drawCorners, drawImageOnCanvas, floodFill } from "./draw";
 import { isLogoInRightCorner } from './logoDetection';
+import config from './config';
 
 const writeToGrayscaleImageData = (image_data, img) => {
   const data_u32 = new Uint32Array(image_data.data.buffer);
@@ -222,7 +224,7 @@ const rotateOrderedCorners = (orderedCorners, width, height, angle) => {
     bottomLeft: rotateCorner(bottomLeft, width, height, angle),
     bottomRight: rotateCorner(bottomRight, width, height, angle)
   }
-}
+};
 
 const drawImageRotatedAroundCenter = (ctx, width, height, angle) => {
   ctx.translate(width/2, height/2);
@@ -230,9 +232,35 @@ const drawImageRotatedAroundCenter = (ctx, width, height, angle) => {
   ctx.translate(-width/2, -height/2);
   drawImageOnCanvas(ctx);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-}
+};
 
-const extractSheetUsingRotationAndScaling = (orderedCorners, ctx, targetCtx, width, height) => {
+const getSheetInfo = (orderedCorners) => {
+  const {topLeft, topRight, bottomLeft} = orderedCorners;
+  const width = topRight.x - topLeft.x;
+  const height = bottomLeft.y - bottomLeft.x;
+
+  return {
+    width,
+    height,
+    center: {
+      x: Math.floor(topLeft.x + (width / 2)),
+      y: Math.floor(topLeft.y - (height / 2))
+    }
+  }
+};
+
+const resizeFromCenter = (canvas, sheetInfo, targetSize) => {
+  const diffX = targetSize.width - sheetInfo.width;
+  const diffY = targetSize.height - sheetInfo.height;
+
+  resizeCanvas({
+    canvas: canvas,
+    diff: [diffX, diffY], // relative size adjustment
+    from: [sheetInfo.center.x, sheetInfo.center.y] // from bottom right
+  })
+};
+
+const extractSheetUsingRotationAndScaling = (orderedCorners, canvas, ctx, targetCtx, width, height) => {
   const rotation = findRotation(orderedCorners);
 
   // Rotate around center
@@ -241,6 +269,9 @@ const extractSheetUsingRotationAndScaling = (orderedCorners, ctx, targetCtx, wid
     orderedCorners = timed(() => rotateOrderedCorners(orderedCorners, width, height, -rotation), 'rotating ordered corners');
   }
   drawCorners(ctx, orderedCorners);
+
+  const sheetInfo = getSheetInfo(orderedCorners);
+  resizeFromCenter(canvas, sheetInfo, {width: config.outputWidth, height: config.outputHeight});
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
@@ -253,10 +284,13 @@ const extractSheetUsingRotationAndScaling = (orderedCorners, ctx, targetCtx, wid
     targetCtx.putImageData(imageData, 0, 0);
   }
 
+
+
   return grayPerspectiveCorrectedImage;
 };
 
-const process = (ctx, targetCtx, maskCtx, width, height) => {
+const process = (canvas, targetCtx, maskCtx, width, height) => {
+  const ctx = canvas.getContext('2d');
   drawImageOnCanvas(ctx);
   let orderedCorners;
   try {
@@ -272,7 +306,7 @@ const process = (ctx, targetCtx, maskCtx, width, height) => {
     // we wanted to draw on the original to keep the background color nice after rotation
   }
 
-  const grayPerspectiveCorrectedImage = extractSheetUsingRotationAndScaling(orderedCorners, ctx, targetCtx, width, height);
+  const grayPerspectiveCorrectedImage = extractSheetUsingRotationAndScaling(orderedCorners, canvas, ctx, targetCtx, width, height);
 
   const imageWithDilutedLines = timed(() => detectAndDiluteLines(
     grayPerspectiveCorrectedImage, width, height
@@ -300,9 +334,9 @@ const process = (ctx, targetCtx, maskCtx, width, height) => {
   // remaining black portions are mask, transfer mask to original bitmap
 };
 
-export default (ctx, targetCtx, targetCtx2, width, height) => {
+export default (canvas, targetCtx, targetCtx2, width, height) => {
   const startTime = new Date().getTime();
-  process(ctx, targetCtx, targetCtx2, width, height);
+  process(canvas, targetCtx, targetCtx2, width, height);
   const endTime = new Date().getTime();
 
   console.log('Finished, this took ' + (endTime - startTime) + 'ms', startTime, endTime);

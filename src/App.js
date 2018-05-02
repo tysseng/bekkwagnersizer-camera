@@ -4,9 +4,10 @@ import './App.css';
 import CanvasComponent from "./Canvas";
 import imageToProcess from './assets/images/IMG_6307.jpg';
 import processImage from './processing/imageProcessor';
+import config from './processing/config';
 
-const width=1024;
-const height=1365;
+const width=config.outputWidth;
+const height=config.outputHeight;
 
 class App extends Component {
 
