@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import CanvasComponent from "./Canvas";
-import imageToProcess from './assets/images/IMG_6307.jpg';
+import imageToProcess from './assets/images/IMG_6309.jpg';
 import processImage from './processing/imageProcessor';
 import config from './processing/config';
 

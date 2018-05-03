@@ -35,7 +35,7 @@ export const drawAllCorners = (ctx, corners) => {
   corners.forEach(corner => drawPoint(ctx, corner, 'red'))
 };
 
-const drawPoint = (ctx, point, color) => {
+export const drawPoint = (ctx, point, color) => {
   const radius = 6;
   ctx.beginPath();
   ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);

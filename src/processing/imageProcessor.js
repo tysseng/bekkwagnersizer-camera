@@ -6,9 +6,10 @@ import { correctPerspective } from "./perspectiveFixer";
 import { detectSheetCorners } from "./cornerDetection";
 import { detectAndDiluteLines, subMatrixTouchesMask } from "./lineDetection";
 import { timed } from "../utils/timer";
-import { drawCorners, drawImageOnCanvas, floodFill } from "./draw";
+import { drawCorners, drawImageOnCanvas, drawPoint, floodFill } from "./draw";
 import { isLogoInRightCorner } from './logoDetection';
 import config from './config';
+import logger from "../utils/logger";
 
 const writeToGrayscaleImageData = (image_data, img) => {
   const data_u32 = new Uint32Array(image_data.data.buffer);
@@ -70,7 +71,7 @@ const removeMask = (maskCtx, ctx, width, height) => {
 };
 
 const drawImageOnCanvasAndDetectCorners = (ctx, width, height, rotation = 0) => {
-  if(rotation !== 0 ){
+  if (rotation !== 0) {
     timed(() => drawImageRotatedAroundCenter(ctx, width, height, -rotation), 'rotate');
   } else {
     drawImageOnCanvas(ctx);
@@ -141,15 +142,17 @@ const findRotation = (orderedCorners) => {
   const y = topRight.y - topLeft.y;
 
   const angle = Math.atan(y / x);
-  console.log("Image is rotated", angle, x, y);
 
   const topLength = findDistance(topLeft, topRight);
   const leftLength = findDistance(topLeft, bottomLeft);
 
   if (topLength > leftLength) {
+    const correctedAngle = angle + Math.PI / 2;
+    console.log("Image is rotated", correctedAngle, (360 * correctedAngle) / (2 * Math.PI), x, y);
     // sheet is placed in landscape mode, add 90 degrees to rotation.
     return angle + Math.PI / 2;
   } else {
+    console.log("Image is rotated", angle, (360 * angle) / (2 * Math.PI), x, y);
     return angle;
   }
 
@@ -227,51 +230,138 @@ const rotateOrderedCorners = (orderedCorners, width, height, angle) => {
 };
 
 const drawImageRotatedAroundCenter = (ctx, width, height, angle) => {
-  ctx.translate(width/2, height/2);
+  ctx.translate(width / 2, height / 2);
   ctx.rotate(angle);
-  ctx.translate(-width/2, -height/2);
+  ctx.translate(-width / 2, -height / 2);
   drawImageOnCanvas(ctx);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 };
 
-const getSheetInfo = (orderedCorners) => {
-  const {topLeft, topRight, bottomLeft} = orderedCorners;
+
+const drawScaledAndRotatedAroundCenter = (
+  ctx,
+  width, height,
+  angle,
+  translateX, translateY,
+  scaleX, scaleY
+) => {
+
+  const centerX = width /2;
+  const centerY =height /2;
+
+  var sizeWidth = ctx.canvas.clientWidth;
+  var sizeHeight = ctx.canvas.clientHeight;
+
+  var scaleWidth = sizeWidth/100;
+  var scaleHeight = sizeHeight/100;
+
+  console.log({
+    sizeWidth, sizeHeight,
+    scaleWidth, scaleHeight,
+    width, height
+  })
+
+  ctx.translate(centerX, centerY);
+  ctx.rotate(angle);
+  ctx.translate(-centerX, -centerY);
+
+  ctx.translate(translateX, translateY);
+  ctx.beginPath();
+  ctx.arc(centerX, centerY,50,0,2*Math.PI);
+  ctx.stroke();
+
+  ctx.translate(centerX, centerY);
+  //ctx.scale(scaleX, scaleY);
+  const scale = 1.1;
+  ctx.scale(scale, scale);
+
+  ctx.beginPath();
+  ctx.arc(centerX, centerY,70,0,2*Math.PI);
+  ctx.stroke();
+  ctx.translate(-centerX, -centerY);
+
+
+
+  drawImageOnCanvas(ctx);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  ctx.beginPath();
+  ctx.moveTo(0,0);
+  ctx.lineTo(width, height);
+  ctx.stroke();
+  ctx.moveTo(0,height);
+  ctx.lineTo(width, 0);
+  ctx.stroke();
+};
+
+const getSheetInfo = (ctx, orderedCorners) => {
+  const { topLeft, topRight, bottomLeft, bottomRight } = orderedCorners;
   const width = topRight.x - topLeft.x;
-  const height = bottomLeft.y - bottomLeft.x;
+  //const width = bottomRight.x - bottomLeft.x;
+  const height = bottomLeft.y - topLeft.y;
+
+  const center = {
+    x: Math.floor(topLeft.x + (width / 2)),
+    //x: Math.floor(bottomLeft.x + (width / 2)),
+    y: Math.floor(bottomLeft.y - (height / 2))
+  };
+
+  drawPoint(ctx, center, 'red');
 
   return {
     width,
     height,
-    center: {
-      x: Math.floor(topLeft.x + (width / 2)),
-      y: Math.floor(topLeft.y - (height / 2))
-    }
+    center
   }
 };
 
-const resizeFromCenter = (canvas, sheetInfo, targetSize) => {
+const resizeFromCenter = (ctx, angle, sheetInfo, targetSize) => {
+
   const diffX = targetSize.width - sheetInfo.width;
   const diffY = targetSize.height - sheetInfo.height;
 
-  resizeCanvas({
-    canvas: canvas,
-    diff: [diffX, diffY], // relative size adjustment
-    from: [sheetInfo.center.x, sheetInfo.center.y] // from bottom right
+  const centerX = targetSize.width / 2;
+  const centerY = targetSize.height / 2;
+
+  const translateX = centerX - sheetInfo.center.x;
+  const translateY = centerY - sheetInfo.center.y;
+
+  console.log({
+    centerX,
+    centerY,
+    sheetInfo,
+    translateX,
+    translateY,
   })
+
+  const xScale = targetSize.width / sheetInfo.width;
+  const yScale = targetSize.height / sheetInfo.height;
+
+  console.log('Resizing from center', { sheetInfo, diffX, diffY, targetSize });
+
+  drawScaledAndRotatedAroundCenter(ctx, targetSize.width, targetSize.height, angle, translateX, translateY, xScale, yScale);
 };
 
-const extractSheetUsingRotationAndScaling = (orderedCorners, canvas, ctx, targetCtx, width, height) => {
+const extractSheetUsingRotationAndScaling = (
+  orderedCorners, canvas, ctx, targetCtx, width, height) => {
   const rotation = findRotation(orderedCorners);
 
   // Rotate around center
-  if(rotation !== 0){
+  if (rotation !== 0) {
     timed(() => drawImageRotatedAroundCenter(ctx, width, height, -rotation), 'rotating detected sheet');
     orderedCorners = timed(() => rotateOrderedCorners(orderedCorners, width, height, -rotation), 'rotating ordered corners');
   }
+
   drawCorners(ctx, orderedCorners);
 
-  const sheetInfo = getSheetInfo(orderedCorners);
-  resizeFromCenter(canvas, sheetInfo, {width: config.outputWidth, height: config.outputHeight});
+  // original center
+  drawPoint(ctx, {x: config.outputWidth/2, y: config.outputHeight/2}, 'blue');
+
+  const sheetInfo = getSheetInfo(ctx, orderedCorners);
+  resizeFromCenter(ctx, -rotation, sheetInfo, { width: config.outputWidth, height: config.outputHeight });
+
+  // post scaling center
+  drawPoint(ctx, {x: config.outputWidth/2, y: config.outputHeight/2}, 'green');
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
@@ -283,7 +373,6 @@ const extractSheetUsingRotationAndScaling = (orderedCorners, canvas, ctx, target
     timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
     targetCtx.putImageData(imageData, 0, 0);
   }
-
 
 
   return grayPerspectiveCorrectedImage;
@@ -308,6 +397,7 @@ const process = (canvas, targetCtx, maskCtx, width, height) => {
 
   const grayPerspectiveCorrectedImage = extractSheetUsingRotationAndScaling(orderedCorners, canvas, ctx, targetCtx, width, height);
 
+  /*
   const imageWithDilutedLines = timed(() => detectAndDiluteLines(
     grayPerspectiveCorrectedImage, width, height
   ), 'detect lines');
@@ -326,7 +416,7 @@ const process = (canvas, targetCtx, maskCtx, width, height) => {
   timed(() => erodeMask(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 2');
 
   timed(() => removeMask(maskCtx, targetCtx, width, height), 'remove mask');
-
+*/
   // aaaaand once more make monocrome image by keeping transparency black and rest white, this
   // removes all inner lines.
   // use line detection
