@@ -1,74 +1,12 @@
-import jsfeat from 'jsfeat';
-import resizeCanvas from 'resize-canvas';
+
 import 'floodfill';
-import { correctPerspective } from "./perspectiveFixer";
-
-import { detectSheetCorners } from "./cornerDetection";
-import { detectAndDiluteLines, subMatrixTouchesMask } from "./lineDetection";
+import { convertToGrayscaleJsfeatImage, mapToImageData } from './jsfeat.utils';
+import { detectSheetPosition } from "./sheetDetection";
+import { detectAndDiluteLines } from "./lineDetection";
 import { timed } from "../utils/timer";
-import { drawCorners, drawImageOnCanvas, drawPoint, floodFill } from "./draw";
-import { isLogoInRightCorner } from './logoDetection';
-import config from './config';
-import logger from "../utils/logger";
-
-const writeToGrayscaleImageData = (image_data, img) => {
-  const data_u32 = new Uint32Array(image_data.data.buffer);
-  const alpha = (0xff << 24);
-
-  let i = img.cols * img.rows, pix = 0;
-  while (--i >= 0) {
-    pix = img.data[i];
-    data_u32[i] = alpha | (pix << 16) | (pix << 8) | pix;
-  }
-};
-
-const getGrayscaleImage = (ctx, width, height) => {
-  return timed(() => {
-    const image_data = ctx.getImageData(0, 0, width, height);
-    const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
-    jsfeat.imgproc.grayscale(image_data.data, width, height, grayImage);
-    writeToGrayscaleImageData(image_data, grayImage);
-    //ctx.putImageData(image_data, 0, 0);
-    return grayImage;
-  }, 'get grayscale');
-};
-
-const getMonocromeMask = (ctx, width, height) => {
-  const maskImage = ctx.getImageData(0, 0, width, height);
-  const data = maskImage.data;
-
-  for (let i = 0; i < width * height * 4; i += 4) {
-    if (data[i + 3] === 255) {
-      data[i] = 0;
-      data[i + 1] = 0;
-      data[i + 2] = 0;
-    } else {
-      data[i] = 255;
-      data[i + 1] = 255;
-      data[i + 2] = 255;
-    }
-  }
-  ctx.putImageData(maskImage, 0, 0);
-  const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
-  jsfeat.imgproc.grayscale(maskImage.data, width, height, grayImage);
-  return grayImage;
-};
-
-// TODO: Faster to do this from a greyscale matrix, not a ctx?
-const removeMask = (maskCtx, ctx, width, height) => {
-  const mask = maskCtx.getImageData(0, 0, width, height);
-  const image = ctx.getImageData(0, 0, width, height);
-  const maskData = mask.data;
-  const imageData = image.data;
-
-  for (let i = 0; i < width * height * 4; i += 4) {
-    if (maskData[i] === 255 && maskData[i + 1] === 255 && maskData[i + 2] === 255) {
-      imageData[i + 3] = 0;
-    }
-  }
-
-  ctx.putImageData(image, 0, 0);
-};
+import { drawImageOnCanvas, drawImageRotatedAroundCenter, floodFill } from "./draw";
+import { extractSheetUsingRotationAndScaling } from "./sheetExtractorApproximate";
+import { erodeMask, getMonocromeMask, removeMask } from "./mask";
 
 const drawImageOnCanvasAndDetectCorners = (ctx, width, height, rotation = 0) => {
   if (rotation !== 0) {
@@ -76,311 +14,13 @@ const drawImageOnCanvasAndDetectCorners = (ctx, width, height, rotation = 0) => 
   } else {
     drawImageOnCanvas(ctx);
   }
-  const grayscaledImage = getGrayscaleImage(ctx, width, height);
-  return detectSheetCorners(ctx, grayscaledImage, width, height);
-};
-
-const erodeMaskWithEdgeDetection = (maskCtx, lineImageData, monocromeMask, width, height) => {
-
-  // erode mask, removing the pixels that were added by diluting the original lines. This works
-  // by detecting the new mask outline, which is exactly one dilute distance from the real line. As
-  // dilute works in both directions, a second dilute will reclaim the missing pixels without
-  // going into the holes that were plugged by the original dilute.
-  const maskOutline = timed(() => detectAndDiluteLines(monocromeMask, width, height), 'erode mask');
-  writeToGrayscaleImageData(lineImageData, maskOutline);
-  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
-  timed(() => floodFill(maskCtx, 255, 255, 255, 0), 'flood fill mask again');
-};
-
-const erodeMask = (maskCtx, lineImageData, monocromeMask, width, height) => {
-  const erosionWidth = 1; // must be same as dilution width;
-  const maskColor = 255;
-  const erodedMask = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
-
-  for (let x = erosionWidth; x < width - erosionWidth; x++) {
-    for (let y = erosionWidth; y < height - erosionWidth; y++) {
-      const color = subMatrixTouchesMask(monocromeMask, x, y, width, maskColor, 1) ? maskColor : 0;
-      erodedMask.data[y * width + x] = color;
-      // TODO: This can be done directly on the target image.
-    }
-  }
-
-  writeToGrayscaleImageData(lineImageData, erodedMask);
-  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
-};
-
-const findDistance = (corner1, corner2) => {
-  const x = corner2.x - corner1.x;
-  const y = corner2.y - corner1.y;
-  return Math.sqrt(x * x + y * y);
-};
-
-const correctOrientation = (orderedCorners) => {
-  const { topLeft, topRight, bottomLeft, bottomRight } = orderedCorners;
-
-  const topLength = findDistance(topLeft, topRight);
-  const leftLength = findDistance(topLeft, bottomLeft);
-  const rightLength = findDistance(topRight, bottomRight);
-  const bottomLength = findDistance(bottomLeft, bottomRight);
-
-  if (topLength > leftLength) {
-    // sheet is placed in landscape mode, must rotate 90 degrees
-    return {
-      topLeft: bottomRight,
-      topRight: topLeft,
-      bottomRight: topRight,
-      bottomLeft: bottomLeft,
-    }
-  } else {
-    return orderedCorners;
-  }
-};
-
-const findRotation = (orderedCorners) => {
-  const { topLeft, topRight, bottomLeft } = orderedCorners;
-  const x = topRight.x - topLeft.x;
-  const y = topRight.y - topLeft.y;
-
-  const angle = Math.atan(y / x);
-
-  const topLength = findDistance(topLeft, topRight);
-  const leftLength = findDistance(topLeft, bottomLeft);
-
-  if (topLength > leftLength) {
-    const correctedAngle = angle + Math.PI / 2;
-    console.log("Image is rotated", correctedAngle, (360 * correctedAngle) / (2 * Math.PI), x, y);
-    // sheet is placed in landscape mode, add 90 degrees to rotation.
-    return angle + Math.PI / 2;
-  } else {
-    console.log("Image is rotated", angle, (360 * angle) / (2 * Math.PI), x, y);
-    return angle;
-  }
-
-};
-
-
-const rotateGrayscale180 = (image) => {
-  const length = image.data.length;
-  for (let i = 0; i < length / 2; i++) {
-    const temp = image.data[i];
-    image.data[i] = image.data[length - i];
-    image.data[length - i] = temp;
-  }
-};
-
-const rotateColor180 = (data, length) => {
-  for (let i = 0; i < length / 2; i += 4) {
-    const temp1 = data[i];
-    const temp2 = data[i + 1];
-    const temp3 = data[i + 2];
-    const temp4 = data[i + 3];
-    data[i] = data[length - i];
-    data[i + 1] = data[length - i + 1];
-    data[i + 2] = data[length - i + 2];
-    data[i + 3] = data[length - i + 3];
-    data[length - i] = temp1;
-    data[length - i + 1] = temp2;
-    data[length - i + 2] = temp3;
-    data[length - i + 3] = temp4;
-  }
-};
-
-const extractSheetUsingPerspectiveTransformation = (
-  orderedCorners, ctx, targetCtx, width, height) => {
-
-  orderedCorners = correctOrientation(orderedCorners, ctx, width, height);
-
-  // TODO: This is a VERY expensive operation (approx 400ms, 1/3 of the total time). Check if
-  // we can get away with rotate and scale. This requires a better calibration of the camera's
-  // position to the table though
-  timed(() => correctPerspective(ctx, targetCtx, width, height, orderedCorners), 'correct perspective');
-
-  // Detect lines to prepare for flood fill
-  // TODO: Remove tiny islands
-  const grayPerspectiveCorrectedImage = getGrayscaleImage(targetCtx, width, height);
-
-  if (!isLogoInRightCorner(grayPerspectiveCorrectedImage, width, height)) {
-    timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
-    const imageData = targetCtx.getImageData(0, 0, width, height);
-    timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
-    targetCtx.putImageData(imageData, 0, 0);
-  }
-
-  return grayPerspectiveCorrectedImage;
-};
-
-const rotateCorner = (corner, width, height, angle) => {
-  const centerX = corner.x - (width / 2);
-  const centerY = corner.y - (height / 2);
-
-  const newX = (centerX * Math.cos(angle)) - (centerY * Math.sin(angle));
-  const newY = (centerY * Math.cos(angle)) + (centerX * Math.sin(angle));
-
-  return { x: Math.round(newX + (width / 2)), y: Math.round(newY + (height / 2)) };
-};
-
-const rotateOrderedCorners = (orderedCorners, width, height, angle) => {
-  const { topLeft, topRight, bottomLeft, bottomRight } = orderedCorners;
-  return {
-    topLeft: rotateCorner(topLeft, width, height, angle),
-    topRight: rotateCorner(topRight, width, height, angle),
-    bottomLeft: rotateCorner(bottomLeft, width, height, angle),
-    bottomRight: rotateCorner(bottomRight, width, height, angle)
-  }
-};
-
-const drawImageRotatedAroundCenter = (ctx, width, height, angle) => {
-  ctx.translate(width / 2, height / 2);
-  ctx.rotate(angle);
-  ctx.translate(-width / 2, -height / 2);
-  drawImageOnCanvas(ctx);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-};
-
-
-const drawScaledAndRotatedAroundCenter = (
-  ctx,
-  width, height,
-  angle,
-  translateX, translateY,
-  scaleX, scaleY
-) => {
-
-  const centerX = width /2;
-  const centerY =height /2;
-
-  var sizeWidth = ctx.canvas.clientWidth;
-  var sizeHeight = ctx.canvas.clientHeight;
-
-  var scaleWidth = sizeWidth/100;
-  var scaleHeight = sizeHeight/100;
-
-  console.log({
-    sizeWidth, sizeHeight,
-    scaleWidth, scaleHeight,
-    width, height
-  })
-
-  ctx.translate(centerX, centerY);
-  ctx.rotate(angle);
-  ctx.translate(-centerX, -centerY);
-
-  ctx.translate(translateX, translateY);
-  ctx.beginPath();
-  ctx.arc(centerX, centerY,50,0,2*Math.PI);
-  ctx.stroke();
-
-  ctx.translate(centerX, centerY);
-  //ctx.scale(scaleX, scaleY);
-  const scale = 1.1;
-  ctx.scale(scale, scale);
-
-  ctx.beginPath();
-  ctx.arc(centerX, centerY,70,0,2*Math.PI);
-  ctx.stroke();
-  ctx.translate(-centerX, -centerY);
-
-
-
-  drawImageOnCanvas(ctx);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-  ctx.beginPath();
-  ctx.moveTo(0,0);
-  ctx.lineTo(width, height);
-  ctx.stroke();
-  ctx.moveTo(0,height);
-  ctx.lineTo(width, 0);
-  ctx.stroke();
-};
-
-const getSheetInfo = (ctx, orderedCorners) => {
-  const { topLeft, topRight, bottomLeft, bottomRight } = orderedCorners;
-  const width = topRight.x - topLeft.x;
-  //const width = bottomRight.x - bottomLeft.x;
-  const height = bottomLeft.y - topLeft.y;
-
-  const center = {
-    x: Math.floor(topLeft.x + (width / 2)),
-    //x: Math.floor(bottomLeft.x + (width / 2)),
-    y: Math.floor(bottomLeft.y - (height / 2))
-  };
-
-  drawPoint(ctx, center, 'red');
-
-  return {
-    width,
-    height,
-    center
-  }
-};
-
-const resizeFromCenter = (ctx, angle, sheetInfo, targetSize) => {
-
-  const diffX = targetSize.width - sheetInfo.width;
-  const diffY = targetSize.height - sheetInfo.height;
-
-  const centerX = targetSize.width / 2;
-  const centerY = targetSize.height / 2;
-
-  const translateX = centerX - sheetInfo.center.x;
-  const translateY = centerY - sheetInfo.center.y;
-
-  console.log({
-    centerX,
-    centerY,
-    sheetInfo,
-    translateX,
-    translateY,
-  })
-
-  const xScale = targetSize.width / sheetInfo.width;
-  const yScale = targetSize.height / sheetInfo.height;
-
-  console.log('Resizing from center', { sheetInfo, diffX, diffY, targetSize });
-
-  drawScaledAndRotatedAroundCenter(ctx, targetSize.width, targetSize.height, angle, translateX, translateY, xScale, yScale);
-};
-
-const extractSheetUsingRotationAndScaling = (
-  orderedCorners, canvas, ctx, targetCtx, width, height) => {
-  const rotation = findRotation(orderedCorners);
-
-  // Rotate around center
-  if (rotation !== 0) {
-    timed(() => drawImageRotatedAroundCenter(ctx, width, height, -rotation), 'rotating detected sheet');
-    orderedCorners = timed(() => rotateOrderedCorners(orderedCorners, width, height, -rotation), 'rotating ordered corners');
-  }
-
-  drawCorners(ctx, orderedCorners);
-
-  // original center
-  drawPoint(ctx, {x: config.outputWidth/2, y: config.outputHeight/2}, 'blue');
-
-  const sheetInfo = getSheetInfo(ctx, orderedCorners);
-  resizeFromCenter(ctx, -rotation, sheetInfo, { width: config.outputWidth, height: config.outputHeight });
-
-  // post scaling center
-  drawPoint(ctx, {x: config.outputWidth/2, y: config.outputHeight/2}, 'green');
-
-  // Detect lines to prepare for flood fill
-  // TODO: Remove tiny islands
-  const grayPerspectiveCorrectedImage = getGrayscaleImage(ctx, width, height);
-
-  if (!isLogoInRightCorner(grayPerspectiveCorrectedImage, width, height)) {
-    timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
-    const imageData = targetCtx.getImageData(0, 0, width, height);
-    timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
-    targetCtx.putImageData(imageData, 0, 0);
-  }
-
-
-  return grayPerspectiveCorrectedImage;
+  const grayscaledImage = convertToGrayscaleJsfeatImage(ctx, width, height);
+  return detectSheetPosition(ctx, grayscaledImage, width, height);
 };
 
 const process = (canvas, targetCtx, maskCtx, width, height) => {
   const ctx = canvas.getContext('2d');
-  drawImageOnCanvas(ctx);
+
   let orderedCorners;
   try {
     orderedCorners = drawImageOnCanvasAndDetectCorners(ctx, width, height, 0);
@@ -390,33 +30,29 @@ const process = (canvas, targetCtx, maskCtx, width, height) => {
     // corners close to the edge, so we need to ignore those. Drawing on top of the existing image
     // works nicely as long as the sheet is not too close to the edge.
     orderedCorners = drawImageOnCanvasAndDetectCorners(ctx, width, height, 0.05);
-    // TODO: Test transforming the corners back to the original image instead of re-rotating the
-    // image (though this requires a copy of the original canvas, which we have NOT kept because
-    // we wanted to draw on the original to keep the background color nice after rotation
   }
 
-  const grayPerspectiveCorrectedImage = extractSheetUsingRotationAndScaling(orderedCorners, canvas, ctx, targetCtx, width, height);
+  const sheetImage = extractSheetUsingRotationAndScaling(orderedCorners, canvas, ctx, targetCtx, width, height);
 
-  /*
   const imageWithDilutedLines = timed(() => detectAndDiluteLines(
-    grayPerspectiveCorrectedImage, width, height
+    sheetImage, width, height
   ), 'detect lines');
 
   const lineImageData = timed(() => maskCtx.getImageData(0, 0, width, height), 'get image data');
-  writeToGrayscaleImageData(lineImageData, imageWithDilutedLines);
+  mapToImageData(imageWithDilutedLines, lineImageData);
   timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put line image to mask ctx');
   timed(() => floodFill(maskCtx, 255, 0, 0, 0.5), 'flood fill mask');
 
   // turn image monocrome by clearing all pixels that are not part of the mask
   const monocromeMask = timed(() => getMonocromeMask(maskCtx, width, height), 'get monocrome mask');
-  //timed(() => erodeMaskWithEdgeDetection(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 1');
 
   // erode mask without flood fill and line detect takes 63ms, the other 200. The result is almost
   // as good.
   timed(() => erodeMask(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 2');
+  //timed(() => erodeMaskWithEdgeDetection(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 1');
 
   timed(() => removeMask(maskCtx, targetCtx, width, height), 'remove mask');
-*/
+
   // aaaaand once more make monocrome image by keeping transparency black and rest white, this
   // removes all inner lines.
   // use line detection

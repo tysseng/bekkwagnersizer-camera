@@ -45,6 +45,14 @@ export const drawPoint = (ctx, point, color) => {
   ctx.stroke();
 };
 
+export const drawImageRotatedAroundCenter = (ctx, width, height, angle) => {
+  ctx.translate(width / 2, height / 2);
+  ctx.rotate(angle);
+  ctx.translate(-width / 2, -height / 2);
+  drawImageOnCanvas(ctx);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+};
+
 export const floodFill = (ctx, r, g, b, a) => {
   ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
   ctx.fillFlood(padding * 2, padding * 2, 32);
