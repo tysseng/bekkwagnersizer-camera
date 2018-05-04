@@ -4,14 +4,14 @@
 
 import { timed } from "../utils/timer";
 import { drawImageRotatedAroundCenter } from "./draw";
-import { isLogoInRightCorner } from './logoDetection';
+import { isLogoInCorrectCorner } from './logoDetection';
 import config from './config';
 import { distance } from './trigonometry';
-import { convertToGrayscaleJsfeatImage, rotateGrayscale180 } from './jsfeat.utils';
+import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
 import { rotateColor180 } from "./context.utils";
 
-const detectRotation = (orderedCorners) => {
-  const { topLeft, topRight, bottomLeft } = orderedCorners;
+const detectRotation = (sheetCorners) => {
+  const { topLeft, topRight, bottomLeft } = sheetCorners;
   const x = topRight.x - topLeft.x;
   const y = topRight.y - topLeft.y;
 
@@ -41,8 +41,8 @@ const rotateCorner = (corner, width, height, angle) => {
   return { x: Math.round(newX + (width / 2)), y: Math.round(newY + (height / 2)) };
 };
 
-const rotateSheetCorners = (orderedCorners, width, height, angle) => {
-  const { topLeft, topRight, bottomLeft, bottomRight } = orderedCorners;
+const rotateSheetCorners = (sheetCorners, width, height, angle) => {
+  const { topLeft, topRight, bottomLeft, bottomRight } = sheetCorners;
   return {
     topLeft: rotateCorner(topLeft, width, height, angle),
     topRight: rotateCorner(topRight, width, height, angle),
@@ -51,8 +51,8 @@ const rotateSheetCorners = (orderedCorners, width, height, angle) => {
   }
 };
 
-const getSheetInfo = (orderedCorners) => {
-  const { topLeft, topRight, bottomLeft } = orderedCorners;
+const getSheetInfo = (sheetCorners) => {
+  const { topLeft, topRight, bottomLeft } = sheetCorners;
   const width = topRight.x - topLeft.x;
   const height = bottomLeft.y - topLeft.y;
   const x = topLeft.x;
@@ -70,29 +70,32 @@ const resizeSheet = (sourceCanvas, targetCtx, sheetInfo, targetSize) => {
   );
 };
 
+// NB: canvas, input and output ctx'es are mutated.
 export const extractSheetUsingRotationAndScaling = (
-  sheetCorners, canvas, ctx, sheetCtx, width, height) => {
+  sheetCorners, inputCanvas, inputCtx, outputCtx, width, height) => {
   const rotation = detectRotation(sheetCorners);
 
   // Rotate around center to align with canvas outline
   if (rotation !== 0) {
-    timed(() => drawImageRotatedAroundCenter(ctx, width, height, -rotation), 'rotating sheet');
+    timed(() => drawImageRotatedAroundCenter(inputCtx, width, height, -rotation), 'rotating sheet');
     sheetCorners = timed(() => rotateSheetCorners(sheetCorners, width, height, -rotation), 'rotating corners');
   }
 
   const sheetInfo = getSheetInfo(sheetCorners);
-  timed(() => resizeSheet(canvas, sheetCtx, sheetInfo, { width: config.outputWidth, height: config.outputHeight }), 'resizing');
+  timed(() => resizeSheet(inputCanvas, outputCtx, sheetInfo, { width: config.outputWidth, height: config.outputHeight }), 'resizing');
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
-  const grayPerspectiveCorrectedImage = convertToGrayscaleJsfeatImage(sheetCtx, width, height);
+  const grayPerspectiveCorrectedImage = mapToJsFeatImageData(outputCtx, width, height);
 
-  if (!isLogoInRightCorner(grayPerspectiveCorrectedImage, width, height)) {
+  if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, width, height)) {
     timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
-    const imageData = sheetCtx.getImageData(0, 0, width, height);
+    const imageData = outputCtx.getImageData(0, 0, width, height);
     timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
-    sheetCtx.putImageData(imageData, 0, 0);
+    outputCtx.putImageData(imageData, 0, 0);
   }
-
-  return grayPerspectiveCorrectedImage;
+  return {
+    sheetImageBW: grayPerspectiveCorrectedImage,
+    sheetImageColorCtx: outputCtx,
+  };
 };

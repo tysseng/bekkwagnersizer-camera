@@ -1,9 +1,10 @@
 import { timed } from "../utils/timer";
 import jsfeat from 'jsfeat';
-import { detectAndDiluteLines, subMatrixTouchesMask } from "./lineDetection";
-import { mapToImageData } from "./jsfeat.utils";
+import { detectLines, subMatrixTouchesMask } from "./lineDetection";
+import { mapToCanvasImageData } from "./jsfeat.utils";
 import { floodFill } from "./draw";
 
+// TODO: Must be possible to do this faster, directly in a monocrome image
 export const getMonocromeMask = (ctx, width, height) => {
   const maskImage = ctx.getImageData(0, 0, width, height);
   const data = maskImage.data;
@@ -19,11 +20,11 @@ export const getMonocromeMask = (ctx, width, height) => {
       data[i + 2] = 255;
     }
   }
-  ctx.putImageData(maskImage, 0, 0);
   const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.imgproc.grayscale(maskImage.data, width, height, grayImage);
   return grayImage;
 };
+
 
 // TODO: Faster to do this from a greyscale matrix, not a ctx?
 export const removeMask = (maskCtx, ctx, width, height) => {
@@ -47,8 +48,8 @@ export const erodeMaskWithEdgeDetection = (maskCtx, lineImageData, monocromeMask
   // by detecting the new mask outline, which is exactly one dilute distance from the real line. As
   // dilute works in both directions, a second dilute will reclaim the missing pixels without
   // going into the holes that were plugged by the original dilute.
-  const maskOutline = timed(() => detectAndDiluteLines(monocromeMask, width, height), 'erode mask');
-  mapToImageData(maskOutline, lineImageData);
+  const maskOutline = timed(() => detectLines(monocromeMask, width, height), 'erode mask');
+  mapToCanvasImageData(maskOutline, lineImageData);
   timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
   timed(() => floodFill(maskCtx, 255, 255, 255, 0), 'flood fill mask again');
 };
@@ -60,12 +61,12 @@ export const erodeMask = (maskCtx, lineImageData, monocromeMask, width, height) 
 
   for (let x = erosionWidth; x < width - erosionWidth; x++) {
     for (let y = erosionWidth; y < height - erosionWidth; y++) {
-      const color = subMatrixTouchesMask(monocromeMask, x, y, width, maskColor, 1) ? maskColor : 0;
+      const color = subMatrixTouchesMask(monocromeMask, x, y, width, maskColor) ? maskColor : 0;
       erodedMask.data[y * width + x] = color;
       // TODO: This can be done directly on the target image.
     }
   }
 
-  mapToImageData(erodedMask, lineImageData);
+  mapToCanvasImageData(erodedMask, lineImageData);
   timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
 };

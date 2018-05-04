@@ -1,4 +1,4 @@
-const logoCenter = {x: 101, y: 110}
+const logoCenter = {x: 101, y: 110};
 const logoSamplePadding = 5;
 
 const getAverageColor = (image, x, y, width) => {
@@ -12,7 +12,7 @@ const getAverageColor = (image, x, y, width) => {
   return sum/area;
 };
 
-export const isLogoInRightCorner = (image, width, height) => {
+export const isLogoInCorrectCorner = (image, width, height) => {
   const topLeftColor = getAverageColor(image, logoCenter.x, logoCenter.y, width);
   const bottomRightColor = getAverageColor(image, width - logoCenter.x, height - logoCenter.y, width);
 

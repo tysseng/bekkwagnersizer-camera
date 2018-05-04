@@ -1,12 +1,12 @@
 import fixperspective from 'fix-perspective';
 import { timed } from "../utils/timer";
 
-export const getPerspectiveCorrectionTransform = (orderedCorners, width, height) => {
+export const getPerspectiveCorrectionTransform = (sheetCorners, width, height) => {
   const from = [
-    orderedCorners.topLeft,
-    orderedCorners.topRight,
-    orderedCorners.bottomRight,
-    orderedCorners.bottomLeft,
+    sheetCorners.topLeft,
+    sheetCorners.topRight,
+    sheetCorners.bottomRight,
+    sheetCorners.bottomLeft,
   ];
   const to = [
     {x: 0, y: 0},
@@ -35,9 +35,9 @@ const copyPixel = (sourceImgData, targetImgData, from, to, width, height) => {
   targetImgData.data[destPos+3] = sourceImgData.data[sourcePos+3];
 };
 
-export const correctPerspective = (ctx, targetCtx, width, height, orderedCorners) => {
+export const correctPerspective = (ctx, targetCtx, width, height, sheetCorners) => {
 
-  const transform = timed(() => getPerspectiveCorrectionTransform(orderedCorners, width, height), 'perspective correction transform');
+  const transform = timed(() => getPerspectiveCorrectionTransform(sheetCorners, width, height), 'perspective correction transform');
 
   let x, y;
   let i = 0;

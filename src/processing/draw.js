@@ -22,12 +22,12 @@ export const drawBoundingBox = (ctx, bb) => {
   ctx.stroke();
 };
 
-export const drawCorners = (ctx, orderedCorners) => {
+export const drawCorners = (ctx, sheetCorners) => {
   // draw in clockwise order
-  drawPoint(ctx, orderedCorners.topLeft, 'red');
-  drawPoint(ctx, orderedCorners.topRight, 'green');
-  drawPoint(ctx, orderedCorners.bottomRight, 'yellow');
-  drawPoint(ctx, orderedCorners.bottomLeft, 'blue');
+  drawPoint(ctx, sheetCorners.topLeft, 'red');
+  drawPoint(ctx, sheetCorners.topRight, 'green');
+  drawPoint(ctx, sheetCorners.bottomRight, 'yellow');
+  drawPoint(ctx, sheetCorners.bottomLeft, 'blue');
 };
 
 export const drawAllCorners = (ctx, corners) => {

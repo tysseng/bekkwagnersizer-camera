@@ -1,24 +1,24 @@
 import jsfeat from 'jsfeat';
 import { timed } from "../utils/timer";
 
-export const mapToImageData = (jsfeatImageData, canvasImageData) => {
+export const mapToCanvasImageData = (jsFeatImageData, canvasImageData) => {
   const data_u32 = new Uint32Array(canvasImageData.data.buffer);
   const alpha = (0xff << 24);
 
-  let i = jsfeatImageData.cols * jsfeatImageData.rows, pix = 0;
+  let i = jsFeatImageData.cols * jsFeatImageData.rows, pix = 0;
   while (--i >= 0) {
-    pix = jsfeatImageData.data[i];
+    pix = jsFeatImageData.data[i];
     data_u32[i] = alpha | (pix << 16) | (pix << 8) | pix;
   }
 };
 
-export const convertToGrayscaleJsfeatImage = (ctx, width, height) => {
+export const mapToJsFeatImageData = (ctx, width, height) => {
   return timed(() => {
-    const image_data = ctx.getImageData(0, 0, width, height);
-    const grayImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
-    jsfeat.imgproc.grayscale(image_data.data, width, height, grayImage);
+    const contextImageData = ctx.getImageData(0, 0, width, height);
+    const jsFeatImageData = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
+    jsfeat.imgproc.grayscale(contextImageData.data, width, height, jsFeatImageData);
     //writeToGrayscaleImageData(image_data, grayImage);
-    return grayImage;
+    return jsFeatImageData;
   }, 'get grayscale');
 };
 

@@ -3,13 +3,13 @@
 
 import { correctPerspective } from "./perspectiveFixer";
 import { timed } from "../utils/timer";
-import { isLogoInRightCorner } from './logoDetection';
+import { isLogoInCorrectCorner } from './logoDetection';
 import { distance } from './trigonometry';
-import { convertToGrayscaleJsfeatImage, rotateGrayscale180 } from './jsfeat.utils';
+import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
 import { rotateColor180 } from "./context.utils";
 
-const correctOrientation = (orderedCorners) => {
-  const { topLeft, topRight, bottomLeft, bottomRight } = orderedCorners;
+const correctOrientation = (sheetCorners) => {
+  const { topLeft, topRight, bottomLeft, bottomRight } = sheetCorners;
 
   const topLength = distance(topLeft, topRight);
   const leftLength = distance(topLeft, bottomLeft);
@@ -23,7 +23,7 @@ const correctOrientation = (orderedCorners) => {
       bottomLeft: bottomLeft,
     }
   } else {
-    return orderedCorners;
+    return sheetCorners;
   }
 };
 
@@ -40,9 +40,9 @@ const extractSheetUsingPerspectiveTransformation = (
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
-  const grayPerspectiveCorrectedImage = convertToGrayscaleJsfeatImage(sheetCtx, width, height);
+  const grayPerspectiveCorrectedImage = mapToJsFeatImageData(sheetCtx, width, height);
 
-  if (!isLogoInRightCorner(grayPerspectiveCorrectedImage, width, height)) {
+  if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, width, height)) {
     timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
     const imageData = sheetCtx.getImageData(0, 0, width, height);
     timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
