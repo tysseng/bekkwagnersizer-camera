@@ -5,6 +5,7 @@ import CanvasComponent from "./Canvas";
 import imageToProcess from './assets/images/IMG_6309.jpg';
 import processImage from './processing/imageProcessor';
 import config from './processing/config';
+import VideoComponent from "./video/VideoComponent";
 
 const width=config.outputWidth;
 const height=config.outputHeight;
@@ -37,6 +38,7 @@ class App extends Component {
         <p className="App-intro">
         </p>
         <div>
+          <span><VideoComponent/></span>
           <span>
             <img id='sourceImage' src={imageToProcess} alt='source' onLoad={() => this.sourceHasLoaded()}/>
           </span>

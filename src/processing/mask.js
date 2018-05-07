@@ -26,6 +26,23 @@ export const getMonocromeMask = (ctx, width, height) => {
 };
 
 
+export const erodeMask = (maskCtx, lineImageData, monocromeMask, width, height) => {
+  const erosionWidth = 1; // must be same as dilution width;
+  const maskColor = 255;
+  const erodedMask = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
+
+  for (let x = erosionWidth; x < width - erosionWidth; x++) {
+    for (let y = erosionWidth; y < height - erosionWidth; y++) {
+      const color = subMatrixTouchesMask(monocromeMask, x, y, width, maskColor) ? maskColor : 0;
+      erodedMask.data[y * width + x] = color;
+      // TODO: This can be done directly on the target image.
+    }
+  }
+
+  mapToCanvasImageData(erodedMask, lineImageData);
+  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
+};
+
 // TODO: Faster to do this from a greyscale matrix, not a ctx?
 export const removeMask = (maskCtx, ctx, width, height) => {
   const mask = maskCtx.getImageData(0, 0, width, height);
@@ -52,21 +69,4 @@ export const erodeMaskWithEdgeDetection = (maskCtx, lineImageData, monocromeMask
   mapToCanvasImageData(maskOutline, lineImageData);
   timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
   timed(() => floodFill(maskCtx, 255, 255, 255, 0), 'flood fill mask again');
-};
-
-export const erodeMask = (maskCtx, lineImageData, monocromeMask, width, height) => {
-  const erosionWidth = 1; // must be same as dilution width;
-  const maskColor = 255;
-  const erodedMask = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
-
-  for (let x = erosionWidth; x < width - erosionWidth; x++) {
-    for (let y = erosionWidth; y < height - erosionWidth; y++) {
-      const color = subMatrixTouchesMask(monocromeMask, x, y, width, maskColor) ? maskColor : 0;
-      erodedMask.data[y * width + x] = color;
-      // TODO: This can be done directly on the target image.
-    }
-  }
-
-  mapToCanvasImageData(erodedMask, lineImageData);
-  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
 };
