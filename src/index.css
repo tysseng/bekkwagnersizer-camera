@@ -6,3 +6,9 @@ body {
   background-repeat: repeat;
   background-color: #fff;
 }
+
+video {
+  background: #222;
+  margin: 0 0 20px 0;
+  width: 1024px;
+}

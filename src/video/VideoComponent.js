@@ -6,35 +6,40 @@ class VideoComponent extends React.Component {
   videoElement;
   videoCanvas;
 
-  componentDidMount() {
-    this.videoElement = document.querySelector('video');
-    this.videoCanvas = document.querySelector('canvas');
-    this.videoCanvas.width = 480;
-    this.videoCanvas.height = 360;
+  constructor(props){
+    super(props);
+    this.videoCanvas = props.canvas;
+    this.videoStreamLoaded = this.videoStreamLoaded.bind(this);
+    this.videoStreamLoadFailed = this.videoStreamLoadFailed.bind(this);
+    this.componentDidMount = this.componentDidMount.bind(this);
+  }
 
+  videoStreamLoaded(stream){
+    window.stream = stream; // make stream available to browser console
+    this.videoElement.srcObject = stream;
+  }
+
+  videoStreamLoadFailed(error){
+    console.log('Error loading video stream', error);
+  }
+
+  componentDidMount() {
+    const {width, height} = this.props;
+    this.videoElement = this.refs.video;
+    this.videoCanvas = this.refs.videoCanvas;
     const constraints = {
       audio: false,
       video: true
     };
 
-    function handleSuccess(stream) {
-      window.stream = stream; // make stream available to browser console
-      this.video.srcObject = stream;
-    }
-
-    function handleError(error) {
-      console.log('navigator.getUserMedia error: ', error);
-    }
-
-    navigator.mediaDevices.getUserMedia(constraints).
-    then(handleSuccess).catch(handleError);
+    navigator.getUserMedia(constraints, this.videoStreamLoaded, this.videoStreamLoadFailed);
   }
 
   captureVideo() {
-    this.videoCanvas.width = this.videoElement.videoWidth;
-    this.videoCanvas.height = this.videoElement.videoHeight;
-    this.videoCanvas.getContext('2d').
-    drawImage(this.videoElement, 0, 0, this.videoCanvas.width, this.videoCanvas.height);
+    this.videoCanvas
+      .getContext('2d')
+      .drawImage(this.videoElement, 0, 0, this.videoCanvas.width, this.videoCanvas.height);
+    this.props.processImage();
   }
 
   render() {
@@ -43,9 +48,9 @@ class VideoComponent extends React.Component {
 
     return (
       <div>
-        <video autoPlay></video>
-        <button onClick={() => this.captureVideo() }>Take snapshot</button>
-        <canvas></canvas>
+        <video ref="video" autoPlay></video>
+        <canvas ref="videoCanvas" width={width} height={height}></canvas>
+        <button onClick={() => this.captureVideo()}>Take snapshot</button>
       </div>
     );
   }

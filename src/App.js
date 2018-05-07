@@ -38,7 +38,7 @@ class App extends Component {
         <p className="App-intro">
         </p>
         <div>
-          <span><VideoComponent/></span>
+          <span><VideoComponent width={width} height={height} /></span>
           <span>
             <img id='sourceImage' src={imageToProcess} alt='source' onLoad={() => this.sourceHasLoaded()}/>
           </span>
