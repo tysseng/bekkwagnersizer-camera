@@ -4,7 +4,7 @@ export default {
     drawBoundingBox: true,
     drawAllCorners: false,
   },
-  outputWidth: 1365,
-  outputHeight: 1024,
+  outputWidth: 1024,
+  outputHeight: 1365,
 }
 

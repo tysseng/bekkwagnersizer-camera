@@ -10,5 +10,9 @@ body {
 video {
   background: #222;
   margin: 0 0 20px 0;
-  width: 1024px;
+  /*width: 1024px;*/
+}
+
+canvas {
+  border: 2px solid red;
 }
