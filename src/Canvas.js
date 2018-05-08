@@ -5,9 +5,10 @@ class CanvasComponent extends React.Component {
 
   componentWillReceiveProps(nextProps){
 
-    const { imageLoaded, width, height } = nextProps;
+    const { imageLoaded, width, height, sequenceNumber } = nextProps;
 
-    if(this.props.imageLoaded !== imageLoaded && imageLoaded===true){
+    if(sequenceNumber !== this.props.sequenceNumber && sequenceNumber > 0){
+      console.log("ANALYZE THIS");
       const canvas = this.refs.canvas;
       const targetCtx = this.refs.targetCanvas.getContext('2d');
       const targetCtx2 = this.refs.targetCanvas2.getContext('2d');

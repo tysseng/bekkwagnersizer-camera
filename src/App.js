@@ -7,8 +7,8 @@ import processImage from './processing/imageProcessor';
 import config from './processing/config';
 import VideoComponent from "./video/VideoComponent";
 
-const width=config.outputWidth;
-const height=config.outputHeight;
+const width = config.outputWidth;
+const height = config.outputHeight;
 
 class App extends Component {
 
@@ -16,20 +16,26 @@ class App extends Component {
     super(props);
     this.state = {
       sourceImageHasLoaded: false,
+      sequenceNumber: 0,
     };
     this.sourceHasLoaded = this.sourceHasLoaded.bind(this);
+    this.processImage = this.processImage.bind(this);
   }
 
 
-  sourceHasLoaded(){
+  sourceHasLoaded() {
     console.log('image has loaded');
     this.setState({
       sourceImageHasLoaded: true
     })
   }
 
-  render() {
+  processImage(sequenceNumber) {
+    console.log("Process image", sequenceNumber)
+    this.setState({ sequenceNumber: sequenceNumber });
+  }
 
+  render() {
 
 
     return (
@@ -41,11 +47,14 @@ class App extends Component {
         <p className="App-intro">
         </p>
         <div>
-          <span><VideoComponent width={width} height={height} /></span>
+          <span><VideoComponent width={width} height={height} processImage={this.processImage}/></span>
           <span>
-            <img id='sourceImage' src={imageToProcess} alt='source' onLoad={() => this.sourceHasLoaded()}/>
+            <img id='sourceImage' src={imageToProcess} alt='source'
+                 onLoad={() => this.sourceHasLoaded()}/>
           </span>
-          <span><CanvasComponent width={width} height={height} processor={processImage} imageLoaded={this.state.sourceImageHasLoaded}/></span>
+          <span><CanvasComponent width={width} height={height} processor={processImage}
+                                 imageLoaded={this.state.sourceImageHasLoaded}
+                                 sequenceNumber={this.state.sequenceNumber}/></span>
         </div>
       </div>
     );

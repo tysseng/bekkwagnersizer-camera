@@ -8,6 +8,9 @@ class VideoComponent extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      sequenceNumber: 1,
+    };
     this.videoCanvas = props.canvas;
     this.videoStreamLoaded = this.videoStreamLoaded.bind(this);
     this.videoStreamLoadFailed = this.videoStreamLoadFailed.bind(this);
@@ -38,7 +41,6 @@ class VideoComponent extends React.Component {
 
   captureVideo() {
     const { width, height } = this.props;
-    console.log('dims', {width, height});
     const ctx = this.videoCanvas.getContext('2d');
 
     // rotate canvas before drawing as other algorithms are based on a vertical image
@@ -47,7 +49,9 @@ class VideoComponent extends React.Component {
     ctx.translate(-height / 2, -width / 2);
     ctx.drawImage(this.videoElement, 0, 0, height, width);
 
-    //this.props.processImage();
+    let sequenceNumber = this.state.sequenceNumber;
+    this.props.processImage(sequenceNumber);
+    this.setState({sequenceNumber: sequenceNumber + 1});
   }
 
   render() {
