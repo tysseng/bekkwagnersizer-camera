@@ -1,12 +1,19 @@
-
 import 'floodfill';
-import { mapToJsFeatImageData, mapToCanvasImageData } from './jsfeat.utils';
+import { mapToJsFeatImageData } from './jsfeat.utils';
 import { detectSheetPosition } from "./sheetDetection";
 import { detectLines } from "./lineDetection";
 import { timed } from "../utils/timer";
-import { drawImageOnCanvas, drawImageRotatedAroundCenter, floodFill } from "./draw";
+import {
+  drawImageOnCanvas,
+  drawImageRotatedAroundCenter,
+  drawJsFeatImageOnContext,
+  floodFill
+} from "./draw";
 import { extractSheetUsingRotationAndScaling } from "./sheetExtractorApproximate";
 import { erodeMask, getMonocromeMask, removeMask } from "./mask";
+import { copyCanvas } from "./context.utils";
+import logger from '../utils/logger';
+import { removeLogosAndShit } from "./logoRemoval";
 
 const drawImageOnCanvasAndDetectCorners = (ctx, width, height, rotation = 0) => {
   if (rotation !== 0) {
@@ -18,60 +25,80 @@ const drawImageOnCanvasAndDetectCorners = (ctx, width, height, rotation = 0) => 
   return detectSheetPosition(ctx, grayscaledImage, width, height);
 };
 
-const process = (canvas, outputCtx, maskCtx, width, height) => {
-  const ctx = canvas.getContext('2d');
+const process = (canvases, canvas, outputCtx, maskCtx, width, height) => {
 
   let sheetCorners;
   try {
-    sheetCorners = drawImageOnCanvasAndDetectCorners(ctx, width, height, 0);
+    sheetCorners = drawImageOnCanvasAndDetectCorners(canvases.detectedSheet.ctx, width, height, 0);
   } catch (error) {
-
     // if fails, rotate and try again. 0.05 seems like a good rotation, though we get some false
     // corners close to the edge, so we need to ignore those. Drawing on top of the existing image
     // works nicely as long as the sheet is not too close to the edge.
-    sheetCorners = drawImageOnCanvasAndDetectCorners(ctx, width, height, 0.05);
+    sheetCorners = drawImageOnCanvasAndDetectCorners(canvases.detectedSheet.ctx, width, height, 0.05);
   }
 
-  // mutates original ctx
-  const {
-    sheetImageBW,
-    sheetImageColorCtx,
-  } = extractSheetUsingRotationAndScaling(sheetCorners, canvas, ctx, outputCtx, width, height);
+  // copy to be able to debug.
+  copyCanvas(canvases.detectedSheet, canvases.correctedSheet);
+
+  // extract sheet, also writes to correctedSheet canvases as intermediate steps.
+  const sheetImageBW = extractSheetUsingRotationAndScaling(
+    sheetCorners,
+    width,
+    height,
+    canvases.correctedSheet.canvas,
+    canvases.correctedSheet.ctx,
+    canvases.correctedSheet2.ctx,
+  );
 
   // find lines to prepare for flood fill
   const jsFeatImageWithDilutedLines = timed(() => detectLines(sheetImageBW, width, height), 'detect lines');
+  drawJsFeatImageOnContext(jsFeatImageWithDilutedLines, canvases.edges.ctx, width, height);
 
-  // write image with lines to mask canvas to flood fill
-  // TODO: See if this can be done more efficiently directly on the lineImageData.
-  const lineImageData = timed(() => maskCtx.getImageData(0, 0, width, height), 'get image data');
-  mapToCanvasImageData(jsFeatImageWithDilutedLines, lineImageData);
-  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put line image to mask ctx');
+  // copy to be able to debug.
+  copyCanvas(canvases.edges, canvases.removedElements);
 
-  timed(() => floodFill(maskCtx, 255, 0, 0, 0.5), 'flood fill mask');
+  // remove logos and other stuff
+  removeLogosAndShit(canvases.removedElements.ctx);
+
+  // copy to be able to debug.
+  copyCanvas(canvases.removedElements, canvases.filled);
+
+  // flood fill outside (e.g. the part that will be our mask)
+  timed(() => floodFill(canvases.filled.ctx, 255, 0, 0, 0.5), 'flood fill mask');
 
   // turn image monocrome by clearing all pixels that are not part of the mask
-  const monocromeMask = timed(() => getMonocromeMask(maskCtx, width, height), 'get monocrome mask');
+  const monocromeMask = timed(() => getMonocromeMask(
+    canvases.filled.ctx, width, height
+  ), 'get monocrome mask');
 
-  // erode mask without flood fill and line detect takes 63ms, the other 200. The result is almost
-  // as good.
-  timed(() => erodeMask(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 2');
-  //timed(() => erodeMaskWithEdgeDetection(maskCtx, lineImageData, monocromeMask, width, height), 'mask erosion 1');
+  // erode mask, putting back the pixels that were added when the lines were diluted during edge
+  // detection
+  timed(() => erodeMask(
+    canvases.mask.ctx,
+    canvases.edges.ctx,
+    monocromeMask,
+    width,
+    height
+  ), 'mask erosion');
 
-  timed(() => removeMask(maskCtx, sheetImageColorCtx, width, height), 'remove mask');
-
-  // aaaaand once more make monocrome image by keeping transparency black and rest white, this
-  // removes all inner lines.
-  // use line detection
-  // run dilate with black
-  // remaining black portions are mask, transfer mask to original bitmap
+  timed(() => removeMask(
+    canvases.mask.ctx,
+    canvases.correctedSheet2.ctx,
+    canvases.extracted.ctx,
+    width,
+    height
+  ), 'remove mask');
 };
 
-export default (canvas, targetCtx, targetCtx2, width, height) => {
+export default (canvases, width, height) => {
+  const canvas = canvases.videoFrame.canvas;
+  const targetCtx = canvases.detectedSheet.ctx;
+  const targetCtx2 = canvases.correctedSheet.ctx;
   const startTime = new Date().getTime();
-  process(canvas, targetCtx, targetCtx2, width, height);
+  process(canvases, canvas, targetCtx, targetCtx2, width, height);
   const endTime = new Date().getTime();
 
-  console.log('Finished, this took ' + (endTime - startTime) + 'ms', startTime, endTime);
+  logger.info('Finished, this took ' + (endTime - startTime) + 'ms', startTime, endTime);
 }
 
 // TODO

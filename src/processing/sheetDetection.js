@@ -1,7 +1,7 @@
 import jsfeat from 'jsfeat';
 import { drawAllCorners, drawBoundingBox, drawCorners } from './draw';
 import { timed } from '../utils/timer';
-import config from './config';
+import config from '../config';
 
 const border = 5;
 const blurRadius = 4;

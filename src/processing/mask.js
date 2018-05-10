@@ -26,7 +26,8 @@ export const getMonocromeMask = (ctx, width, height) => {
 };
 
 
-export const erodeMask = (maskCtx, lineImageData, monocromeMask, width, height) => {
+export const erodeMask = (maskCtx, edgesCtx, monocromeMask, width, height) => {
+  const lineImageData = edgesCtx.getImageData(0, 0, width, height);
   const erosionWidth = 1; // must be same as dilution width;
   const maskColor = 255;
   const erodedMask = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
@@ -44,9 +45,9 @@ export const erodeMask = (maskCtx, lineImageData, monocromeMask, width, height) 
 };
 
 // TODO: Faster to do this from a greyscale matrix, not a ctx?
-export const removeMask = (maskCtx, ctx, width, height) => {
+export const removeMask = (maskCtx, ctxToFilter, filteredCtx, width, height) => {
   const mask = maskCtx.getImageData(0, 0, width, height);
-  const image = ctx.getImageData(0, 0, width, height);
+  const image = ctxToFilter.getImageData(0, 0, width, height);
   const maskData = mask.data;
   const imageData = image.data;
 
@@ -56,7 +57,7 @@ export const removeMask = (maskCtx, ctx, width, height) => {
     }
   }
 
-  ctx.putImageData(image, 0, 0);
+  filteredCtx.putImageData(image, 0, 0);
 };
 
 export const erodeMaskWithEdgeDetection = (maskCtx, lineImageData, monocromeMask, width, height) => {

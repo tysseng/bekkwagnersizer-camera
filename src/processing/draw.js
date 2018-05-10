@@ -1,4 +1,5 @@
 import { timed } from "../utils/timer";
+import { mapToCanvasImageData } from "./jsfeat.utils";
 
 const padding = 20;
 
@@ -51,6 +52,12 @@ export const drawImageRotatedAroundCenter = (ctx, width, height, angle) => {
   ctx.translate(-width / 2, -height / 2);
   drawImageOnCanvas(ctx);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+};
+
+export const drawJsFeatImageOnContext = (jsFeatImage, ctx, width, height) => {
+  const imageData = timed(() => ctx.getImageData(0, 0, width, height), 'get image data');
+  mapToCanvasImageData(jsFeatImage, imageData);
+  timed(() => ctx.putImageData(imageData, 0, 0), 'put image to ctx');
 };
 
 export const floodFill = (ctx, r, g, b, a) => {

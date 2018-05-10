@@ -5,10 +5,11 @@
 import { timed } from "../utils/timer";
 import { drawImageRotatedAroundCenter } from "./draw";
 import { isLogoInCorrectCorner } from './logoDetection';
-import config from './config';
+import config from '../config';
 import { distance } from './trigonometry';
 import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
 import { rotateColor180 } from "./context.utils";
+import logger from '../utils/logger';
 
 const detectRotation = (sheetCorners) => {
   const { topLeft, topRight, bottomLeft } = sheetCorners;
@@ -22,11 +23,11 @@ const detectRotation = (sheetCorners) => {
 
   if (topLength > leftLength) {
     const correctedAngle = angle + Math.PI / 2;
-    console.log("Image is rotated", correctedAngle, (360 * correctedAngle) / (2 * Math.PI), x, y);
+    logger.info("Image is rotated", correctedAngle, (360 * correctedAngle) / (2 * Math.PI), x, y);
     // sheet is placed in landscape mode, add 90 degrees to rotation.
     return angle + Math.PI / 2;
   } else {
-    console.log("Image is rotated", angle, (360 * angle) / (2 * Math.PI), x, y);
+    logger.info("Image is rotated", angle, (360 * angle) / (2 * Math.PI), x, y);
     return angle;
   }
 };
@@ -72,30 +73,33 @@ const resizeSheet = (sourceCanvas, targetCtx, sheetInfo, targetSize) => {
 
 // NB: canvas, input and output ctx'es are mutated.
 export const extractSheetUsingRotationAndScaling = (
-  sheetCorners, inputCanvas, inputCtx, outputCtx, width, height) => {
+  sheetCorners,
+  width,
+  height,
+  rotatedCanvas,
+  rotatedCtx,
+  resizedCtx,
+) => {
   const rotation = detectRotation(sheetCorners);
 
   // Rotate around center to align with canvas outline
   if (rotation !== 0) {
-    timed(() => drawImageRotatedAroundCenter(inputCtx, width, height, -rotation), 'rotating sheet');
+    timed(() => drawImageRotatedAroundCenter(rotatedCtx, width, height, -rotation), 'rotating sheet');
     sheetCorners = timed(() => rotateSheetCorners(sheetCorners, width, height, -rotation), 'rotating corners');
   }
 
   const sheetInfo = getSheetInfo(sheetCorners);
-  timed(() => resizeSheet(inputCanvas, outputCtx, sheetInfo, { width: config.outputWidth, height: config.outputHeight }), 'resizing');
+  timed(() => resizeSheet(rotatedCanvas, resizedCtx, sheetInfo, { width: config.outputWidth, height: config.outputHeight }), 'resizing');
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
-  const grayPerspectiveCorrectedImage = mapToJsFeatImageData(outputCtx, width, height);
+  const grayPerspectiveCorrectedImage = mapToJsFeatImageData(resizedCtx, width, height);
 
   if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, width, height)) {
     timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
-    const imageData = outputCtx.getImageData(0, 0, width, height);
+    const imageData = resizedCtx.getImageData(0, 0, width, height);
     timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
-    outputCtx.putImageData(imageData, 0, 0);
+    resizedCtx.putImageData(imageData, 0, 0);
   }
-  return {
-    sheetImageBW: grayPerspectiveCorrectedImage,
-    sheetImageColorCtx: outputCtx,
-  };
+  return grayPerspectiveCorrectedImage;
 };

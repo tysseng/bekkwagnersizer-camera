@@ -1,4 +1,7 @@
-const logoCenter = {x: 101, y: 110};
+import logger from '../utils/logger';
+import config from '../config';
+
+const logoCenter = config.logoDetectionPosition;
 const logoSamplePadding = 5;
 
 const getAverageColor = (image, x, y, width) => {
@@ -17,10 +20,10 @@ export const isLogoInCorrectCorner = (image, width, height) => {
   const bottomRightColor = getAverageColor(image, width - logoCenter.x, height - logoCenter.y, width);
 
   if(topLeftColor < bottomRightColor) { // logo is black
-    console.log("LOGO: logo is in correct corner");
+    logger.info("LOGO: logo is in correct corner");
     return true;
   } else {
-    console.log("LOGO: logo is in wrong corner, rotate sheet!");
+    logger.info("LOGO: logo is in wrong corner, rotate sheet!");
     return false;
   }
 }
