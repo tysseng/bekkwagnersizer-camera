@@ -8,7 +8,7 @@ import { isLogoInCorrectCorner } from './logoDetection';
 import config from '../config';
 import { distance } from './trigonometry';
 import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
-import { rotateColor180 } from "./context.utils";
+import { copyCanvas, rotateColor180 } from "./context.utils";
 import logger from '../utils/logger';
 
 const detectRotation = (sheetCorners) => {
@@ -63,7 +63,7 @@ const getSheetInfo = (sheetCorners) => {
 };
 
 const resizeSheet = (sourceCanvas, targetCtx, sheetInfo, targetSize) => {
-  const {x, y, height, width } = sheetInfo;
+  const { x, y, height, width } = sheetInfo;
   targetCtx.drawImage(
     sourceCanvas,
     x, y, width, height, // from
@@ -76,20 +76,35 @@ export const extractSheetUsingRotationAndScaling = (
   sheetCorners,
   width,
   height,
-  rotatedCanvas,
-  rotatedCtx,
-  resizedCtx,
+  prerotation, // if image has been rotated to detect corners, subtract this.
+  canvases,
+
 ) => {
+
+  const rotatedCanvas = canvases.correctedSheetRotation.canvas;
+  const rotatedCtx = canvases.correctedSheetRotation.ctx;
+  const resizedCtx = canvases.correctedSheetScaling.ctx;
+  const flippedCtx = canvases.correctedSheetFlipping.ctx;
+
   const rotation = detectRotation(sheetCorners);
 
   // Rotate around center to align with canvas outline
   if (rotation !== 0) {
-    timed(() => drawImageRotatedAroundCenter(rotatedCtx, width, height, -rotation), 'rotating sheet');
+    // as we redraw the picture based on the initial (unrotated) frame, we need to subtract
+    // any pre-rotation done during corner detection.
+    timed(() => drawImageRotatedAroundCenter(rotatedCtx, width, height, -prerotation - rotation), 'rotating sheet');
     sheetCorners = timed(() => rotateSheetCorners(sheetCorners, width, height, -rotation), 'rotating corners');
   }
 
   const sheetInfo = getSheetInfo(sheetCorners);
-  timed(() => resizeSheet(rotatedCanvas, resizedCtx, sheetInfo, { width: config.outputWidth, height: config.outputHeight }), 'resizing');
+  timed(() => resizeSheet(rotatedCanvas, resizedCtx, sheetInfo, {
+    width: config.outputWidth,
+    height: config.outputHeight
+  }), 'resizing');
+
+  // for debugging
+  console.log(canvases)
+  copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
@@ -97,9 +112,9 @@ export const extractSheetUsingRotationAndScaling = (
 
   if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, width, height)) {
     timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
-    const imageData = resizedCtx.getImageData(0, 0, width, height);
+    const imageData = flippedCtx.getImageData(0, 0, width, height);
     timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
-    resizedCtx.putImageData(imageData, 0, 0);
+    flippedCtx.putImageData(imageData, 0, 0);
   }
   return grayPerspectiveCorrectedImage;
 };

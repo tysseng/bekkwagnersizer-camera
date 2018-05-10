@@ -2,6 +2,7 @@ import jsfeat from 'jsfeat';
 import { drawAllCorners, drawBoundingBox, drawCorners } from './draw';
 import { timed } from '../utils/timer';
 import config from '../config';
+import logger from "../utils/logger";
 
 const border = 5;
 const blurRadius = 4;
@@ -64,7 +65,8 @@ const findSheetCorners = (boundingBox, corners) => {
     rightCorners.length !== 1 ||
     bottomCorners.length !== 1
   ) {
-    throw Error('Sheet may be too much aligned with camera, rotate slightly and try again')
+    logger.error('Sheet may be too much aligned with camera, rotate slightly and try again');
+    return null;
   }
 
   const topCorner = topCorners[0];
@@ -98,7 +100,9 @@ export const detectSheetPosition = (ctx, image, width, height) => {
   const corners = timed(() => findCornerCandidatesUsingBlurredImage(image, width, height), 'detect corners');
   const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box');
   const sheetCorners = timed(() => findSheetCorners(boundingBox, corners), 'find bounding corners');
-
+  if(sheetCorners === null){
+    return null;
+  }
   if(debug.drawBoundingBox) timed(() => drawBoundingBox(ctx, boundingBox), 'draw bounding box');
   if(debug.drawSheetCorners) timed(() => drawCorners(ctx, sheetCorners), 'draw sheet corners');
   if(debug.drawAllCorners) timed(() => drawAllCorners(ctx, corners), 'draw All Corners');

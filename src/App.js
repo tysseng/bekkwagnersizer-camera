@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import imageToProcess from './assets/images/IMG_6309.jpg';
+import imageToProcess from './assets/images/IMG_6326.jpg';
 import processImage from './processing/imageProcessor';
 import config from './config';
 import VideoCapturer from "./video/VideoCapturer";
@@ -43,7 +43,12 @@ class App extends Component {
 
   processImage(sequenceNumber) {
     logger.info("Process image", sequenceNumber);
-    processImage(this.state.canvases, width, height)
+    try {
+      processImage(this.state.canvases, width, height)
+    } catch (error){
+      logger.error('Could not complete image processing');
+      logger.error(error);
+    }
   }
 
   captureCanvases() {
@@ -57,6 +62,8 @@ class App extends Component {
       this.refs.canvas7,
       this.refs.canvas8,
       this.refs.canvas9,
+      this.refs.canvas10,
+      this.refs.canvas11,
     ];
 
     let curr = 0;
@@ -65,8 +72,10 @@ class App extends Component {
       canvases = {
         videoFrame: { canvas: all[curr++] },
         detectedSheet: { canvas: all[curr++] },
-        correctedSheet: { canvas: all[curr++] },
-        correctedSheet2: { canvas: all[curr++] },
+        detectedSheetRotated: { canvas: all[curr++] },
+        correctedSheetRotation: { canvas: all[curr++] },
+        correctedSheetScaling: { canvas: all[curr++] },
+        correctedSheetFlipping: { canvas: all[curr++] },
         edges: { canvas: all[curr++] },
         removedElements: { canvas: all[curr++] },
         filled: { canvas: all[curr++] },
@@ -79,8 +88,10 @@ class App extends Component {
 
     setSize(canvases.videoFrame, width, height);
     setSize(canvases.detectedSheet, width, height);
-    setSize(canvases.correctedSheet, width, height);
-    setSize(canvases.correctedSheet2, width, height);
+    setSize(canvases.detectedSheetRotated, width, height);
+    setSize(canvases.correctedSheetRotation, width, height);
+    setSize(canvases.correctedSheetScaling, width, height);
+    setSize(canvases.correctedSheetFlipping, width, height);
     setSize(canvases.edges, width, height);
     setSize(canvases.removedElements, width, height);
     setSize(canvases.filled, width, height);
@@ -120,32 +131,40 @@ class App extends Component {
             <canvas ref="canvas2"/>
           </div>
           <div>
-            <h3>Corrected sheet 1 (rotation)</h3>
+            <h3>DetectedSheet, second try (rotated)</h3>
             <canvas ref="canvas3"/>
           </div>
           <div>
-            <h3>CorrectedSheet 2 (scaling)</h3>
+            <h3>Corrected sheet 1 (rotation)</h3>
             <canvas ref="canvas4"/>
           </div>
           <div>
-            <h3>Edges</h3>
+            <h3>CorrectedSheet 2 (scaling)</h3>
             <canvas ref="canvas5"/>
           </div>
           <div>
-            <h3>Removed logo etc</h3>
+            <h3>CorrectedSheet 3 (flipping)</h3>
             <canvas ref="canvas6"/>
           </div>
           <div>
-            <h3>Filled</h3>
+            <h3>Edges</h3>
             <canvas ref="canvas7"/>
           </div>
           <div>
-            <h3>Mask (eroded)</h3>
+            <h3>Removed logo etc</h3>
             <canvas ref="canvas8"/>
           </div>
           <div>
-            <h3>Extracted</h3>
+            <h3>Filled</h3>
             <canvas ref="canvas9"/>
+          </div>
+          <div>
+            <h3>Mask (eroded)</h3>
+            <canvas ref="canvas10"/>
+          </div>
+          <div>
+            <h3>Extracted</h3>
+            <canvas ref="canvas11"/>
           </div>
         </div>
       </div>

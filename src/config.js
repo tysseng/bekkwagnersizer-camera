@@ -24,6 +24,6 @@ export default {
   logoDetectionPosition: {x: 101, y: 110},
 
   // bounding box for removing logo
-  logoBoundingBox: {x: 40, y: 48, width: 480, height: 110}
+  logoBoundingBox: {x: 40, y: 48, width: 480, height: 120}
 }
 

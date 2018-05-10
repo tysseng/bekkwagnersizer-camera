@@ -25,29 +25,39 @@ const drawImageOnCanvasAndDetectCorners = (ctx, width, height, rotation = 0) => 
   return detectSheetPosition(ctx, grayscaledImage, width, height);
 };
 
-const process = (canvases, canvas, outputCtx, maskCtx, width, height) => {
+const process = (canvases, width, height) => {
 
   let sheetCorners;
-  try {
-    sheetCorners = drawImageOnCanvasAndDetectCorners(canvases.detectedSheet.ctx, width, height, 0);
-  } catch (error) {
-    // if fails, rotate and try again. 0.05 seems like a good rotation, though we get some false
+  let detectedSheetCanvasContainer;
+  let prerotation = 0;
+
+  sheetCorners = drawImageOnCanvasAndDetectCorners(canvases.detectedSheet.ctx, width, height, 0);
+  detectedSheetCanvasContainer = canvases.detectedSheet;
+
+  if(sheetCorners === null){
+    // rotate and try again. 0.05 seems like a good rotation, though we get some false
     // corners close to the edge, so we need to ignore those. Drawing on top of the existing image
     // works nicely as long as the sheet is not too close to the edge.
-    sheetCorners = drawImageOnCanvasAndDetectCorners(canvases.detectedSheet.ctx, width, height, 0.05);
+    // TODO: This may not be necessary when doing centered-above photos.
+    prerotation = 0.10;
+    sheetCorners = drawImageOnCanvasAndDetectCorners(canvases.detectedSheetRotated.ctx, width, height, prerotation);
+    detectedSheetCanvasContainer = canvases.detectedSheetRotated;
+  }
+
+  if(sheetCorners === null){
+    throw Error('Could not detect sheet corners');
   }
 
   // copy to be able to debug.
-  copyCanvas(canvases.detectedSheet, canvases.correctedSheet);
+  copyCanvas(detectedSheetCanvasContainer, canvases.correctedSheetRotation);
 
   // extract sheet, also writes to correctedSheet canvases as intermediate steps.
   const sheetImageBW = extractSheetUsingRotationAndScaling(
     sheetCorners,
     width,
     height,
-    canvases.correctedSheet.canvas,
-    canvases.correctedSheet.ctx,
-    canvases.correctedSheet2.ctx,
+    prerotation,
+    canvases,
   );
 
   // find lines to prepare for flood fill
@@ -83,7 +93,7 @@ const process = (canvases, canvas, outputCtx, maskCtx, width, height) => {
 
   timed(() => removeMask(
     canvases.mask.ctx,
-    canvases.correctedSheet2.ctx,
+    canvases.correctedSheetFlipping.ctx,
     canvases.extracted.ctx,
     width,
     height
@@ -91,11 +101,8 @@ const process = (canvases, canvas, outputCtx, maskCtx, width, height) => {
 };
 
 export default (canvases, width, height) => {
-  const canvas = canvases.videoFrame.canvas;
-  const targetCtx = canvases.detectedSheet.ctx;
-  const targetCtx2 = canvases.correctedSheet.ctx;
   const startTime = new Date().getTime();
-  process(canvases, canvas, targetCtx, targetCtx2, width, height);
+  process(canvases, width, height);
   const endTime = new Date().getTime();
 
   logger.info('Finished, this took ' + (endTime - startTime) + 'ms', startTime, endTime);
