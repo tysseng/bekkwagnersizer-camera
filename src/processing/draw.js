@@ -3,10 +3,10 @@ import { mapToCanvasImageData } from "./jsfeat.utils";
 
 const padding = 20;
 
-export const drawImageOnCanvas = (ctx) => {
+export const drawImageOnCanvas = (imageCanvas, ctx) => {
   timed(() => {
-    const img = document.getElementById("sourceImage");
-    ctx.drawImage(img, 0, 0);
+    //const img = document.getElementById("sourceImage");
+    ctx.drawImage(imageCanvas, 0, 0);
   }, 'draw image on canvas');
 };
 
@@ -46,11 +46,19 @@ export const drawPoint = (ctx, point, color) => {
   ctx.stroke();
 };
 
-export const drawImageRotatedAroundCenter = (ctx, width, height, angle) => {
+export const drawCircle = (ctx, point) => {
+  ctx.beginPath();
+  ctx.arc(point.x, point.y, point.radius, 0, 2 * Math.PI, false);
+  ctx.lineWidth = '2';
+  ctx.strokeStyle = 'red';
+  ctx.stroke();
+};
+
+export const drawImageRotatedAroundCenter = (imageCanvas, ctx, width, height, angle) => {
   ctx.translate(width / 2, height / 2);
   ctx.rotate(angle);
   ctx.translate(-width / 2, -height / 2);
-  drawImageOnCanvas(ctx);
+  drawImageOnCanvas(imageCanvas, ctx);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 };
 

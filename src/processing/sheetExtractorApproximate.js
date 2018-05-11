@@ -74,13 +74,16 @@ const resizeSheet = (sourceCanvas, targetCtx, sheetInfo, targetSize) => {
 // NB: canvas, input and output ctx'es are mutated.
 export const extractSheetUsingRotationAndScaling = (
   sheetCorners,
-  width,
-  height,
+  frameWidth,
+  frameHeight,
+  sheetWidth,
+  sheetHeight,
   prerotation, // if image has been rotated to detect corners, subtract this.
   canvases,
 
 ) => {
 
+  const imageCanvas = canvases.videoFrame.canvas;
   const rotatedCanvas = canvases.correctedSheetRotation.canvas;
   const rotatedCtx = canvases.correctedSheetRotation.ctx;
   const resizedCtx = canvases.correctedSheetScaling.ctx;
@@ -92,28 +95,27 @@ export const extractSheetUsingRotationAndScaling = (
   if (rotation !== 0) {
     // as we redraw the picture based on the initial (unrotated) frame, we need to subtract
     // any pre-rotation done during corner detection.
-    timed(() => drawImageRotatedAroundCenter(rotatedCtx, width, height, -prerotation - rotation), 'rotating sheet');
-    sheetCorners = timed(() => rotateSheetCorners(sheetCorners, width, height, -rotation), 'rotating corners');
+    timed(() => drawImageRotatedAroundCenter(imageCanvas, rotatedCtx, frameWidth, frameHeight, -prerotation - rotation), 'rotating sheet');
+    sheetCorners = timed(() => rotateSheetCorners(sheetCorners, frameWidth, frameHeight, -rotation), 'rotating corners');
   }
 
   const sheetInfo = getSheetInfo(sheetCorners);
   timed(() => resizeSheet(rotatedCanvas, resizedCtx, sheetInfo, {
-    width: config.outputWidth,
-    height: config.outputHeight
+    width: sheetWidth,
+    height: sheetHeight,
   }), 'resizing');
 
   // for debugging
-  console.log(canvases)
   copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
-  const grayPerspectiveCorrectedImage = mapToJsFeatImageData(resizedCtx, width, height);
+  const grayPerspectiveCorrectedImage = mapToJsFeatImageData(resizedCtx, sheetWidth, sheetHeight);
 
-  if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, width, height)) {
+  if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, sheetWidth, sheetHeight)) {
     timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
-    const imageData = flippedCtx.getImageData(0, 0, width, height);
-    timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
+    const imageData = flippedCtx.getImageData(0, 0, sheetWidth, sheetHeight);
+    timed(() => rotateColor180(imageData.data, sheetHeight * sheetWidth * 4), 'rotating color image');
     flippedCtx.putImageData(imageData, 0, 0);
   }
   return grayPerspectiveCorrectedImage;

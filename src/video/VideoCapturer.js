@@ -2,22 +2,22 @@
 import React from 'react';
 import config from '../config';
 import logger from '../utils/logger';
+import { drawCircle } from "../processing/draw";
 
-const { videoSize, videoDrawingAreaSize } = config;
-const videoOffsetX = (videoSize.width - videoDrawingAreaSize.width) / 2;
-const videoOffsetY = (videoSize.height - videoDrawingAreaSize.height) / 2;
+const { videoCircle } = config;
+const videoOffsetX = videoCircle.x - videoCircle.radius;
+const videoOffsetY = videoCircle.y - videoCircle.radius;
+
 
 class VideoCapturer extends React.Component {
 
   videoElement;
-  videoCanvas;
 
   constructor(props) {
     super(props);
     this.state = {
       sequenceNumber: 1,
     };
-    this.videoCanvas = props.canvas;
     this.videoStreamLoaded = this.videoStreamLoaded.bind(this);
     this.videoStreamLoadFailed = this.videoStreamLoadFailed.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
@@ -36,10 +36,20 @@ class VideoCapturer extends React.Component {
 
   componentDidMount() {
     this.videoElement = this.refs.video;
-    this.videoCanvas = this.refs.videoCanvas;
     const constraints = {
       audio: false,
-      video: true
+      video: {
+        width: {
+          min: 1280,
+          ideal: 3840,
+          max: 3840
+        },
+        height: {
+          min: 720,
+          ideal: 2160,
+          max: 2160
+        }
+      }
     };
 
     navigator.getUserMedia(constraints, this.videoStreamLoaded, this.videoStreamLoadFailed);
@@ -52,29 +62,28 @@ class VideoCapturer extends React.Component {
   }
 
   captureVideoFrame() {
-    const { canvasDrawingAreaSize } = config;
-    const ctx = this.videoCanvas.getContext('2d');
+    const { width, height } = config.videoFrameSize;
+    const ctx = this.props.canvases.videoFrame.ctx;
 
     // capture, crop and scale video, making sure we only get the part of the video frame that
     // contains our circular drawing area.
     ctx.drawImage(this.videoElement,
-      videoOffsetX, videoOffsetY,
-      videoDrawingAreaSize.width, videoDrawingAreaSize.height,
-      0, 0, canvasDrawingAreaSize.width, canvasDrawingAreaSize.height);
+      videoOffsetX, videoOffsetY, videoCircle.radius, videoCircle.radius, // source
+      0, 0, width, height); // target
+
+    // Draw crop circle
+    drawCircle(ctx, { x: width / 2, y: width / 2, radius: width / 2 });
 
     // tell the world that a new image is ready.
     this.props.processImage(this.getSequenceNumber());
   }
 
   render() {
-    const { videoSize, canvasDrawingAreaSize } = config;
+    const { videoSize } = config;
     return (
       <div>
         <button onClick={() => this.captureVideoFrame()}>Capture!</button>
         <video ref="video" width={videoSize.width} autoPlay/>
-        <canvas ref="videoCanvas"
-                width={canvasDrawingAreaSize.width}
-                height={canvasDrawingAreaSize.width}/>
       </div>
     );
   }

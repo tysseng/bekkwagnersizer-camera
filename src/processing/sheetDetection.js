@@ -3,12 +3,24 @@ import { drawAllCorners, drawBoundingBox, drawCorners } from './draw';
 import { timed } from '../utils/timer';
 import config from '../config';
 import logger from "../utils/logger";
+import { distance } from "./trigonometry";
 
 const border = 5;
 const blurRadius = 4;
 const debug = config.debug;
+const drawingCircleRadiusWithPadding = (config.videoFrameSize.width / 2) - 5;
 
-const findCornerCandidatesUsingBlurredImage = (image, width, height) => {
+const drawingCircleCenter = {
+  x: config.videoFrameSize.width / 2,
+  y: config.videoFrameSize.height / 2,
+};
+
+const isInsideDrawingCircle = (corner) => {
+  return distance(corner, drawingCircleCenter) < drawingCircleRadiusWithPadding;
+};
+
+const findCornerCandidatesUsingBlurredImage = (image) => {
+  const {width, height} = config.videoFrameSize;
   // removes dust! without this it corner detection will trigger on the dust particles
   const blurredImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.imgproc.box_blur_gray(image, blurredImage, blurRadius);
@@ -23,7 +35,7 @@ const findCornerCandidates = (image) => {
 
   //yape06 works well with blurred image, not at all with the others
   const count = jsfeat.yape06.detect(image, corners, border);
-  return corners.slice(0, count);
+  return corners.slice(0, count).filter(corner => isInsideDrawingCircle(corner));
 };
 
 // finds the outermost detected points in all directions
@@ -96,8 +108,8 @@ const findSheetCorners = (boundingBox, corners) => {
   }
 };
 
-export const detectSheetPosition = (ctx, image, width, height) => {
-  const corners = timed(() => findCornerCandidatesUsingBlurredImage(image, width, height), 'detect corners');
+export const detectSheetPosition = (ctx, image) => {
+  const corners = timed(() => findCornerCandidatesUsingBlurredImage(image), 'detect corners');
   const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box');
   const sheetCorners = timed(() => findSheetCorners(boundingBox, corners), 'find bounding corners');
   if(sheetCorners === null){

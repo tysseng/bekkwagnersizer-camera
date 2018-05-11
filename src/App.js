@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import imageToProcess from './assets/images/IMG_6326.jpg';
+import imageToProcess from './assets/images/IMG_6307.jpg';
 import processImage from './processing/imageProcessor';
 import config from './config';
 import VideoCapturer from "./video/VideoCapturer";
 import logger from './utils/logger';
 
-const width = config.outputWidth;
-const height = config.outputHeight;
-
-const setSize = (container, width, height) => {
+const setSize = (container, {width, height}) => {
   container.canvas.width = width;
   container.canvas.height = height;
 };
@@ -44,8 +41,8 @@ class App extends Component {
   processImage(sequenceNumber) {
     logger.info("Process image", sequenceNumber);
     try {
-      processImage(this.state.canvases, width, height)
-    } catch (error){
+      processImage(this.state.canvases);
+    } catch (error) {
       logger.error('Could not complete image processing');
       logger.error(error);
     }
@@ -86,17 +83,17 @@ class App extends Component {
 
     }
 
-    setSize(canvases.videoFrame, width, height);
-    setSize(canvases.detectedSheet, width, height);
-    setSize(canvases.detectedSheetRotated, width, height);
-    setSize(canvases.correctedSheetRotation, width, height);
-    setSize(canvases.correctedSheetScaling, width, height);
-    setSize(canvases.correctedSheetFlipping, width, height);
-    setSize(canvases.edges, width, height);
-    setSize(canvases.removedElements, width, height);
-    setSize(canvases.filled, width, height);
-    setSize(canvases.mask, width, height);
-    setSize(canvases.extracted, width, height);
+    setSize(canvases.videoFrame, config.videoFrameSize);
+    setSize(canvases.detectedSheet, config.videoFrameSize);
+    setSize(canvases.detectedSheetRotated, config.videoFrameSize);
+    setSize(canvases.correctedSheetRotation, config.videoFrameSize);
+    setSize(canvases.correctedSheetScaling, config.sheetSize);
+    setSize(canvases.correctedSheetFlipping, config.sheetSize);
+    setSize(canvases.edges, config.sheetSize);
+    setSize(canvases.removedElements, config.sheetSize);
+    setSize(canvases.filled, config.sheetSize);
+    setSize(canvases.mask, config.sheetSize);
+    setSize(canvases.extracted, config.sheetSize);
 
     Object.keys(canvases).forEach(key => {
       canvases[key].ctx = canvases[key].canvas.getContext('2d');
@@ -115,11 +112,11 @@ class App extends Component {
         <p className="App-intro">
         </p>
         <div>
-          <span><VideoCapturer processImage={this.processImage}/></span>
-          <span>
+          <VideoCapturer processImage={this.processImage} canvases={this.state.canvases}/>
+          {/*<span>
             <img id='sourceImage' src={imageToProcess} alt='source'
                  onLoad={() => this.sourceHasLoaded()}/>
-          </span>
+          </span>*/}
         </div>
         <div className='canvases'>
           <div>

@@ -14,24 +14,34 @@ import { erodeMask, getMonocromeMask, removeMask } from "./mask";
 import { copyCanvas } from "./context.utils";
 import logger from '../utils/logger';
 import { removeLogosAndShit } from "./logoRemoval";
+import config from "../config";
 
-const drawImageOnCanvasAndDetectCorners = (ctx, width, height, rotation = 0) => {
+const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rotation = 0) => {
   if (rotation !== 0) {
-    timed(() => drawImageRotatedAroundCenter(ctx, width, height, -rotation), 'rotate');
+    timed(() => drawImageRotatedAroundCenter(imageCanvas, ctx, width, height, -rotation), 'rotate');
   } else {
-    drawImageOnCanvas(ctx);
+    drawImageOnCanvas(imageCanvas, ctx);
   }
   const grayscaledImage = mapToJsFeatImageData(ctx, width, height);
-  return detectSheetPosition(ctx, grayscaledImage, width, height);
+  return detectSheetPosition(ctx, grayscaledImage);
 };
 
-const process = (canvases, width, height) => {
+const process = (canvases) => {
 
   let sheetCorners;
   let detectedSheetCanvasContainer;
   let prerotation = 0;
 
-  sheetCorners = drawImageOnCanvasAndDetectCorners(canvases.detectedSheet.ctx, width, height, 0);
+  const { width: frameWidth, height: frameHeight } = config.videoFrameSize;
+  const { width: sheetWidth, height: sheetHeight } = config.sheetSize;
+
+  sheetCorners = drawImageOnCanvasAndDetectCorners(
+    canvases.videoFrame.canvas,
+    canvases.detectedSheet.ctx,
+    frameWidth,
+    frameHeight,
+    0
+  );
   detectedSheetCanvasContainer = canvases.detectedSheet;
 
   if(sheetCorners === null){
@@ -40,7 +50,13 @@ const process = (canvases, width, height) => {
     // works nicely as long as the sheet is not too close to the edge.
     // TODO: This may not be necessary when doing centered-above photos.
     prerotation = 0.10;
-    sheetCorners = drawImageOnCanvasAndDetectCorners(canvases.detectedSheetRotated.ctx, width, height, prerotation);
+    sheetCorners = drawImageOnCanvasAndDetectCorners(
+      canvases.videoFrame.canvas,
+      canvases.detectedSheetRotated.ctx,
+      frameWidth,
+      frameHeight,
+      prerotation
+    );
     detectedSheetCanvasContainer = canvases.detectedSheetRotated;
   }
 
@@ -54,15 +70,17 @@ const process = (canvases, width, height) => {
   // extract sheet, also writes to correctedSheet canvases as intermediate steps.
   const sheetImageBW = extractSheetUsingRotationAndScaling(
     sheetCorners,
-    width,
-    height,
+    frameWidth,
+    frameHeight,
+    sheetWidth,
+    sheetHeight,
     prerotation,
     canvases,
   );
 
   // find lines to prepare for flood fill
-  const jsFeatImageWithDilutedLines = timed(() => detectLines(sheetImageBW, width, height), 'detect lines');
-  drawJsFeatImageOnContext(jsFeatImageWithDilutedLines, canvases.edges.ctx, width, height);
+  const jsFeatImageWithDilutedLines = timed(() => detectLines(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');
+  drawJsFeatImageOnContext(jsFeatImageWithDilutedLines, canvases.edges.ctx, sheetWidth, sheetHeight);
 
   // copy to be able to debug.
   copyCanvas(canvases.edges, canvases.removedElements);
@@ -78,7 +96,7 @@ const process = (canvases, width, height) => {
 
   // turn image monocrome by clearing all pixels that are not part of the mask
   const monocromeMask = timed(() => getMonocromeMask(
-    canvases.filled.ctx, width, height
+    canvases.filled.ctx, sheetWidth, sheetHeight
   ), 'get monocrome mask');
 
   // erode mask, putting back the pixels that were added when the lines were diluted during edge
@@ -87,22 +105,22 @@ const process = (canvases, width, height) => {
     canvases.mask.ctx,
     canvases.edges.ctx,
     monocromeMask,
-    width,
-    height
+    sheetWidth,
+    sheetHeight
   ), 'mask erosion');
 
   timed(() => removeMask(
     canvases.mask.ctx,
     canvases.correctedSheetFlipping.ctx,
     canvases.extracted.ctx,
-    width,
-    height
+    sheetWidth,
+    sheetHeight
   ), 'remove mask');
 };
 
-export default (canvases, width, height) => {
+export default (canvases) => {
   const startTime = new Date().getTime();
-  process(canvases, width, height);
+  process(canvases);
   const endTime = new Date().getTime();
 
   logger.info('Finished, this took ' + (endTime - startTime) + 'ms', startTime, endTime);
