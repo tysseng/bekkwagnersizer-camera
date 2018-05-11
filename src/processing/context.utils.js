@@ -18,3 +18,12 @@ export const rotateColor180 = (data, length) => {
 export const copyCanvas = (source, target) => {
   target.ctx.drawImage(source.canvas, 0, 0);
 };
+
+export const getColorFromImageData = (data, point, width) => {
+  const i = (point.y * width + point.x) * 4;
+  return {
+    r: data[i],
+    g: data[i+1],
+    b: data[i+2],
+  }
+};

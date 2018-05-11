@@ -30,3 +30,10 @@ export const isApproximatelyPerpendicular = (centerPoint, point2, point3) => {
 
   return angle >= lowerBound && angle <= upperBound;
 };
+
+export const getPointFromAngle = (angle, center, radius) => {
+  return {
+    x: Math.floor(center.x + radius * Math.cos(angle)),
+    y: Math.floor(center.y + radius * Math.sin(angle))
+  }
+};

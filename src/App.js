@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import imageToProcess from './assets/images/IMG_6307.jpg';
-import processImage from './processing/imageProcessor';
+import { processImage, processBaseline } from './processing/imageProcessor';
 import config from './config';
 import VideoCapturer from "./video/VideoCapturer";
 import logger from './utils/logger';
 
-const setSize = (container, {width, height}) => {
+const setSize = (container, { width, height }) => {
   container.canvas.width = width;
   container.canvas.height = height;
 };
@@ -23,6 +23,7 @@ class App extends Component {
     };
     this.sourceHasLoaded = this.sourceHasLoaded.bind(this);
     this.processImage = this.processImage.bind(this);
+    this.processBaseline = this.processBaseline.bind(this);
     this.captureCanvases = this.captureCanvases.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
   }
@@ -39,11 +40,23 @@ class App extends Component {
   }
 
   processImage(sequenceNumber) {
-    logger.info("Process image", sequenceNumber);
+    //logger.info("Process image", sequenceNumber);
+
     try {
       processImage(this.state.canvases);
     } catch (error) {
       logger.error('Could not complete image processing');
+      logger.error(error);
+    }
+  }
+
+  processBaseline() {
+    logger.info("Process baseline image");
+
+    try {
+      processBaseline(this.state.canvases);
+    } catch (error) {
+      logger.error('Could not set baseline');
       logger.error(error);
     }
   }
@@ -61,12 +74,14 @@ class App extends Component {
       this.refs.canvas9,
       this.refs.canvas10,
       this.refs.canvas11,
+      this.refs.canvas12,
     ];
 
     let curr = 0;
     let canvases;
     if (config.showSteps) {
       canvases = {
+        baselineVideoFrame: { canvas: all[curr++] },
         videoFrame: { canvas: all[curr++] },
         detectedSheet: { canvas: all[curr++] },
         detectedSheetRotated: { canvas: all[curr++] },
@@ -83,6 +98,7 @@ class App extends Component {
 
     }
 
+    setSize(canvases.baselineVideoFrame, config.videoFrameSize);
     setSize(canvases.videoFrame, config.videoFrameSize);
     setSize(canvases.detectedSheet, config.videoFrameSize);
     setSize(canvases.detectedSheetRotated, config.videoFrameSize);
@@ -112,7 +128,11 @@ class App extends Component {
         <p className="App-intro">
         </p>
         <div>
-          <VideoCapturer processImage={this.processImage} canvases={this.state.canvases}/>
+          <VideoCapturer
+            processImage={this.processImage}
+            processBaseline={this.processBaseline}
+            canvases={this.state.canvases}
+          />
           {/*<span>
             <img id='sourceImage' src={imageToProcess} alt='source'
                  onLoad={() => this.sourceHasLoaded()}/>
@@ -120,48 +140,52 @@ class App extends Component {
         </div>
         <div className='canvases'>
           <div>
-            <h3>VideoFrame</h3>
+            <h3>Baseline VideoFrame</h3>
             <canvas ref="canvas1"/>
           </div>
           <div>
-            <h3>DetectedSheet</h3>
+            <h3>VideoFrame</h3>
             <canvas ref="canvas2"/>
           </div>
           <div>
-            <h3>DetectedSheet, second try (rotated)</h3>
+            <h3>DetectedSheet</h3>
             <canvas ref="canvas3"/>
           </div>
           <div>
-            <h3>Corrected sheet 1 (rotation)</h3>
+            <h3>DetectedSheet, second try (rotated)</h3>
             <canvas ref="canvas4"/>
           </div>
           <div>
-            <h3>CorrectedSheet 2 (scaling)</h3>
+            <h3>Corrected sheet 1 (rotation)</h3>
             <canvas ref="canvas5"/>
           </div>
           <div>
-            <h3>CorrectedSheet 3 (flipping)</h3>
+            <h3>CorrectedSheet 2 (scaling)</h3>
             <canvas ref="canvas6"/>
           </div>
           <div>
-            <h3>Edges</h3>
+            <h3>CorrectedSheet 3 (flipping)</h3>
             <canvas ref="canvas7"/>
           </div>
           <div>
-            <h3>Removed logo etc</h3>
+            <h3>Edges</h3>
             <canvas ref="canvas8"/>
           </div>
           <div>
-            <h3>Filled</h3>
+            <h3>Removed logo etc</h3>
             <canvas ref="canvas9"/>
           </div>
           <div>
-            <h3>Mask (eroded)</h3>
+            <h3>Filled</h3>
             <canvas ref="canvas10"/>
           </div>
           <div>
-            <h3>Extracted</h3>
+            <h3>Mask (eroded)</h3>
             <canvas ref="canvas11"/>
+          </div>
+          <div>
+            <h3>Extracted</h3>
+            <canvas ref="canvas12"/>
           </div>
         </div>
       </div>

@@ -61,9 +61,9 @@ class VideoCapturer extends React.Component {
     return sequenceNumber;
   }
 
-  captureVideoFrame() {
+  captureToCanvas(ctx) {
     const { width, height } = config.videoFrameSize;
-    const ctx = this.props.canvases.videoFrame.ctx;
+
 
     // capture, crop and scale video, making sure we only get the part of the video frame that
     // contains our circular drawing area.
@@ -73,15 +73,26 @@ class VideoCapturer extends React.Component {
 
     // Draw crop circle
     drawCircle(ctx, { x: width / 2, y: width / 2, radius: width / 2 });
+  }
 
-    // tell the world that a new image is ready.
+  captureBaselineVideoFrame() {
+    const ctx = this.props.canvases.baselineVideoFrame.ctx;
+    this.captureToCanvas(ctx);
+    this.props.processBaseline();
+  }
+
+  captureVideoFrame() {
+    const ctx = this.props.canvases.videoFrame.ctx;
+    this.captureToCanvas(ctx);
     this.props.processImage(this.getSequenceNumber());
+    //setTimeout(() => this.captureVideoFrame(), 100);
   }
 
   render() {
     const { videoSize } = config;
     return (
       <div>
+        <button onClick={() => this.captureBaselineVideoFrame()}>Set initial</button>
         <button onClick={() => this.captureVideoFrame()}>Capture!</button>
         <video ref="video" width={videoSize.width} autoPlay/>
       </div>

@@ -15,6 +15,7 @@ import { copyCanvas } from "./context.utils";
 import logger from '../utils/logger';
 import { removeLogosAndShit } from "./logoRemoval";
 import config from "../config";
+import { captureOriginalCircle, isCircleOccluded } from "./outlineOcclusionDetection";
 
 const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rotation = 0) => {
   if (rotation !== 0) {
@@ -35,6 +36,14 @@ const process = (canvases) => {
   const { width: frameWidth, height: frameHeight } = config.videoFrameSize;
   const { width: sheetWidth, height: sheetHeight } = config.sheetSize;
 
+  const isOccluded = isCircleOccluded(canvases.videoFrame.ctx);
+  if(isOccluded){
+    console.log("HAND");
+  } else {
+    console.log("NAH");
+  }
+
+  /*
   sheetCorners = drawImageOnCanvasAndDetectCorners(
     canvases.videoFrame.canvas,
     canvases.detectedSheet.ctx,
@@ -116,15 +125,20 @@ const process = (canvases) => {
     sheetWidth,
     sheetHeight
   ), 'remove mask');
+  */
 };
 
-export default (canvases) => {
+export const processImage = (canvases) => {
   const startTime = new Date().getTime();
   process(canvases);
   const endTime = new Date().getTime();
 
-  logger.info('Finished, this took ' + (endTime - startTime) + 'ms', startTime, endTime);
-}
+  //logger.info('Finished, this took ' + (endTime - startTime) + 'ms', startTime, endTime);
+};
+
+export const processBaseline = (canvases) => {
+  captureOriginalCircle(canvases.baselineVideoFrame.ctx);
+};
 
 // TODO
 /*
