@@ -3,7 +3,7 @@ import { drawAllCorners, drawBoundingBox, drawCorners } from './draw';
 import { timed } from '../utils/timer';
 import config from '../config';
 import logger from "../utils/logger";
-import { distance } from "./trigonometry";
+import { distance, isApproximatelyPerpendicular } from "./trigonometry";
 
 const border = 5;
 const blurRadius = 4;
@@ -20,7 +20,7 @@ const isInsideDrawingCircle = (corner) => {
 };
 
 const findCornerCandidatesUsingBlurredImage = (image) => {
-  const {width, height} = config.videoFrameSize;
+  const { width, height } = config.videoFrameSize;
   // removes dust! without this it corner detection will trigger on the dust particles
   const blurredImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.imgproc.box_blur_gray(image, blurredImage, blurRadius);
@@ -66,12 +66,16 @@ const findSheetCorners = (boundingBox, corners) => {
   // negation is to make sure a corner does not intersect two lines of the bounding box. if it does,
   // the corner will appear in two of the corner detections and we will either get too many or
   // too few corners.
-  const topCorners = corners.filter(corner => corner.x !== boundingBox.topLeft.x && corner.y === boundingBox.topLeft.y);
-  const leftCorners = corners.filter(corner => corner.x === boundingBox.topLeft.x && corner.y !== boundingBox.topLeft.y);
-  const rightCorners = corners.filter(corner => corner.x === boundingBox.bottomRight.x && corner.y !== boundingBox.bottomRight.y);
-  const bottomCorners = corners.filter(corner => corner.x !== boundingBox.bottomRight.x && corner.y === boundingBox.bottomRight.y);
+  const topCorners = corners.filter(
+    corner => corner.x !== boundingBox.topLeft.x && corner.y === boundingBox.topLeft.y);
+  const leftCorners = corners.filter(
+    corner => corner.x === boundingBox.topLeft.x && corner.y !== boundingBox.topLeft.y);
+  const rightCorners = corners.filter(
+    corner => corner.x === boundingBox.bottomRight.x && corner.y !== boundingBox.bottomRight.y);
+  const bottomCorners = corners.filter(
+    corner => corner.x !== boundingBox.bottomRight.x && corner.y === boundingBox.bottomRight.y);
 
-  if(
+  if (
     topCorners.length !== 1 ||
     leftCorners.length !== 1 ||
     rightCorners.length !== 1 ||
@@ -98,7 +102,14 @@ const findSheetCorners = (boundingBox, corners) => {
     bottomRight = bottomCorner;
   }
 
-  // make sure corners are not equal
+  // make sure we have found the sheet
+  if (
+    !isApproximatelyPerpendicular(topLeft, bottomLeft, topRight) || // angle of upper left corner
+    !isApproximatelyPerpendicular(bottomRight, topRight, bottomLeft) // angle of lower right corner
+  ) {
+    logger.error('Corners are not perpendicular, this is not the sheet we\'re looking for');
+    return null;
+  }
 
   return {
     topLeft: topLeft,
@@ -110,14 +121,15 @@ const findSheetCorners = (boundingBox, corners) => {
 
 export const detectSheetPosition = (ctx, image) => {
   const corners = timed(() => findCornerCandidatesUsingBlurredImage(image), 'detect corners');
+  if (debug.drawAllCorners) timed(() => drawAllCorners(ctx, corners), 'draw All Corners');
+
   const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box');
+  if (debug.drawBoundingBox) timed(() => drawBoundingBox(ctx, boundingBox), 'draw bounding box');
+
   const sheetCorners = timed(() => findSheetCorners(boundingBox, corners), 'find bounding corners');
-  if(sheetCorners === null){
+  if (sheetCorners === null) {
     return null;
   }
-  if(debug.drawBoundingBox) timed(() => drawBoundingBox(ctx, boundingBox), 'draw bounding box');
-  if(debug.drawSheetCorners) timed(() => drawCorners(ctx, sheetCorners), 'draw sheet corners');
-  if(debug.drawAllCorners) timed(() => drawAllCorners(ctx, corners), 'draw All Corners');
-
+  if (debug.drawSheetCorners) timed(() => drawCorners(ctx, sheetCorners), 'draw sheet corners');
   return sheetCorners;
 };
