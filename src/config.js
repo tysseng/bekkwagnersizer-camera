@@ -1,32 +1,79 @@
+// 'image', 'video'
+const source = 'image';
+
+const videoFrameSize = {
+  width: 1024,
+  height: 1024,
+};
+
+// size of image used as input if source = image
+const imageSize = {
+  width: 1024,
+  height: 1365,
+};
+
+const sheetSizeMM = {
+  width: 210, //A4: 210, A3: 297
+  height: 297, //A4: 297, A3:410
+};
+
+const sheetWidthPixels = 1024;
+const sheetPPMM = sheetWidthPixels / sheetSizeMM.width;
+
+// center of EDawards star
+const logoDetectionPositionMM = {
+  x: 21.4,
+  y: 23.95,
+};
+
+// bounding box for removing logo, x,y is top left corner
+const logoBoundingBoxMM = {
+  x: 9.5,
+  y: 13,
+  width: 91,
+  height: 21.7
+};
+
 export default {
+  source,
+  preventDetectionOutsideBoundingCicle: false, // set this to false to debug with image without bounds
   showSteps: true,
-  videoSize: {
-    width: 1920,
-    height: 1080,
-  },
-  videoFrameSize: {
-    width: 1024,
-    height: 1024,
-  },
-  videoCircle: { // relative to videoSize
-    x: 1415,
-    y: 975,
-    radius: 895,
-  },
-  sheetSize: {
-    width: 1365,
-    height: 1024,
-  },
   debug: {
     drawSheetCorners: true,
     drawBoundingBox: true,
     drawAllCorners: true,
   },
 
+  videoSize: {
+    width: 1920,
+    height: 1080,
+  },
+
+  videoCircle: { // relative to videoSize
+    x: 1415,
+    y: 975,
+    radius: 895,
+  },
+
+  sourceSize: source === 'video' ? videoFrameSize : imageSize,
+
+  sheetSize: {
+    width: sheetWidthPixels,
+    height: Math.floor(sheetSizeMM.height * sheetPPMM),
+  },
+
   // center of EDawards star
-  logoDetectionPosition: {x: 101, y: 110},
+  logoDetectionPosition: {
+    x: Math.floor(logoDetectionPositionMM.x * sheetPPMM),
+    y: Math.floor(logoDetectionPositionMM.y * sheetPPMM),
+  },
 
   // bounding box for removing logo
-  logoBoundingBox: {x: 40, y: 48, width: 480, height: 120}
+  logoBoundingBox: {
+    x: Math.floor(logoBoundingBoxMM.x * sheetPPMM),
+    y: Math.floor(logoBoundingBoxMM.y * sheetPPMM),
+    width: Math.floor(logoBoundingBoxMM.width * sheetPPMM),
+    height: Math.floor(logoBoundingBoxMM.height * sheetPPMM),
+  }
 }
 

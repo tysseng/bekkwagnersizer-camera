@@ -15,14 +15,10 @@ class VideoCapturer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      sequenceNumber: 1,
-    };
     this.videoStreamLoaded = this.videoStreamLoaded.bind(this);
     this.videoStreamLoadFailed = this.videoStreamLoadFailed.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.captureVideoFrame = this.captureVideoFrame.bind(this);
-    this.getSequenceNumber = this.getSequenceNumber.bind(this);
   }
 
   videoStreamLoaded(stream) {
@@ -55,15 +51,8 @@ class VideoCapturer extends React.Component {
     navigator.getUserMedia(constraints, this.videoStreamLoaded, this.videoStreamLoadFailed);
   }
 
-  getSequenceNumber() {
-    const sequenceNumber = this.state.sequenceNumber;
-    this.setState({ sequenceNumber: sequenceNumber + 1 });
-    return sequenceNumber;
-  }
-
   captureToCanvas(ctx) {
-    const { width, height } = config.videoFrameSize;
-
+    const { width, height } = this.props.dimensions;
 
     // capture, crop and scale video, making sure we only get the part of the video frame that
     // contains our circular drawing area.
@@ -84,7 +73,7 @@ class VideoCapturer extends React.Component {
   captureVideoFrame() {
     const ctx = this.props.canvases.videoFrame.ctx;
     this.captureToCanvas(ctx);
-    this.props.processImage(this.getSequenceNumber());
+    this.props.processImage();
     //setTimeout(() => this.captureVideoFrame(), 100);
   }
 

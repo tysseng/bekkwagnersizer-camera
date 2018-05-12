@@ -8,11 +8,11 @@ import { distance, isApproximatelyPerpendicular } from "./trigonometry";
 const border = 5;
 const blurRadius = 4;
 const debug = config.debug;
-const drawingCircleRadiusWithPadding = (config.videoFrameSize.width / 2) - 5;
+const drawingCircleRadiusWithPadding = (config.sourceSize.width / 2) - 5;
 
 const drawingCircleCenter = {
-  x: config.videoFrameSize.width / 2,
-  y: config.videoFrameSize.height / 2,
+  x: config.sourceSize.width / 2,
+  y: config.sourceSize.height / 2,
 };
 
 const isInsideDrawingCircle = (corner) => {
@@ -20,7 +20,7 @@ const isInsideDrawingCircle = (corner) => {
 };
 
 const findCornerCandidatesUsingBlurredImage = (image) => {
-  const { width, height } = config.videoFrameSize;
+  const { width, height } = config.sourceSize;
   // removes dust! without this it corner detection will trigger on the dust particles
   const blurredImage = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   jsfeat.imgproc.box_blur_gray(image, blurredImage, blurRadius);
@@ -35,7 +35,13 @@ const findCornerCandidates = (image) => {
 
   //yape06 works well with blurred image, not at all with the others
   const count = jsfeat.yape06.detect(image, corners, border);
-  return corners.slice(0, count).filter(corner => isInsideDrawingCircle(corner));
+
+
+  if (config.preventDetectionOutsideBoundingCicle) {
+    return corners.slice(0, count).filter(corner => isInsideDrawingCircle(corner));
+  } else {
+    return corners.slice(0, count);
+  }
 };
 
 // finds the outermost detected points in all directions

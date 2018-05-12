@@ -29,7 +29,7 @@ const changeIsAboveThreshold = (originalColor = 0, newColor) => {
 };
 
 export const captureOriginalCircle = (ctx) => {
-  const { width, height } = config.videoFrameSize;
+  const { width, height } = config.sourceSize;
   const data = ctx.getImageData(0, 0, width, height).data;
   const radius = width / 2 - outlineOffset;
   const center = { x: width / 2, y: height / 2 };
@@ -53,7 +53,7 @@ const sum = (samples) => {
 };
 
 export const isCircleOccluded = (ctx) => {
-  const { width, height } = config.videoFrameSize;
+  const { width, height } = config.sourceSize;
   const data = ctx.getImageData(0, 0, width, height).data;
   const radius = width / 2 - outlineOffset;
   const center = { x: width / 2, y: height / 2 };

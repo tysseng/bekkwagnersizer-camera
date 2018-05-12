@@ -33,17 +33,17 @@ const process = (canvases) => {
   let detectedSheetCanvasContainer;
   let prerotation = 0;
 
-  const { width: frameWidth, height: frameHeight } = config.videoFrameSize;
+  const { width: frameWidth, height: frameHeight } = config.sourceSize;
   const { width: sheetWidth, height: sheetHeight } = config.sheetSize;
 
+  /*
   const isOccluded = isCircleOccluded(canvases.videoFrame.ctx);
   if(isOccluded){
     console.log("HAND");
   } else {
     console.log("NAH");
-  }
+  }*/
 
-  /*
   sheetCorners = drawImageOnCanvasAndDetectCorners(
     canvases.videoFrame.canvas,
     canvases.detectedSheet.ctx,
@@ -125,7 +125,6 @@ const process = (canvases) => {
     sheetWidth,
     sheetHeight
   ), 'remove mask');
-  */
 };
 
 export const processImage = (canvases) => {

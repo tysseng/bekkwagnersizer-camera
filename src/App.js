@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import imageToProcess from './assets/images/IMG_6307.jpg';
 import { processImage, processBaseline } from './processing/imageProcessor';
 import config from './config';
 import VideoCapturer from "./video/VideoCapturer";
 import logger from './utils/logger';
+import ImageCapturer from "./image/ImageCapturer";
 
 const setSize = (container, { width, height }) => {
   container.canvas.width = width;
@@ -39,8 +39,7 @@ class App extends Component {
     })
   }
 
-  processImage(sequenceNumber) {
-    //logger.info("Process image", sequenceNumber);
+  processImage() {
 
     try {
       processImage(this.state.canvases);
@@ -62,20 +61,8 @@ class App extends Component {
   }
 
   captureCanvases() {
-    const all = [
-      this.refs.canvas1,
-      this.refs.canvas2,
-      this.refs.canvas3,
-      this.refs.canvas4,
-      this.refs.canvas5,
-      this.refs.canvas6,
-      this.refs.canvas7,
-      this.refs.canvas8,
-      this.refs.canvas9,
-      this.refs.canvas10,
-      this.refs.canvas11,
-      this.refs.canvas12,
-    ];
+    const canvasesDiv = document.querySelector('.canvases');
+    const all =  canvasesDiv.querySelectorAll('canvas');
 
     let curr = 0;
     let canvases;
@@ -98,18 +85,21 @@ class App extends Component {
 
     }
 
-    setSize(canvases.baselineVideoFrame, config.videoFrameSize);
-    setSize(canvases.videoFrame, config.videoFrameSize);
-    setSize(canvases.detectedSheet, config.videoFrameSize);
-    setSize(canvases.detectedSheetRotated, config.videoFrameSize);
-    setSize(canvases.correctedSheetRotation, config.videoFrameSize);
-    setSize(canvases.correctedSheetScaling, config.sheetSize);
-    setSize(canvases.correctedSheetFlipping, config.sheetSize);
-    setSize(canvases.edges, config.sheetSize);
-    setSize(canvases.removedElements, config.sheetSize);
-    setSize(canvases.filled, config.sheetSize);
-    setSize(canvases.mask, config.sheetSize);
-    setSize(canvases.extracted, config.sheetSize);
+    const sourceSize = config.sourceSize;
+    const sheetSize = config.sheetSize;
+
+    setSize(canvases.baselineVideoFrame, sourceSize);
+    setSize(canvases.videoFrame, sourceSize);
+    setSize(canvases.detectedSheet, sourceSize);
+    setSize(canvases.detectedSheetRotated, sourceSize);
+    setSize(canvases.correctedSheetRotation, sourceSize);
+    setSize(canvases.correctedSheetScaling, sheetSize);
+    setSize(canvases.correctedSheetFlipping, sheetSize);
+    setSize(canvases.edges, sheetSize);
+    setSize(canvases.removedElements, sheetSize);
+    setSize(canvases.filled, sheetSize);
+    setSize(canvases.mask, sheetSize);
+    setSize(canvases.extracted, sheetSize);
 
     Object.keys(canvases).forEach(key => {
       canvases[key].ctx = canvases[key].canvas.getContext('2d');
@@ -128,64 +118,69 @@ class App extends Component {
         <p className="App-intro">
         </p>
         <div>
-          <VideoCapturer
-            processImage={this.processImage}
-            processBaseline={this.processBaseline}
-            canvases={this.state.canvases}
-          />
-          {/*<span>
-            <img id='sourceImage' src={imageToProcess} alt='source'
-                 onLoad={() => this.sourceHasLoaded()}/>
-          </span>*/}
+          {config.source === 'video' ?
+            <VideoCapturer
+              dimensions={config.sourceSize}
+              processImage={this.processImage}
+              processBaseline={this.processBaseline}
+              canvases={this.state.canvases}
+            />
+            :
+            <ImageCapturer
+              dimensions={config.sourceSize}
+              processImage={this.processImage}
+              canvases={this.state.canvases}
+            />
+          }
         </div>
         <div className='canvases'>
           <div>
             <h3>Baseline VideoFrame</h3>
-            <canvas ref="canvas1"/>
+            <canvas/>
           </div>
           <div>
             <h3>VideoFrame</h3>
-            <canvas ref="canvas2"/>
+            <canvas/>
           </div>
           <div>
             <h3>DetectedSheet</h3>
-            <canvas ref="canvas3"/>
+            <canvas/>
           </div>
           <div>
             <h3>DetectedSheet, second try (rotated)</h3>
-            <canvas ref="canvas4"/>
+            <canvas/>
           </div>
           <div>
             <h3>Corrected sheet 1 (rotation)</h3>
-            <canvas ref="canvas5"/>
+            <canvas/>
           </div>
           <div>
             <h3>CorrectedSheet 2 (scaling)</h3>
-            <canvas ref="canvas6"/>
+            <canvas/>
           </div>
           <div>
             <h3>CorrectedSheet 3 (flipping)</h3>
-            <canvas ref="canvas7"/>
+            <canvas/>
           </div>
           <div>
             <h3>Edges</h3>
-            <canvas ref="canvas8"/>
+            <canvas/>
           </div>
           <div>
             <h3>Removed logo etc</h3>
-            <canvas ref="canvas9"/>
+            <canvas/>
           </div>
           <div>
             <h3>Filled</h3>
-            <canvas ref="canvas10"/>
+            <canvas/>
           </div>
           <div>
             <h3>Mask (eroded)</h3>
-            <canvas ref="canvas11"/>
+            <canvas/>
           </div>
           <div>
             <h3>Extracted</h3>
-            <canvas ref="canvas12"/>
+            <canvas/>
           </div>
         </div>
       </div>
