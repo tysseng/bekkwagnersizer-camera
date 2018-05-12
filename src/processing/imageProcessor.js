@@ -16,6 +16,7 @@ import logger from '../utils/logger';
 import { removeLogosAndShit } from "./logoRemoval";
 import config from "../config";
 import { captureOriginalCircle, isCircleOccluded } from "./outlineOcclusionDetection";
+import { readBitCode } from "./bitCodeReader";
 
 const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rotation = 0) => {
   if (rotation !== 0) {
@@ -86,6 +87,9 @@ const process = (canvases) => {
     prerotation,
     canvases,
   );
+
+  // detect bit code to see what image this is
+  readBitCode(sheetImageBW, sheetWidth, sheetHeight, canvases);
 
   // find lines to prepare for flood fill
   const jsFeatImageWithDilutedLines = timed(() => detectLines(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');

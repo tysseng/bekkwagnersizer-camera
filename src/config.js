@@ -28,11 +28,26 @@ const logoDetectionPositionMM = {
 
 // bounding box for removing logo, x,y is top left corner
 const logoBoundingBoxMM = {
-  x: 9.5,
-  y: 13,
-  width: 91,
-  height: 21.7
+  x: 9,
+  y: 11,
+  width: 92,
+  height: 24
 };
+
+// where to find bit dots (to indicate what image this is)
+const bitPositionsMM = [
+  { x: sheetSizeMM.width - 20, y: sheetSizeMM.height - 16 },
+  { x: sheetSizeMM.width - 30, y: sheetSizeMM.height - 16 },
+  { x: sheetSizeMM.width - 40, y: sheetSizeMM.height - 16 },
+  { x: sheetSizeMM.width - 50, y: sheetSizeMM.height - 16 },
+  { x: sheetSizeMM.width - 60, y: sheetSizeMM.height - 16 },
+];
+
+const bitPositions = bitPositionsMM.map(
+  pos => ({
+    x: Math.floor(pos.x * sheetPPMM),
+    y: Math.floor(pos.y * sheetPPMM)
+  }));
 
 export default {
   source,
@@ -74,6 +89,9 @@ export default {
     y: Math.floor(logoBoundingBoxMM.y * sheetPPMM),
     width: Math.floor(logoBoundingBoxMM.width * sheetPPMM),
     height: Math.floor(logoBoundingBoxMM.height * sheetPPMM),
-  }
+  },
+
+  // where to find bit dots (to indicate what image this is)
+  bitPositions,
 }
 

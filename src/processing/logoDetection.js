@@ -1,23 +1,13 @@
 import logger from '../utils/logger';
 import config from '../config';
+import { getAverageColor } from "./jsfeat.utils";
 
 const logoCenter = config.logoDetectionPosition;
 const logoSamplePadding = 5;
 
-const getAverageColor = (image, x, y, width) => {
-  let sum = 0;
-  let area = (2 * logoSamplePadding + 1) * (2 * logoSamplePadding + 1);
-  for (let col = x - logoSamplePadding; col <= x + logoSamplePadding; col++) {
-    for (let row = y - logoSamplePadding; row <= y + logoSamplePadding; row++) {
-      sum +=image.data[row * width + col];
-    }
-  }
-  return sum/area;
-};
-
 export const isLogoInCorrectCorner = (image, width, height) => {
-  const topLeftColor = getAverageColor(image, logoCenter.x, logoCenter.y, width);
-  const bottomRightColor = getAverageColor(image, width - logoCenter.x, height - logoCenter.y, width);
+  const topLeftColor = getAverageColor(image, width, logoSamplePadding, logoCenter.x, logoCenter.y);
+  const bottomRightColor = getAverageColor(image, width, logoSamplePadding, width - logoCenter.x, height - logoCenter.y);
 
   if(topLeftColor < bottomRightColor) { // logo is black
     logger.info("LOGO: logo is in correct corner");

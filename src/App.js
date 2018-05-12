@@ -75,6 +75,7 @@ class App extends Component {
         correctedSheetRotation: { canvas: all[curr++] },
         correctedSheetScaling: { canvas: all[curr++] },
         correctedSheetFlipping: { canvas: all[curr++] },
+        bitCodeDetection: { canvas: all[curr++] },
         edges: { canvas: all[curr++] },
         removedElements: { canvas: all[curr++] },
         filled: { canvas: all[curr++] },
@@ -95,6 +96,7 @@ class App extends Component {
     setSize(canvases.correctedSheetRotation, sourceSize);
     setSize(canvases.correctedSheetScaling, sheetSize);
     setSize(canvases.correctedSheetFlipping, sheetSize);
+    setSize(canvases.bitCodeDetection, sheetSize);
     setSize(canvases.edges, sheetSize);
     setSize(canvases.removedElements, sheetSize);
     setSize(canvases.filled, sheetSize);
@@ -160,6 +162,10 @@ class App extends Component {
           </div>
           <div>
             <h3>CorrectedSheet 3 (flipping)</h3>
+            <canvas/>
+          </div>
+          <div>
+            <h3>Bit code detection</h3>
             <canvas/>
           </div>
           <div>

@@ -1,6 +1,34 @@
 import jsfeat from 'jsfeat';
 import { timed } from "../utils/timer";
 
+
+export const drawSquareAroundPoint = (image, imageWidth, padding, x, y, color) => {
+  const left = x - padding;
+  const right = x + padding;
+  for (let row = y - padding; row <= y + padding; row++) {
+    const rowIndex = row * imageWidth;
+    if(row === y-padding || row === y + padding){
+      for (let col = x - padding; col <= x + padding; col++) {
+        image.data[rowIndex + col] = color;
+      }
+    } else {
+      image.data[rowIndex + left] = color;
+      image.data[rowIndex + right] = color;
+    }
+  }
+};
+
+export const getAverageColor = (image, imageWidth, padding, x, y) => {
+  let sum = 0;
+  let area = (2 * padding + 1) * (2 * padding + 1);
+  for (let col = x - padding; col <= x + padding; col++) {
+    for (let row = y - padding; row <= y + padding; row++) {
+      sum +=image.data[row * imageWidth + col];
+    }
+  }
+  return sum/area;
+};
+
 export const mapToCanvasImageData = (jsFeatImageData, canvasImageData) => {
   const data_u32 = new Uint32Array(canvasImageData.data.buffer);
   const alpha = (0xff << 24);
