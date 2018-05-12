@@ -7,20 +7,22 @@ const paddingAroundBitPosition = 19;
 const blackThreshold = 100;
 const blackPixNeededFor1 = 30;
 
-const getNumberOfPixelsBelowThreshold = (image, imageWidth, padding, x, y) => {
+const bit = (image, imageWidth, padding, x, y) => {
   let pixelCount = 0;
   for (let col = x - padding; col <= x + padding; col++) {
     for (let row = y - padding; row <= y + padding; row++) {
       if(image.data[row * imageWidth + col] < blackThreshold) pixelCount++;
+      if(pixelCount >= blackPixNeededFor1){
+        return '1';
+      }
     }
   }
-  return pixelCount;
+  return '0';
 };
 
 const readBit = (pos, image, width) => {
   drawSquareAroundPoint(image, width, paddingAroundBitPosition+1, pos.x, pos.y, 0);
-  const one = getNumberOfPixelsBelowThreshold(image, width, paddingAroundBitPosition, pos.x, pos.y) >= blackPixNeededFor1;
-  return one ? '1' : '0';
+  return bit(image, width, paddingAroundBitPosition, pos.x, pos.y);
 };
 
 export const readBitCode = (image, width, height, canvases) => {
