@@ -43,40 +43,45 @@ const findCornerCandidates = (image) => {
     return corners.slice(0, count);
   }
 };
-
-// finds the outermost detected points in all directions
 /*
-const findBoundingBox = (corners) => {
-  let minX = Number.MAX_VALUE;
-  let maxX = -1;
-  let minY = Number.MAX_VALUE;
-  let maxY = -1;
+const isProbablySheetCorner = (corner, image) => {
+  const padding = 15;
+  const sheetColorThreshold = 180;
+  const whitePixNeededForSheetCorner = 10;
+  // a sheet corner should have at least one rather white field close to to it. Look around the
+  // corner to see how many pixels are whiteish, about 1/4 of the pixels should be.
 
-  for (let i = 0; i < corners.length; i++) {
-    const corner = corners[i];
-    if (corner.x < minX) minX = corner.x;
-    if (corner.x > maxX) maxX = corner.x;
-    if (corner.y < minY) minY = corner.y;
-    if (corner.y > maxY) maxY = corner.y;
+  let pixelCount = 0;
+  for (let col = x - padding; col <= x + padding; col++) {
+    for (let row = y - padding; row <= y + padding; row++) {
+      if(image.data[row * imageWidth + col] > sheetColorThreshold) pixelCount++;
+      if(pixelCount >= whitePixNeededForSheetCorner){
+        return true;
+      }
+    }
   }
-
-  return {
-    topLeft: { x: minX, y: minY },
-    bottomRight: { x: maxX, y: maxY }
-  };
+  return false;
 };
 */
-
 const copyAndSortY = (corners) => {
   let i = corners.length;
   const cornersCopy = [];
   while (i--) cornersCopy[i] = corners[i];
   return cornersCopy.sort((corner1, corner2) => corner1.y - corner2.y);
 };
+/*
+const findCorners = (xSorted, ySorted, image) => {
+  const leftMost = xSorted.find(corner => isProbablySheetCorner(corner, image));
+  const rightMost = xSorted.reverse().find(corner => isProbablySheetCorner(corner, image));
+  const topMost = ySorted.find(corner => isProbablySheetCorner(corner, image));
+  const bottomMost = ySorted.reverse().find(corner => isProbablySheetCorner(corner, image));
 
-const findBoundingBox = (corners) => {
-  const xSorted = corners.sort((corner1, corner2) => corner1.x - corner2.x);
-  const ySorted = copyAndSortY(corners);
+  console.log('corners', {leftMost, rightMost, topMost, bottomMost});
+};
+*/
+
+// finds the outermost detected points in all directions
+const findBoundingBox = (xSorted, ySorted) => {
   return {
     topLeft: { x: xSorted[0].x, y: ySorted[0].y },
     bottomRight: { x: xSorted[xSorted.length - 1].x, y: ySorted[ySorted.length - 1].y }
@@ -148,8 +153,11 @@ export const detectSheetPosition = (ctx, image) => {
 
   if (debug.drawAllCorners) timed(() => drawAllCorners(ctx, corners), 'draw All Corners');
 
-  //const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box');
-  const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box2');
+  const xSorted = corners.sort((corner1, corner2) => corner1.x - corner2.x);
+  const ySorted = copyAndSortY(corners);
+  //findCorners(xSorted, ySorted, image);
+
+  const boundingBox = timed(() => findBoundingBox(xSorted, ySorted), 'find bounding box');
   if (debug.drawBoundingBox) timed(() => drawBoundingBox(ctx, boundingBox), 'draw bounding box');
 
   const sheetCorners = timed(() => findSheetCorners(boundingBox, corners), 'find bounding corners');

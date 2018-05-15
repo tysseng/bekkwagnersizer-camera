@@ -18,6 +18,7 @@ import config from "../config";
 import { captureOriginalCircle, isCircleOccluded } from "./outlineOcclusionDetection";
 import { readBitCode, removeBitDots } from "./bitCodeReader";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
+import { uploadFile } from "../network/fileUploader";
 
 const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rotation = 0) => {
   if (rotation !== 0) {
@@ -136,6 +137,8 @@ const process = (canvases) => {
     sheetWidth,
     sheetHeight
   ), 'remove mask');
+
+  uploadFile(canvases.extracted.canvas);
 };
 
 export const processImage = (canvases) => {
@@ -159,4 +162,12 @@ Mulig forbedret hjørnedeteksjon:
 ---> reduser blur til 3?
 
 - Kan funke for skewed korners også - hvis man søker etter noe som er tidlig i begge listene så er det kanskje siste hjørnet
+
+
+OUTPUT 512 x 512 PNG - padder sidene av arket for å få kvadratisk.
+
+Defaulttype hvis vi ikke klarer å detektere kode.
+Kopiere over i fellesrepo. /image
+
+Fjerne 1px fra outline
  */
