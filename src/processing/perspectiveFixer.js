@@ -35,24 +35,26 @@ const copyPixel = (sourceImgData, targetImgData, from, to, width, height) => {
   targetImgData.data[destPos+3] = sourceImgData.data[sourcePos+3];
 };
 
-export const correctPerspective = (ctx, targetCtx, width, height, sheetCorners) => {
+export const correctPerspective = (ctx, correctedCtx, sheetWidth, sheetHeight, sheetCorners) => {
 
-  const transform = timed(() => getPerspectiveCorrectionTransform(sheetCorners, width, height), 'perspective correction transform');
+  const transform = timed(() => getPerspectiveCorrectionTransform(
+    sheetCorners, sheetWidth, sheetHeight
+  ), 'perspective correction transform');
 
   let x, y;
   let i = 0;
 
-  const imageData = ctx.getImageData(x, y, width, height);
-  const targetImageData = targetCtx.getImageData(x, y, width, height);
+  const imageData = ctx.getImageData(x, y, sheetWidth, sheetHeight);
+  const correctedImageData = correctedCtx.getImageData(x, y, sheetWidth, sheetHeight);
 
   timed(() => {
-    for (y = 0; y < height; y++) {
-      for (x = 0; x < width; x++) {
+    for (y = 0; y < sheetHeight; y++) {
+      for (x = 0; x < sheetWidth; x++) {
         const out = transform(x, y);
-        copyPixel(imageData, targetImageData, { x, y }, out, width, height);
+        copyPixel(imageData, correctedImageData, { x, y }, out, sheetWidth, sheetHeight);
       }
     }
   }, 'pixel copying inside correct perspective');
 
-  targetCtx.putImageData(targetImageData, 0, 0);
+  correctedCtx.putImageData(correctedImageData, 0, 0);
 };

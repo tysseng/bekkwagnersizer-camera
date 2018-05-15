@@ -105,8 +105,6 @@ export const extractSheetUsingRotationAndScaling = (
     height: sheetHeight,
   }), 'resizing');
 
-  // for debugging
-  copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
@@ -117,6 +115,9 @@ export const extractSheetUsingRotationAndScaling = (
     const imageData = flippedCtx.getImageData(0, 0, sheetWidth, sheetHeight);
     timed(() => rotateColor180(imageData.data, sheetHeight * sheetWidth * 4), 'rotating color image');
     flippedCtx.putImageData(imageData, 0, 0);
+  } else {
+    // for debugging
+    copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
   }
   return grayPerspectiveCorrectedImage;
 };

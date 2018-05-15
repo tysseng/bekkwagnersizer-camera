@@ -13,10 +13,11 @@ import { extractSheetUsingRotationAndScaling } from "./sheetExtractorApproximate
 import { erodeMask, getMonocromeMask, removeMask } from "./mask";
 import { copyCanvas } from "./context.utils";
 import logger from '../utils/logger';
-import { removeLogosAndShit } from "./logoRemoval";
+import { removeLogo } from "./logoRemoval";
 import config from "../config";
 import { captureOriginalCircle, isCircleOccluded } from "./outlineOcclusionDetection";
-import { readBitCode } from "./bitCodeReader";
+import { readBitCode, removeBitDots } from "./bitCodeReader";
+import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
 
 const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rotation = 0) => {
   if (rotation !== 0) {
@@ -55,9 +56,7 @@ const process = (canvases) => {
   detectedSheetCanvasContainer = canvases.detectedSheet;
 
   if(sheetCorners === null){
-    // rotate and try again. 0.05 seems like a good rotation, though we get some false
-    // corners close to the edge, so we need to ignore those. Drawing on top of the existing image
-    // works nicely as long as the sheet is not too close to the edge.
+    // rotate and try again. 0.10 seems like a good rotation,
     // TODO: This may not be necessary when doing centered-above photos.
     prerotation = 0.10;
     sheetCorners = drawImageOnCanvasAndDetectCorners(
@@ -77,19 +76,26 @@ const process = (canvases) => {
   // copy to be able to debug.
   copyCanvas(detectedSheetCanvasContainer, canvases.correctedSheetRotation);
 
-  // extract sheet, also writes to correctedSheet canvases as intermediate steps.
-  const sheetImageBW = extractSheetUsingRotationAndScaling(
-    sheetCorners,
-    frameWidth,
-    frameHeight,
-    sheetWidth,
-    sheetHeight,
-    prerotation,
-    canvases,
-  );
+  let sheetImageBW;
+  if(config.exactSheetCorrection){
+    sheetImageBW = extractSheetUsingPerspectiveTransformation(
+      sheetCorners, sheetWidth, sheetHeight, canvases,
+    );
+  } else {
+    // extract sheet, also writes to correctedSheet canvases as intermediate steps.
+    sheetImageBW = extractSheetUsingRotationAndScaling(
+      sheetCorners,
+      frameWidth,
+      frameHeight,
+      sheetWidth,
+      sheetHeight,
+      prerotation,
+      canvases,
+    );
+  }
 
   // detect bit code to see what image this is
-  readBitCode(sheetImageBW, sheetWidth, sheetHeight, canvases);
+  timed(() => readBitCode(sheetImageBW, sheetWidth, sheetHeight, canvases), 'Reading bit code');
 
   // find lines to prepare for flood fill
   const jsFeatImageWithDilutedLines = timed(() => detectLines(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');
@@ -99,7 +105,8 @@ const process = (canvases) => {
   copyCanvas(canvases.edges, canvases.removedElements);
 
   // remove logos and other stuff
-  removeLogosAndShit(canvases.removedElements.ctx);
+  timed(() => removeLogo(canvases.removedElements.ctx), 'removing logo');
+  timed(() => removeBitDots(canvases.removedElements.ctx), 'removing bit dots');
 
   // copy to be able to debug.
   copyCanvas(canvases.removedElements, canvases.filled);
@@ -132,11 +139,7 @@ const process = (canvases) => {
 };
 
 export const processImage = (canvases) => {
-  const startTime = new Date().getTime();
-  process(canvases);
-  const endTime = new Date().getTime();
-
-  //logger.info('Finished, this took ' + (endTime - startTime) + 'ms', startTime, endTime);
+  timed(() => process(canvases), 'FINISHED PROCESSING IMAGE');
 };
 
 export const processBaseline = (canvases) => {
@@ -145,6 +148,15 @@ export const processBaseline = (canvases) => {
 
 // TODO
 /*
-Must make sure we capture the whole table in the photo, and remove the parts outside, to
-guarantee that the sheet is inside the table area. Ideally the table should be square?
+6922: Figure out why correction fails
+6920: Ignore white dots (use some kind of threshold before detecting corners?)
+--> Test that area around corner is partially white, partially black.
+
+Mulig forbedret hjørnedeteksjon:
+- Sorter langs x og langs y.
+- Ekstremene (første og siste) i alle retninger er kandidater.
+- Sjekk hver kandidat som et kryss - litt ut i hver retning. Minst en skal være svart og en hvit.
+---> reduser blur til 3?
+
+- Kan funke for skewed korners også - hvis man søker etter noe som er tidlig i begge listene så er det kanskje siste hjørnet
  */

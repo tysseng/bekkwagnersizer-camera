@@ -6,7 +6,7 @@ import { timed } from "../utils/timer";
 import { isLogoInCorrectCorner } from './logoDetection';
 import { distance } from './trigonometry';
 import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
-import { rotateColor180 } from "./context.utils";
+import { copyCanvas, rotateColor180 } from "./context.utils";
 
 const correctOrientation = (sheetCorners) => {
   const { topLeft, topRight, bottomLeft, bottomRight } = sheetCorners;
@@ -27,26 +27,34 @@ const correctOrientation = (sheetCorners) => {
   }
 };
 
-const extractSheetUsingPerspectiveTransformation = (
-  sheetCorners, ctx, sheetCtx, width, height
+export const extractSheetUsingPerspectiveTransformation = (
+  sheetCorners, sheetWidth, sheetHeight, canvases,
 ) => {
+
+  const imageCtx = canvases.videoFrame.ctx;
+  const correctedCtx = canvases.correctedSheetScaling.ctx;
+  const flippedCtx = canvases.correctedSheetFlipping.ctx;
   // adjust landscape/portrait. We want a portrait view.
-  sheetCorners = correctOrientation(sheetCorners, ctx, width, height);
+  sheetCorners = correctOrientation(sheetCorners);
 
   // TODO: This is a VERY expensive operation (approx 400ms, 1/3 of the total time). Check if
   // we can get away with rotate and scale. This requires a better calibration of the camera's
   // position to the table though
-  timed(() => correctPerspective(ctx, sheetCtx, width, height, sheetCorners), 'correct perspective');
+  timed(() => correctPerspective(imageCtx, correctedCtx, sheetWidth, sheetHeight, sheetCorners), 'correct perspective');
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
-  const grayPerspectiveCorrectedImage = mapToJsFeatImageData(sheetCtx, width, height);
+  const grayPerspectiveCorrectedImage = mapToJsFeatImageData(correctedCtx, sheetWidth, sheetHeight);
 
-  if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, width, height)) {
+  if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, sheetWidth, sheetHeight)) {
     timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
-    const imageData = sheetCtx.getImageData(0, 0, width, height);
-    timed(() => rotateColor180(imageData.data, height * width * 4), 'rotating color image');
-    sheetCtx.putImageData(imageData, 0, 0);
+    const imageData = correctedCtx.getImageData(0, 0, sheetWidth, sheetHeight);
+
+    timed(() => rotateColor180(imageData.data, sheetHeight * sheetWidth * 4), 'rotating color image');
+    flippedCtx.putImageData(imageData, 0, 0);
+  } else {
+    // for debugging
+    copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
   }
 
   return grayPerspectiveCorrectedImage;

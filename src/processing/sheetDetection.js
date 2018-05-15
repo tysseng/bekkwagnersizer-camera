@@ -45,6 +45,7 @@ const findCornerCandidates = (image) => {
 };
 
 // finds the outermost detected points in all directions
+/*
 const findBoundingBox = (corners) => {
   let minX = Number.MAX_VALUE;
   let maxX = -1;
@@ -62,6 +63,23 @@ const findBoundingBox = (corners) => {
   return {
     topLeft: { x: minX, y: minY },
     bottomRight: { x: maxX, y: maxY }
+  };
+};
+*/
+
+const copyAndSortY = (corners) => {
+  let i = corners.length;
+  const cornersCopy = [];
+  while (i--) cornersCopy[i] = corners[i];
+  return cornersCopy.sort((corner1, corner2) => corner1.y - corner2.y);
+};
+
+const findBoundingBox = (corners) => {
+  const xSorted = corners.sort((corner1, corner2) => corner1.x - corner2.x);
+  const ySorted = copyAndSortY(corners);
+  return {
+    topLeft: { x: xSorted[0].x, y: ySorted[0].y },
+    bottomRight: { x: xSorted[xSorted.length - 1].x, y: ySorted[ySorted.length - 1].y }
   };
 };
 
@@ -127,9 +145,11 @@ const findSheetCorners = (boundingBox, corners) => {
 
 export const detectSheetPosition = (ctx, image) => {
   const corners = timed(() => findCornerCandidatesUsingBlurredImage(image), 'detect corners');
+
   if (debug.drawAllCorners) timed(() => drawAllCorners(ctx, corners), 'draw All Corners');
 
-  const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box');
+  //const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box');
+  const boundingBox = timed(() => findBoundingBox(corners), 'find bounding box2');
   if (debug.drawBoundingBox) timed(() => drawBoundingBox(ctx, boundingBox), 'draw bounding box');
 
   const sheetCorners = timed(() => findSheetCorners(boundingBox, corners), 'find bounding corners');

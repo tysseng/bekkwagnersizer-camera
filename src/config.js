@@ -53,6 +53,7 @@ export default {
   source,
   preventDetectionOutsideBoundingCicle: false, // set this to false to debug with image without bounds
   showSteps: true,
+  exactSheetCorrection: false,
   debug: {
     drawSheetCorners: true,
     drawBoundingBox: true,
@@ -93,5 +94,6 @@ export default {
 
   // where to find bit dots (to indicate what image this is)
   bitPositions,
+  bitPositionPadding: 19,
 }
 

@@ -3,7 +3,7 @@ import { drawSquareAroundPoint } from "./jsfeat.utils";
 import { drawJsFeatImageOnContext } from "./draw";
 import logger from "../utils/logger";
 
-const paddingAroundBitPosition = 19;
+const paddingAroundBitPosition = config.bitPositionPadding;
 const blackThreshold = 100;
 const blackPixNeededFor1 = 30;
 
@@ -18,6 +18,17 @@ const bit = (image, imageWidth, padding, x, y) => {
     }
   }
   return '0';
+};
+
+const removeBitDot = (ctx, pos, padding) => {
+  const {x, y} = pos;
+  ctx.beginPath();
+  ctx.fillRect(x-padding, y-padding, 2 * padding, 2* padding);
+  ctx.stroke();
+};
+
+export const removeBitDots = (ctx) => {
+  config.bitPositions.forEach(pos => removeBitDot(ctx, pos, paddingAroundBitPosition + 4));
 };
 
 const readBit = (pos, image, width) => {

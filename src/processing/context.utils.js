@@ -1,3 +1,5 @@
+import { timed } from "../utils/timer";
+
 export const rotateColor180 = (data, length) => {
   for (let i = 0; i < length / 2; i += 4) {
     const temp1 = data[i];
@@ -16,7 +18,7 @@ export const rotateColor180 = (data, length) => {
 };
 
 export const copyCanvas = (source, target) => {
-  target.ctx.drawImage(source.canvas, 0, 0);
+  timed(() => target.ctx.drawImage(source.canvas, 0, 0), 'Copying canvas');
 };
 
 export const getColorFromImageData = (data, point, width) => {

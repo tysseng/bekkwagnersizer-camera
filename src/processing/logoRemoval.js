@@ -1,6 +1,6 @@
 import config from '../config';
 
-export const removeLogosAndShit = (ctx) => {
+export const removeLogo = (ctx) => {
   const {x, y, width, height} = config.logoBoundingBox;
   ctx.beginPath();
   ctx.fillRect(x, y, width, height);
