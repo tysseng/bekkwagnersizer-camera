@@ -27,7 +27,7 @@ const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rota
     drawImageOnCanvas(imageCanvas, ctx);
   }
   const grayscaledImage = mapToJsFeatImageData(ctx, width, height);
-  return detectSheetPosition(ctx, grayscaledImage);
+  return detectSheetPosition(ctx, grayscaledImage, width);
 };
 
 const process = (canvases) => {
@@ -138,7 +138,7 @@ const process = (canvases) => {
     sheetHeight
   ), 'remove mask');
 
-  uploadFile(canvases.extracted.canvas);
+  if(config.uploadFile) uploadFile(canvases.extracted.canvas);
 };
 
 export const processImage = (canvases) => {

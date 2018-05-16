@@ -97,5 +97,6 @@ export default {
   bitPositionPadding: 19,
 
   imageServer: 'http://localhost:3000/image',
+  uploadFile: false,
 }
 
