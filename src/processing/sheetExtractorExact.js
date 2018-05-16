@@ -4,7 +4,7 @@
 import { correctPerspective } from "./perspectiveFixer";
 import { timed } from "../utils/timer";
 import { isLogoInCorrectCorner } from './logoDetection';
-import { distance } from './trigonometry';
+import { distance, rotatePointAroundCenter } from './trigonometry';
 import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
 import { copyCanvas, rotateColor180 } from "./context.utils";
 
@@ -27,13 +27,34 @@ const correctOrientation = (sheetCorners) => {
   }
 };
 
+const rotateSheetCorners = (sheetCorners, width, height, angle) => {
+  const { topLeft, topRight, bottomLeft, bottomRight } = sheetCorners;
+  return {
+    topLeft: rotatePointAroundCenter(topLeft, width, height, angle),
+    topRight: rotatePointAroundCenter(topRight, width, height, angle),
+    bottomLeft: rotatePointAroundCenter(bottomLeft, width, height, angle),
+    bottomRight: rotatePointAroundCenter(bottomRight, width, height, angle)
+  }
+};
+
 export const extractSheetUsingPerspectiveTransformation = (
-  sheetCorners, sheetWidth, sheetHeight, canvases,
+  sheetCorners,
+  frameWidth,
+  frameHeight,
+  sheetWidth,
+  sheetHeight,
+  prerotation,
+  canvases,
 ) => {
 
   const imageCtx = canvases.videoFrame.ctx;
   const correctedCtx = canvases.correctedSheetScaling.ctx;
   const flippedCtx = canvases.correctedSheetFlipping.ctx;
+
+  // TODO: this should probably be done in sheetDetection.
+  // remove prerotation to get points that match the original image
+  sheetCorners = timed(() => rotateSheetCorners(sheetCorners, frameWidth, frameHeight, prerotation), 'rotating corners');
+
   // adjust landscape/portrait. We want a portrait view.
   sheetCorners = correctOrientation(sheetCorners);
 

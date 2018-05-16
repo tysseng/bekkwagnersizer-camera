@@ -159,6 +159,7 @@ export const detectSheetPosition = (ctx, image, width) => {
 
   // TODO: debug render corners;
   if(extremeCorners === null){
+    logger.error('No extreme corners returned, aborting');
     return null;
   }
 

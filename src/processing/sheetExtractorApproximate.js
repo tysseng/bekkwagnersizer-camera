@@ -6,7 +6,7 @@ import { timed } from "../utils/timer";
 import { drawImageRotatedAroundCenter } from "./draw";
 import { isLogoInCorrectCorner } from './logoDetection';
 import config from '../config';
-import { distance } from './trigonometry';
+import { distance, rotatePointAroundCenter } from './trigonometry';
 import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
 import { copyCanvas, rotateColor180 } from "./context.utils";
 import logger from '../utils/logger';
@@ -32,23 +32,13 @@ const detectRotation = (sheetCorners) => {
   }
 };
 
-const rotateCorner = (corner, width, height, angle) => {
-  const centerX = corner.x - (width / 2);
-  const centerY = corner.y - (height / 2);
-
-  const newX = (centerX * Math.cos(angle)) - (centerY * Math.sin(angle));
-  const newY = (centerY * Math.cos(angle)) + (centerX * Math.sin(angle));
-
-  return { x: Math.round(newX + (width / 2)), y: Math.round(newY + (height / 2)) };
-};
-
 const rotateSheetCorners = (sheetCorners, width, height, angle) => {
   const { topLeft, topRight, bottomLeft, bottomRight } = sheetCorners;
   return {
-    topLeft: rotateCorner(topLeft, width, height, angle),
-    topRight: rotateCorner(topRight, width, height, angle),
-    bottomLeft: rotateCorner(bottomLeft, width, height, angle),
-    bottomRight: rotateCorner(bottomRight, width, height, angle)
+    topLeft: rotatePointAroundCenter(topLeft, width, height, angle),
+    topRight: rotatePointAroundCenter(topRight, width, height, angle),
+    bottomLeft: rotatePointAroundCenter(bottomLeft, width, height, angle),
+    bottomRight: rotatePointAroundCenter(bottomRight, width, height, angle)
   }
 };
 

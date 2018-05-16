@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import imageToProcess from '../assets/images/IMG_6922.jpg';
+import imageToProcess from '../assets/images/IMG_6326.jpg';
 
 class ImageCapturer extends React.Component {
 

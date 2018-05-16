@@ -80,7 +80,13 @@ const process = (canvases) => {
   let sheetImageBW;
   if(config.exactSheetCorrection){
     sheetImageBW = extractSheetUsingPerspectiveTransformation(
-      sheetCorners, sheetWidth, sheetHeight, canvases,
+      sheetCorners,
+      frameWidth,
+      frameHeight,
+      sheetWidth,
+      sheetHeight,
+      prerotation,
+      canvases,
     );
   } else {
     // extract sheet, also writes to correctedSheet canvases as intermediate steps.
@@ -151,18 +157,7 @@ export const processBaseline = (canvases) => {
 
 // TODO
 /*
-6922: Figure out why correction fails
-6920: Ignore white dots (use some kind of threshold before detecting corners?)
---> Test that area around corner is partially white, partially black.
-
-Mulig forbedret hjørnedeteksjon:
-- Sorter langs x og langs y.
-- Ekstremene (første og siste) i alle retninger er kandidater.
-- Sjekk hver kandidat som et kryss - litt ut i hver retning. Minst en skal være svart og en hvit.
----> reduser blur til 3?
-
-- Kan funke for skewed korners også - hvis man søker etter noe som er tidlig i begge listene så er det kanskje siste hjørnet
-
+6303 - rotering feiler (roterer dobbelt?)
 
 OUTPUT 512 x 512 PNG - padder sidene av arket for å få kvadratisk.
 
