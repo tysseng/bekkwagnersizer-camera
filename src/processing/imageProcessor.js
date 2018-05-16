@@ -19,6 +19,7 @@ import { captureOriginalCircle, isCircleOccluded } from "./outlineOcclusionDetec
 import { readBitCode, removeBitDots } from "./bitCodeReader";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
 import { uploadFile } from "../network/fileUploader";
+import { resizeToUploadSize } from "./uploadResizer";
 
 const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rotation = 0) => {
   if (rotation !== 0) {
@@ -144,7 +145,9 @@ const process = (canvases) => {
     sheetHeight
   ), 'remove mask');
 
-  if(config.uploadFile) uploadFile(canvases.extracted.canvas);
+  resizeToUploadSize(canvases.extracted.canvas, canvases.uploadable.ctx, sheetWidth, sheetHeight);
+
+  if(config.uploadFile) uploadFile(canvases.uploadable.canvas);
 };
 
 export const processImage = (canvases) => {
@@ -159,10 +162,6 @@ export const processBaseline = (canvases) => {
 /*
 6303 - rotering feiler (roterer dobbelt?)
 
-OUTPUT 512 x 512 PNG - padder sidene av arket for å få kvadratisk.
-
 Defaulttype hvis vi ikke klarer å detektere kode.
 Kopiere over i fellesrepo. /image
-
-Fjerne 1px fra outline
  */

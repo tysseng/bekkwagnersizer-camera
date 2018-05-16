@@ -5,7 +5,6 @@
 import { timed } from "../utils/timer";
 import { drawImageRotatedAroundCenter } from "./draw";
 import { isLogoInCorrectCorner } from './logoDetection';
-import config from '../config';
 import { distance, rotatePointAroundCenter } from './trigonometry';
 import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
 import { copyCanvas, rotateColor180 } from "./context.utils";

@@ -42,7 +42,6 @@ export const correctPerspective = (ctx, correctedCtx, sheetWidth, sheetHeight, s
   ), 'perspective correction transform');
 
   let x, y;
-  let i = 0;
 
   const imageData = ctx.getImageData(x, y, sheetWidth, sheetHeight);
   const correctedImageData = correctedCtx.getImageData(x, y, sheetWidth, sheetHeight);

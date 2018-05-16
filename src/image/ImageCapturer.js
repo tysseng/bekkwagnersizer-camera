@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import imageToProcess from '../assets/images/IMG_6326.jpg';
+import imageToProcess from '../assets/images/IMG_6304.jpg';
 
 class ImageCapturer extends React.Component {
 
@@ -25,7 +25,7 @@ class ImageCapturer extends React.Component {
     return (
       <div>
         <button onClick={() => this.captureFrame()}>Capture!</button>
-        <img ref='sourceImage' src={imageToProcess}/>
+        <img ref='sourceImage' src={imageToProcess} alt="There's no alternative!"/>
       </div>
     );
   }

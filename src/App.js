@@ -81,6 +81,7 @@ class App extends Component {
         filled: { canvas: all[curr++] },
         mask: { canvas: all[curr++] },
         extracted: { canvas: all[curr++] },
+        uploadable: { canvas: all[curr++] },
       };
     } else {
 
@@ -88,6 +89,7 @@ class App extends Component {
 
     const sourceSize = config.sourceSize;
     const sheetSize = config.sheetSize;
+    const uploadSize = config.uploadSize;
 
     setSize(canvases.baselineVideoFrame, sourceSize);
     setSize(canvases.videoFrame, sourceSize);
@@ -102,6 +104,7 @@ class App extends Component {
     setSize(canvases.filled, sheetSize);
     setSize(canvases.mask, sheetSize);
     setSize(canvases.extracted, sheetSize);
+    setSize(canvases.uploadable, uploadSize);
 
     Object.keys(canvases).forEach(key => {
       canvases[key].ctx = canvases[key].canvas.getContext('2d');
@@ -186,6 +189,10 @@ class App extends Component {
           </div>
           <div>
             <h3>Extracted</h3>
+            <canvas/>
+          </div>
+          <div>
+            <h3>Uploadable</h3>
             <canvas/>
           </div>
         </div>

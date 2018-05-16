@@ -96,7 +96,11 @@ export default {
   bitPositions,
   bitPositionPadding: 19,
 
+  uploadSize: {
+    width: 512,
+    height:512,
+  },
   imageServer: 'http://localhost:3000/image',
-  uploadFile: false,
+  uploadFile: true,
 }
 
