@@ -51,8 +51,11 @@ const bitPositions = bitPositionsMM.map(
 
 export default {
   source,
+  detectHand: false, // while looping - require occlusion of outline before trying to capture new image
   preventDetectionOutsideBoundingCicle: false, // set this to false to debug with image without bounds
+  preventDuplicates: true, // blocks processing if detected corners are the same as last time
   showSteps: true,
+  showTimings: false,
   exactSheetCorrection: true,
   debug: {
     drawSheetCorners: true,

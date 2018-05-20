@@ -1,6 +1,6 @@
 import config from "../config";
-import { drawSquareAroundPoint } from "./jsfeat.utils";
-import { drawJsFeatImageOnContext } from "./draw";
+import { drawSquareAroundPoint } from "../utils/gfx/jsfeat.utils";
+import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
 import logger from "../utils/logger";
 
 const paddingAroundBitPosition = config.bitPositionPadding;

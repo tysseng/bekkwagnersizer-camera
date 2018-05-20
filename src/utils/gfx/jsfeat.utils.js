@@ -1,5 +1,5 @@
 import jsfeat from 'jsfeat';
-import { timed } from "../utils/timer";
+import { timed } from "../timer";
 
 
 export const drawSquareAroundPoint = (image, imageWidth, padding, x, y, color) => {

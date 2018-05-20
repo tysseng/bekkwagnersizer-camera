@@ -1,20 +1,19 @@
-import { timed } from "../utils/timer";
+import { timed } from "../timer";
 import { mapToCanvasImageData } from "./jsfeat.utils";
 
 const padding = 20;
 
 export const drawImageOnCanvas = (imageCanvas, ctx) => {
   timed(() => {
-    //const img = document.getElementById("sourceImage");
     ctx.drawImage(imageCanvas, 0, 0);
   }, 'draw image on canvas');
 };
 
-export const drawBoundingBox = (ctx, bb) => {
-  const x = bb.topLeft.x;
-  const y = bb.topLeft.y;
-  const height = bb.bottomRight.y - y;
-  const width = bb.bottomRight.x - x;
+export const drawBox = (ctx, topLeft, bottomRight) => {
+  const x = topLeft.x;
+  const y = topLeft.y;
+  const height = bottomRight.y - y;
+  const width = bottomRight.x - x;
 
   ctx.beginPath();
   ctx.lineWidth = '1';
@@ -31,9 +30,9 @@ export const drawCorners = (ctx, sheetCorners) => {
   drawPoint(ctx, sheetCorners.bottomLeft, 'blue');
 };
 
-export const drawAllCorners = (ctx, corners) => {
+export const drawAllPoints = (ctx, points) => {
   // draw in clockwise order
-  corners.forEach(corner => drawPoint(ctx, corner, 'red'))
+  points.forEach(point => drawPoint(ctx, point, 'red'))
 };
 
 export const drawPoint = (ctx, point, color) => {

@@ -1,7 +1,7 @@
 // try to figure out when something (like a hand) enters the circle
 import config from "../config";
-import { getPointFromAngle } from "./trigonometry";
-import { getColorFromImageData } from "./context.utils";
+import { getPointFromAngle } from "../utils/trigonometry";
+import { getColorFromImageData } from "../utils/gfx/context.utils";
 
 const sampleSize = 10; // how many samples to look at at once
 const stepsPerRevolution = 100;
@@ -77,6 +77,10 @@ export const isCircleOccluded = (ctx) => {
 
     sampleIndex = (sampleIndex + 1) % sampleSize;
   }
+};
+
+export const processBaseline = (canvases) => {
+  captureOriginalCircle(canvases.baselineVideoFrame.ctx);
 };
 
 // TODO: Precalc sample points

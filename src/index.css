@@ -16,3 +16,21 @@ video {
 canvas {
   border: 2px solid red;
 }
+
+button {
+  padding: 3rem;
+  font-size: 3rem;
+  margin: 1rem;
+}
+
+button.initial {
+  background-color: #f00;
+}
+
+button.primary {
+  background-color: #11ff44;
+}
+
+h3 {
+  font-size: 3rem;
+}

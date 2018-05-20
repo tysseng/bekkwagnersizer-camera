@@ -1,8 +1,8 @@
 import { timed } from "../utils/timer";
 import jsfeat from 'jsfeat';
-import { detectLines, subMatrixTouchesMask } from "./lineDetection";
-import { mapToCanvasImageData } from "./jsfeat.utils";
-import { floodFill } from "./draw";
+import { detectEdges, subMatrixTouchesMask } from "./edgeDetection";
+import { mapToCanvasImageData } from "../utils/gfx/jsfeat.utils";
+import { floodFill } from "../utils/gfx/draw";
 
 // TODO: Must be possible to do this faster, directly in a monocrome image
 export const getMonocromeMask = (ctx, width, height) => {
@@ -66,7 +66,7 @@ export const erodeMaskWithEdgeDetection = (maskCtx, lineImageData, monocromeMask
   // by detecting the new mask outline, which is exactly one dilute distance from the real line. As
   // dilute works in both directions, a second dilute will reclaim the missing pixels without
   // going into the holes that were plugged by the original dilute.
-  const maskOutline = timed(() => detectLines(monocromeMask, width, height), 'erode mask');
+  const maskOutline = timed(() => detectEdges(monocromeMask, width, height), 'erode mask');
   mapToCanvasImageData(maskOutline, lineImageData);
   timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
   timed(() => floodFill(maskCtx, 255, 255, 255, 0), 'flood fill mask again');

@@ -3,11 +3,11 @@
 // it to fill the whole context.
 
 import { timed } from "../utils/timer";
-import { drawImageRotatedAroundCenter } from "./draw";
-import { isLogoInCorrectCorner } from './logoDetection';
-import { distance, rotatePointAroundCenter } from './trigonometry';
-import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
-import { copyCanvas, rotateColor180 } from "./context.utils";
+import { drawImageRotatedAroundCenter } from "../utils/gfx/draw";
+import { isLogoInCorrectCorner } from './logo';
+import { distance, rotatePointAroundCenter } from '../utils/trigonometry';
+import { mapToJsFeatImageData, rotateGrayscale180 } from '../utils/gfx/jsfeat.utils';
+import { copyCanvas, rotateColor180 } from "../utils/gfx/context.utils";
 import logger from '../utils/logger';
 
 const detectRotation = (sheetCorners) => {

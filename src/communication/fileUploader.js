@@ -1,5 +1,6 @@
 import uuid from 'uuid/v1';
 import config from "../config";
+import logger from "../utils/logger";
 
 const filenames = [
   'miraBird'
@@ -37,11 +38,13 @@ export const uploadFile = (canvas, bitCode) => {
 
   const blob = b64toBlob(realData, contentType);
 
-  //const filename = `${filenames[bitCode]}-${uuid()}.png`;
-  const filename = `${filenames[0]}-${uuid()}.png`;
+  const filenameStem = filenames[bitCode] || 'fallback';
+  const filename = `${filenameStem}-${uuid()}.png`;
 
   const formData = new FormData();
   formData.append("image", blob, filename);
+
+  logger.info(`uploading ${filename} (bitCode ${bitCode}) to MiraServer`);
 
   fetch(config.imageServer, {
     method: 'POST',

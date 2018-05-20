@@ -1,6 +1,6 @@
 import logger from '../utils/logger';
 import config from '../config';
-import { getAverageColor } from "./jsfeat.utils";
+import { getAverageColor } from "../utils/gfx/jsfeat.utils";
 
 const logoCenter = config.logoDetectionPosition;
 const logoSamplePadding = 5;
@@ -16,4 +16,11 @@ export const isLogoInCorrectCorner = (image, width, height) => {
     logger.info("LOGO: logo is in wrong corner, rotate sheet!");
     return false;
   }
-}
+};
+
+export const removeLogo = (ctx) => {
+  const {x, y, width, height} = config.logoBoundingBox;
+  ctx.beginPath();
+  ctx.fillRect(x, y, width, height);
+  ctx.stroke();
+};

@@ -1,4 +1,4 @@
-import logger from "../utils/logger";
+import logger from "./logger";
 
 export const distance = (point1, point2) => {
   const x = point2.x - point1.x;
@@ -46,4 +46,8 @@ export const rotatePointAroundCenter = (point, width, height, angle) => {
   const newY = (centerY * Math.cos(angle)) + (centerX * Math.sin(angle));
 
   return { x: Math.round(newX + (width / 2)), y: Math.round(newY + (height / 2)) };
+};
+
+export const isInsideCircle = (point, center, radius) => {
+  return distance(point, center) < radius;
 };

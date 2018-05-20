@@ -1,77 +1,25 @@
 import 'floodfill';
-import { mapToJsFeatImageData } from './jsfeat.utils';
-import { detectSheetPosition } from "./sheetDetection";
-import { detectLines } from "./lineDetection";
+import config from "../config";
+import { detectEdges } from "./edgeDetection";
 import { timed } from "../utils/timer";
-import {
-  drawImageOnCanvas,
-  drawImageRotatedAroundCenter,
-  drawJsFeatImageOnContext,
-  floodFill
-} from "./draw";
+import { drawJsFeatImageOnContext, floodFill } from "../utils/gfx/draw";
 import { extractSheetUsingRotationAndScaling } from "./sheetExtractorApproximate";
 import { erodeMask, getMonocromeMask, removeMask } from "./mask";
-import { copyCanvas } from "./context.utils";
-import logger from '../utils/logger';
-import { removeLogo } from "./logoRemoval";
-import config from "../config";
-import { captureOriginalCircle, isCircleOccluded } from "./outlineOcclusionDetection";
+import { copyCanvas } from "../utils/gfx/context.utils";
+import { removeLogo } from "./logo";
 import { readBitCode, removeBitDots } from "./bitCodeReader";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
-import { uploadFile } from "../network/fileUploader";
 import { resizeToUploadSize } from "./uploadResizer";
 
-const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rotation = 0) => {
-  if (rotation !== 0) {
-    timed(() => drawImageRotatedAroundCenter(imageCanvas, ctx, width, height, -rotation), 'rotate');
-  } else {
-    drawImageOnCanvas(imageCanvas, ctx);
-  }
-  const grayscaledImage = mapToJsFeatImageData(ctx, width, height);
-  return detectSheetPosition(ctx, grayscaledImage, width);
-};
 
-const process = (canvases) => {
-
-  let sheetCorners;
-  let detectedSheetCanvasContainer;
-  let prerotation = 0;
-
+// Extract detected sheet, detect drawing type and isolate drawing.
+export const process = (canvases, sheetParams) => {
   const { width: frameWidth, height: frameHeight } = config.sourceSize;
   const { width: sheetWidth, height: sheetHeight } = config.sheetSize;
 
-  /*
-  const isOccluded = isCircleOccluded(canvases.videoFrame.ctx);
-  if(isOccluded){
-    console.log("HAND");
-  } else {
-    console.log("NAH");
-  }*/
+  const { sheetCorners, detectedSheetCanvasContainer, prerotation } = sheetParams;
 
-  sheetCorners = drawImageOnCanvasAndDetectCorners(
-    canvases.videoFrame.canvas,
-    canvases.detectedSheet.ctx,
-    frameWidth,
-    frameHeight,
-    0
-  );
-  detectedSheetCanvasContainer = canvases.detectedSheet;
-
-  if(sheetCorners === null){
-    // rotate and try again. 0.10 seems like a good rotation,
-    // TODO: This may not be necessary when doing centered-above photos.
-    prerotation = 0.10;
-    sheetCorners = drawImageOnCanvasAndDetectCorners(
-      canvases.videoFrame.canvas,
-      canvases.detectedSheetRotated.ctx,
-      frameWidth,
-      frameHeight,
-      prerotation
-    );
-    detectedSheetCanvasContainer = canvases.detectedSheetRotated;
-  }
-
-  if(sheetCorners === null){
+  if (sheetCorners === null) {
     throw Error('Could not detect sheet corners');
   }
 
@@ -79,7 +27,7 @@ const process = (canvases) => {
   copyCanvas(detectedSheetCanvasContainer, canvases.correctedSheetRotation);
 
   let sheetImageBW;
-  if(config.exactSheetCorrection){
+  if (config.exactSheetCorrection) {
     sheetImageBW = extractSheetUsingPerspectiveTransformation(
       sheetCorners,
       frameWidth,
@@ -103,10 +51,10 @@ const process = (canvases) => {
   }
 
   // detect bit code to see what image this is
-  timed(() => readBitCode(sheetImageBW, sheetWidth, sheetHeight, canvases), 'Reading bit code');
+  const bitCode = timed(() => readBitCode(sheetImageBW, sheetWidth, sheetHeight, canvases), 'Reading bit code');
 
   // find lines to prepare for flood fill
-  const jsFeatImageWithDilutedLines = timed(() => detectLines(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');
+  const jsFeatImageWithDilutedLines = timed(() => detectEdges(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');
   drawJsFeatImageOnContext(jsFeatImageWithDilutedLines, canvases.edges.ctx, sheetWidth, sheetHeight);
 
   // copy to be able to debug.
@@ -147,21 +95,5 @@ const process = (canvases) => {
 
   resizeToUploadSize(canvases.extracted.canvas, canvases.uploadable.ctx, sheetWidth, sheetHeight);
 
-  if(config.uploadFile) uploadFile(canvases.uploadable.canvas);
+  return bitCode;
 };
-
-export const processImage = (canvases) => {
-  timed(() => process(canvases), 'FINISHED PROCESSING IMAGE');
-};
-
-export const processBaseline = (canvases) => {
-  captureOriginalCircle(canvases.baselineVideoFrame.ctx);
-};
-
-// TODO
-/*
-6303 - rotering feiler (roterer dobbelt?)
-
-Defaulttype hvis vi ikke klarer å detektere kode.
-Kopiere over i fellesrepo. /image
- */

@@ -3,10 +3,10 @@
 
 import { correctPerspective } from "./perspectiveFixer";
 import { timed } from "../utils/timer";
-import { isLogoInCorrectCorner } from './logoDetection';
-import { distance, rotatePointAroundCenter } from './trigonometry';
-import { mapToJsFeatImageData, rotateGrayscale180 } from './jsfeat.utils';
-import { copyCanvas, rotateColor180 } from "./context.utils";
+import { isLogoInCorrectCorner } from './logo';
+import { distance, rotatePointAroundCenter } from '../utils/trigonometry';
+import { mapToJsFeatImageData, rotateGrayscale180 } from '../utils/gfx/jsfeat.utils';
+import { copyCanvas, rotateColor180 } from "../utils/gfx/context.utils";
 
 const correctOrientation = (sheetCorners) => {
   const { topLeft, topRight, bottomLeft, bottomRight } = sheetCorners;

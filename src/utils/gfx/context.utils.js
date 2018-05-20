@@ -1,4 +1,4 @@
-import { timed } from "../utils/timer";
+import { timed } from "../timer";
 
 export const rotateColor180 = (data, length) => {
   for (let i = 0; i < length / 2; i += 4) {

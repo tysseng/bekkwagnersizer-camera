@@ -1,15 +1,19 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { processImage, processBaseline } from './processing/imageProcessor';
+import { run, runSingleCycle, stop } from './runner';
 import config from './config';
-import VideoCapturer from "./video/VideoCapturer";
+import Video from "./sources/Video";
 import logger from './utils/logger';
-import ImageCapturer from "./image/ImageCapturer";
+import Image from "./sources/Image";
+import { captureBaselineVideoFrame } from "./detection/capturing";
+import { processBaseline } from "./processing/processor";
+import { captureOriginalCircle } from "./detection/outlineOcclusionDetection";
 
 const setSize = (container, { width, height }) => {
   container.canvas.width = width;
   container.canvas.height = height;
+  container.dimensions = { width, height };
 };
 
 class App extends Component {
@@ -22,10 +26,12 @@ class App extends Component {
       sequenceNumber: 0,
     };
     this.sourceHasLoaded = this.sourceHasLoaded.bind(this);
-    this.processImage = this.processImage.bind(this);
-    this.processBaseline = this.processBaseline.bind(this);
+    this.run = this.run.bind(this);
+    this.runSingleCycle = this.runSingleCycle.bind(this);
+    this.setBaseline = this.setBaseline.bind(this);
     this.captureCanvases = this.captureCanvases.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
+    this.getSourceElement = this.getSourceElement.bind(this);
   }
 
   componentDidMount() {
@@ -39,21 +45,42 @@ class App extends Component {
     })
   }
 
-  processImage() {
+  getSourceElement() {
+    if (config.source === 'video') {
+      return this.refs.videoSource.refs.video;
+    } else {
+      return this.refs.imageSource.refs.image;
+    }
+  }
 
+  run() {
     try {
-      processImage(this.state.canvases);
+      run(this.state.canvases, this.getSourceElement());
     } catch (error) {
       logger.error('Could not complete image processing');
       logger.error(error);
     }
   }
 
-  processBaseline() {
+  runSingleCycle() {
+    try {
+      runSingleCycle(this.state.canvases, this.getSourceElement());
+    } catch (error) {
+      logger.error('Could not complete image processing');
+      logger.error(error);
+    }
+  }
+
+  stop() {
+    stop();
+  }
+
+  setBaseline() {
     logger.info("Process baseline image");
 
     try {
-      processBaseline(this.state.canvases);
+      captureBaselineVideoFrame(this.state.canvases, this.getSourceElement());
+      captureOriginalCircle(this.state.canvases.baselineVideoFrame.ctx);
     } catch (error) {
       logger.error('Could not set baseline');
       logger.error(error);
@@ -62,7 +89,7 @@ class App extends Component {
 
   captureCanvases() {
     const canvasesDiv = document.querySelector('.canvases');
-    const all =  canvasesDiv.querySelectorAll('canvas');
+    const all = canvasesDiv.querySelectorAll('canvas');
 
     let curr = 0;
     let canvases;
@@ -118,23 +145,28 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo"/>
-          <h1 className="App-title">Image processor</h1>
+          <h1 className="App-title">ED Awards Image processor - Joakim Tysseng 2018</h1>
         </header>
         <p className="App-intro">
         </p>
         <div>
+          <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
+          <button onClick={() => this.runSingleCycle()}>Run single</button>
+          <button className='primary'onClick={() => this.run()}>Run forever</button>
+          <button onClick={() => this.stop()}>Stop!</button>
+        </div>
+        <div>
           {config.source === 'video' ?
-            <VideoCapturer
+            <Video
               dimensions={config.sourceSize}
-              processImage={this.processImage}
-              processBaseline={this.processBaseline}
               canvases={this.state.canvases}
+              ref='videoSource'
             />
             :
-            <ImageCapturer
+            <Image
               dimensions={config.sourceSize}
-              processImage={this.processImage}
               canvases={this.state.canvases}
+              ref='imageSource'
             />
           }
         </div>

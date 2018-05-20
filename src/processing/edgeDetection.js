@@ -3,7 +3,7 @@ import jsfeat from 'jsfeat';
 const dilutionWidth = 1;
 
 // Detect all lines in image. Lines are diluted to plug single pixel holes before flow filling
-export const detectLines = (image, width, height) => {
+export const detectEdges = (image, width, height) => {
   jsfeat.imgproc.canny(image, image, 30, 60);
   return diluteLines(image, width, height, 255, dilutionWidth);
 };
