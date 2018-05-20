@@ -79,7 +79,7 @@ class App extends Component {
 
     try {
       captureBaselineVideoFrame(this.state.canvases, this.getSourceElement());
-      captureOriginalCircle(this.state.canvases.baselineVideoFrame.ctx);
+      captureOriginalCircle(this.state.canvases);
     } catch (error) {
       logger.error('Could not set baseline');
       logger.error(error);

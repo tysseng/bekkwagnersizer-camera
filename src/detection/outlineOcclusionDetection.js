@@ -22,13 +22,14 @@ const getColorAt = (ctx, data, angle, center, radius, width) => {
 const changeIsAboveThreshold = (originalColor = 0, newColor) => {
   const diff = Math.abs(originalColor - newColor);
   if(diff > differenceThreshold){
-    //console.log('diff above treshold', diff);
+    //console.log('diff above treshold', diff, originalColor, newColor);
     return 1;
   }
   return 0;
 };
 
-export const captureOriginalCircle = (ctx) => {
+export const captureOriginalCircle = (canvases) => {
+  const ctx = canvases.baselineVideoFrame.ctx;
   const { width, height } = config.sourceSize;
   const data = ctx.getImageData(0, 0, width, height).data;
   const radius = width / 2 - outlineOffset;
@@ -38,7 +39,6 @@ export const captureOriginalCircle = (ctx) => {
 
     const angle = (step / stepsPerRevolution) * 2 * Math.PI;
     initialSamples[step] = getColorAt(ctx, data, angle, center, radius, width);
-    console.log('init', step, initialSamples[step]);
   }
   console.log('original captured');
 };
@@ -52,7 +52,8 @@ const sum = (samples) => {
   return sum;
 };
 
-export const isCircleOccluded = (ctx) => {
+export const isCircleOccluded = (canvases) => {
+  const ctx = canvases.videoFrame.ctx;
   const { width, height } = config.sourceSize;
   const data = ctx.getImageData(0, 0, width, height).data;
   const radius = width / 2 - outlineOffset;
@@ -65,7 +66,6 @@ export const isCircleOccluded = (ctx) => {
     const arrayPos = ((step + stepsPerRevolution) % stepsPerRevolution);
     const originalColor = initialSamples[arrayPos];
     const newColor = getColorAt(ctx, data, angle, center, radius, width);
-
     samples[sampleIndex] = changeIsAboveThreshold(originalColor, newColor);
 
     if(step >= 0){
@@ -77,10 +77,6 @@ export const isCircleOccluded = (ctx) => {
 
     sampleIndex = (sampleIndex + 1) % sampleSize;
   }
-};
-
-export const processBaseline = (canvases) => {
-  captureOriginalCircle(canvases.baselineVideoFrame.ctx);
 };
 
 // TODO: Precalc sample points

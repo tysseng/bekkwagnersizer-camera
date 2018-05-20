@@ -8,33 +8,30 @@ import { mapToJsFeatImageData } from "./utils/gfx/jsfeat.utils";
 import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
+import { timed } from "./utils/timer";
 
 // STATE! OH NO!
 let oldSheetParams = null;
 
 const waitForHandInOut = async (canvases, sourceElement) => {
-  const videoFrameCtx = canvases.videoFrame.ctx;
-
   if (config.detectHand) {
-
     // TODO: convert isCircleOccluded to grayscale?
 
+    // TODO: What if sheet was replaced while processing? check for sheet as well?
+
     // wait for hand
-    while (!isCircleOccluded(videoFrameCtx) && isRunning()) {
+    logger.info('waiting for hand');
+    while (!isCircleOccluded(canvases) && isRunning()) {
       await abortable(() => captureImage(canvases, sourceElement));
-      console.log('no hand')
-      // TODO: non-blocking delay
     }
-    // wait for hand to go away
-    while (isCircleOccluded(videoFrameCtx) && isRunning()) {
+    logger.info('waiting for hand to go away');
+    while (isCircleOccluded(canvases) && isRunning()) {
       await abortable(() => captureImage(canvases, sourceElement));
-      console.log('hand')
-      // TODO: non-blocking delay
     }
   }
 }
 
-const runSingleCycle = async (canvases, sourceElement) => {
+const runSingleCycle = async (canvases) => {
 
   const videoFrameCtx = canvases.videoFrame.ctx;
 
@@ -42,6 +39,7 @@ const runSingleCycle = async (canvases, sourceElement) => {
   const { width, height } = canvases.videoFrame.dimensions;
   const videoFrameImage = await abortable(() => mapToJsFeatImageData(videoFrameCtx, width, height));
   if (!(await abortable(() => isSheetPresent(videoFrameImage, width, height)))) {
+    logger.info('No sheet present, aborting');
     return;
   }
   logger.info('Sheet is present, looking for corners');
@@ -80,8 +78,8 @@ export const run = async (canvases, sourceElement) => {
     while (isRunning()) {
       await abortable(() => captureImage(canvases, sourceElement));
       await waitForHandInOut(canvases, sourceElement);
-      // TODO: wait for 2 seconds with posibility of aborting if hand is detected again.
-      await runSingleCycle(canvases, sourceElement);
+      // TODO: wait for 2 seconds with possibility of aborting if hand is detected again.
+      await runSingleCycle(canvases);
       logger.info('do the loop');
     }
   } catch (error) {
@@ -98,7 +96,7 @@ export const runOnce = async (canvases, sourceElement) => {
     await abortable(() => captureImage(canvases, sourceElement));
     logger.info('Captured initial frame');
 
-    await runSingleCycle(canvases, sourceElement);
+    await runSingleCycle(canvases);
     logger.info('Completed single cycle, resetting state to be able to restart');
     oldSheetParams = null;
     stopRunning();

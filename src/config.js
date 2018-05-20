@@ -1,4 +1,5 @@
 // 'image', 'video'
+//const source = 'video';
 const source = 'image';
 
 const videoFrameSize = {
@@ -51,11 +52,20 @@ const bitPositions = bitPositionsMM.map(
 
 export default {
   source,
-  detectHand: false, // while looping - require occlusion of outline before trying to capture new image
-  preventDetectionOutsideBoundingCicle: false, // set this to false to debug with image without bounds
-  preventDuplicates: true, // blocks processing if detected corners are the same as last time
+
+  // while looping - require occlusion of outline before trying to capture new image
+  // NB: Hand detection does not work with image, only video.
+  detectHand: true,
+
+  // set this to false to debug with image without bounds
+  preventDetectionOutsideBoundingCicle: false,
+
+  // blocks processing if detected corners are the same as last time
+  preventDuplicates: true,
   showSteps: true,
-  showTimings: false,
+
+  // show how long each step takes.
+  showTimings: true,
   exactSheetCorrection: true,
   debug: {
     drawSheetCorners: true,
