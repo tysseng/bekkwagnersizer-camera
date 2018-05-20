@@ -17,7 +17,8 @@ HArdware:
 Sjekk for hånd
 Hvis hånd, vent på ikke hånd
 Ikke hånd: Start timer (2 sek?)
-Ny hånd i grace-period: avbryt og vent på ikke hånd igjen.
+---> mangler denne: Ny hånd i grace-period: avbryt og vent på ikke hånd igjen.
+
 Ta bilde.
 Hvis ikke detektert, vent to sek, prøv igjen
 Hvis ikke, vent på hånd igjen.

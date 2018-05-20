@@ -6,43 +6,47 @@ import { process } from "./processing/processor";
 import { isCircleOccluded } from "./detection/outlineOcclusionDetection";
 import { mapToJsFeatImageData } from "./utils/gfx/jsfeat.utils";
 import { uploadFile } from "./communication/fileUploader";
+import { abortable, timeout } from "./utils/promises";
+import { isRunning, startRunning, stopRunning } from "./runstatus";
 
 // STATE! OH NO!
 let oldSheetParams = null;
-let running = true;
 
-export const runSingleCycle = (canvases, sourceElement) => {
+const waitForHandInOut = async (canvases, sourceElement) => {
   const videoFrameCtx = canvases.videoFrame.ctx;
-
-  captureImage(canvases, sourceElement);
-  logger.info('Captured initial frame');
 
   if (config.detectHand) {
 
     // TODO: convert isCircleOccluded to grayscale?
 
     // wait for hand
-    while (!isCircleOccluded(videoFrameCtx)) {
-      captureImage(canvases, sourceElement);
+    while (!isCircleOccluded(videoFrameCtx) && isRunning()) {
+      await abortable(() => captureImage(canvases, sourceElement));
+      console.log('no hand')
       // TODO: non-blocking delay
     }
     // wait for hand to go away
-    while (isCircleOccluded(videoFrameCtx)) {
-      captureImage(canvases, sourceElement);
+    while (isCircleOccluded(videoFrameCtx) && isRunning()) {
+      await abortable(() => captureImage(canvases, sourceElement));
+      console.log('hand')
       // TODO: non-blocking delay
     }
   }
+}
 
-  // wait for 2 seconds
+const runSingleCycle = async (canvases, sourceElement) => {
+
+  const videoFrameCtx = canvases.videoFrame.ctx;
+
   // check for sheet (scan diagonal looking for white pixels)
   const { width, height } = canvases.videoFrame.dimensions;
-  const videoFrameImage = mapToJsFeatImageData(videoFrameCtx, width, height);
-  if (!isSheetPresent(videoFrameImage, width, height)) {
+  const videoFrameImage = await abortable(() => mapToJsFeatImageData(videoFrameCtx, width, height));
+  if (!(await abortable(() => isSheetPresent(videoFrameImage, width, height)))) {
     return;
   }
   logger.info('Sheet is present, looking for corners');
 
-  const sheetParams = findSheet(canvases);
+  const sheetParams = await abortable(() => findSheet(canvases));
   if (sheetParams === null) {
     logger.error('Sheet should be present but I couldnt find it');
     return;
@@ -57,21 +61,49 @@ export const runSingleCycle = (canvases, sourceElement) => {
   }
   logger.info('Position has changed, this is a new image. Processing');
 
-  const bitCode = process(canvases, sheetParams);
+  const bitCode = await abortable(() => process(canvases, sheetParams));
 
-  if (config.uploadFile) uploadFile(canvases.uploadable.canvas, bitCode);
+  if (config.uploadFile) {
+    await uploadFile(canvases.uploadable.canvas, bitCode);
+  }
 };
 
 export const stop = () => {
-  running = false;
+  stopRunning();
   logger.info('Image processing stopped');
 };
 
-export const run = (canvases, sourceElement) => {
-  running = true;
-  logger.info('Running image processing');
-  //TODO yield to prevent ui lockup
-  while (config.loop && running) {
-    runSingleCycle(canvases, sourceElement);
+export const run = async (canvases, sourceElement) => {
+  try {
+    startRunning();
+    logger.info('Running image processing');
+    while (isRunning()) {
+      await abortable(() => captureImage(canvases, sourceElement));
+      await waitForHandInOut(canvases, sourceElement);
+      // TODO: wait for 2 seconds with posibility of aborting if hand is detected again.
+      await runSingleCycle(canvases, sourceElement);
+      logger.info('do the loop');
+    }
+  } catch (error) {
+    logger.info('Caught error, resetting state to be able to restart');
+    oldSheetParams = null;
+  }
+};
+
+export const runOnce = async (canvases, sourceElement) => {
+  try {
+    startRunning();
+    logger.info('Running image processing once');
+
+    await abortable(() => captureImage(canvases, sourceElement));
+    logger.info('Captured initial frame');
+
+    await runSingleCycle(canvases, sourceElement);
+    logger.info('Completed single cycle, resetting state to be able to restart');
+    oldSheetParams = null;
+    stopRunning();
+  } catch (error) {
+    logger.info('Caught error, resetting state to be able to restart');
+    oldSheetParams = null;
   }
 };

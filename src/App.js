@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { run, runSingleCycle, stop } from './runner';
+import { run, runOnce, stop } from './runner';
 import config from './config';
 import Video from "./sources/Video";
 import logger from './utils/logger';
 import Image from "./sources/Image";
 import { captureBaselineVideoFrame } from "./detection/capturing";
-import { processBaseline } from "./processing/processor";
 import { captureOriginalCircle } from "./detection/outlineOcclusionDetection";
 
 const setSize = (container, { width, height }) => {
@@ -64,7 +63,7 @@ class App extends Component {
 
   runSingleCycle() {
     try {
-      runSingleCycle(this.state.canvases, this.getSourceElement());
+      runOnce(this.state.canvases, this.getSourceElement());
     } catch (error) {
       logger.error('Could not complete image processing');
       logger.error(error);
