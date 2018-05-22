@@ -2,9 +2,10 @@
 import config from "../config";
 import { getPointFromAngle } from "../utils/trigonometry";
 import { getColorFromImageData } from "../utils/gfx/context.utils";
+import { drawPoint } from "../utils/gfx/draw";
 
-const sampleSize = 10; // how many samples to look at at once
-const stepsPerRevolution = 100;
+const sampleSize = 20; // how many samples to look at at once
+const stepsPerRevolution = 300;
 const initialSamples = [];
 const samples = [];
 const outlineOffset = 4; // pixels to subtract from radius
@@ -13,9 +14,10 @@ const cumulativeDifferenceThreshold = 5;
 
 let sampleIndex = 0;
 
-const getColorAt = (ctx, data, angle, center, radius, width) => {
+const getColorAt = (ctx, data, angle, center, radius, width, drawPoints = false) => {
   const point = getPointFromAngle(angle, center, radius);
   const color = getColorFromImageData(data, point, width);
+  if(drawPoints) drawPoint(ctx, point, 'red');
   return color.r + color.g + color.b;
 };
 
@@ -59,17 +61,19 @@ export const isCircleOccluded = (canvases) => {
   const radius = width / 2 - outlineOffset;
   const center = { x: width / 2, y: height / 2 };
 
+  let cumulativeDifference;
+
   // start enough samples back to fill sample buffer.
   for (let step = -sampleSize; step < stepsPerRevolution; step++) {
 
     const angle = (step / stepsPerRevolution) * 2 * Math.PI;
     const arrayPos = ((step + stepsPerRevolution) % stepsPerRevolution);
     const originalColor = initialSamples[arrayPos];
-    const newColor = getColorAt(ctx, data, angle, center, radius, width);
+    const newColor = getColorAt(ctx, data, angle, center, radius, width, true);
     samples[sampleIndex] = changeIsAboveThreshold(originalColor, newColor);
 
     if(step >= 0){
-      const cumulativeDifference = sum(samples);
+      cumulativeDifference = sum(samples);
       if(cumulativeDifference > cumulativeDifferenceThreshold){
         return true;
       }
@@ -77,6 +81,7 @@ export const isCircleOccluded = (canvases) => {
 
     sampleIndex = (sampleIndex + 1) % sampleSize;
   }
+  return false;
 };
 
 // TODO: Precalc sample points

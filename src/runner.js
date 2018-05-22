@@ -9,11 +9,62 @@ import { process } from "./processing/processor";
 import { isCircleOccluded } from "./detection/outlineOcclusionDetection";
 import { mapToJsFeatImageData } from "./utils/gfx/jsfeat.utils";
 import { uploadFile } from "./communication/fileUploader";
-import { abortable } from "./utils/promises";
+import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 
 // STATE! OH NO!
 let oldSheetParams = null;
+
+const debounceLength = 5;
+const debounce = [];
+
+const debouncedOccluded = () => {
+  for(let i=0; i<debounceLength; i++){
+    if(debounce[i] !== true){
+      //console.log('not occ', i);
+      return false;
+    }
+  }
+  return true;
+};
+
+const debouncedNotOccluded = () => {
+  for(let i=0; i<debounceLength; i++){
+    if(debounce[i] !== false){
+     // console.log('occ', i);
+      return false;
+    }
+  }
+  return true;
+};
+
+const isOccludedDebounced = async (canvases, sourceElement) => {
+  for(let i=0; i<debounceLength; i++){
+    debounce[i] = false;
+  }
+
+  let debounceNum = 0;
+  while(!debouncedOccluded() && isRunning()){
+    debounce[debounceNum] = isCircleOccluded(canvases);
+    debounceNum = (debounceNum + 1) % debounceLength;
+    await abortable(() => captureImage(canvases, sourceElement));
+  }
+  logger.info('HAND detected');
+};
+
+const isNotOccludedDebounced = async (canvases, sourceElement) => {
+  for(let i=0; i<debounceLength; i++){
+    debounce[i] = true;
+  }
+
+  let debounceNum = 0;
+  while(!debouncedNotOccluded() && isRunning()){
+    debounce[debounceNum] = isCircleOccluded(canvases);
+    debounceNum = (debounceNum + 1) % debounceLength;
+    await abortable(() => captureImage(canvases, sourceElement));
+  }
+  logger.info('HAND NOT detected');
+};
 
 const waitForHandInOut = async (canvases, sourceElement) => {
   if (config.detectHand) {
@@ -23,13 +74,15 @@ const waitForHandInOut = async (canvases, sourceElement) => {
 
     // wait for hand
     logger.info('waiting for hand');
-    while (!isCircleOccluded(canvases) && isRunning()) {
-      await abortable(() => captureImage(canvases, sourceElement));
-    }
+    await isOccludedDebounced(canvases, sourceElement);
+
     logger.info('waiting for hand to go away');
-    while (isCircleOccluded(canvases) && isRunning()) {
-      await abortable(() => captureImage(canvases, sourceElement));
-    }
+    await isNotOccludedDebounced(canvases, sourceElement);
+
+    logger.info('no hand, waiting to take photo');
+    await timeout(1000);
+    captureImage(canvases, sourceElement);
+    logger.info('Lets go!')
   }
 };
 
@@ -96,6 +149,7 @@ export const run = async (canvases, sourceElement) => {
     while (isRunning()) {
       await abortable(() => captureImage(canvases, sourceElement));
       await waitForHandInOut(canvases, sourceElement);
+      logger.info("run for your life, Marty!")
       // TODO: wait for 2 seconds with possibility of aborting if hand is detected again.
       await runSingleCycle(canvases);
       logger.info('do the loop');

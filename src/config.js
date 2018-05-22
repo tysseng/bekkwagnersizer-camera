@@ -1,6 +1,6 @@
 // 'image', 'video'
-//const source = 'video';
-const source = 'image';
+const source = 'video';
+//const source = 'image';
 
 const videoFrameSize = {
   width: 1024,
@@ -58,14 +58,14 @@ export default {
   detectHand: true,
 
   // set this to false to debug with image without bounds
-  preventDetectionOutsideBoundingCicle: false,
+  preventDetectionOutsideBoundingCicle: true,
 
   // blocks processing if detected corners are the same as last time
   preventDuplicates: true,
 
   // compare current frame to stored frame and use difference to detect if a sheet is present.
   // If false, a black and white threshold will be used instead (looking for white pixels).
-  differentialSheetPresenceDetection: true,
+  differentialSheetPresenceDetection: false,
 
   // Add padding around the sheet before flood filling, this makes it possible to flood fill all
   // around even if the user has drawn lines all the way to the edge
@@ -88,10 +88,18 @@ export default {
   },
 
   videoCircle: { // relative to videoSize
+    x: 2900,
+    y: 2050,
+    radius: 1900,
+  },
+
+  /*
+  videoCircle: { // relative to videoSize
     x: 1415,
     y: 975,
     radius: 895,
   },
+  */
 
   sourceSize: source === 'video' ? videoFrameSize : imageSize,
 
