@@ -1,17 +1,10 @@
+- Fjern litt av kanten av sheet for å hindre svarte linjer pga ujevn kant.
+
 - Detektere når nytt bilde har kommet
   - Hvis noe bryter outline, vent.
   - Hvis funnet ark - OK. Vent minst 30 sek for nytt bilde (men fortsett å ta bilder)
   - Detekter helt svart flate før nytt bilde tillates
 
-- Detekter punkter/binærkode i bildet.
-- Gjør bilde kvadratisk
-- Ignorere outline av bord (sirkulær)
-- Fjerne logo
-- Fjerne punkter.
-
-
-HArdware:
-- Lag sentreringsmulighet, shift kamera langs to akser.
 
 
 Sjekk for hånd
@@ -26,3 +19,9 @@ Hvis ikke, vent på hånd igjen.
 Hvis detektert, sjekk om ny posisjon.
 Hvis ny posisjon, behandle og upload.
 
+
+
+
+BUGS:
+
+Klarer ikke landscape-bilder - detekterer hjørner men velger feil.

@@ -21,6 +21,17 @@ export const copyCanvas = (source, target) => {
   timed(() => target.ctx.drawImage(source.canvas, 0, 0), 'Copying canvas');
 };
 
+export const copyCanvasCentered = (source, target) => {
+
+  const {width: sourceWidth, height: sourceHeight} = source.dimensions;
+  const {width: targetWidth, height: targetHeight} = target.dimensions;
+
+  const offsetX = Math.floor((targetWidth - sourceWidth) / 2);
+  const offsetY = Math.floor((targetHeight - sourceHeight) / 2);
+
+  timed(() => target.ctx.drawImage(source.canvas, offsetX, offsetY), 'Copying canvas centered');
+};
+
 export const getColorFromImageData = (data, point, width) => {
   const i = (point.y * width + point.x) * 4;
   return {

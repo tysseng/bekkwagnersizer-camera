@@ -1,8 +1,6 @@
 import { timed } from "../timer";
 import { mapToCanvasImageData } from "./jsfeat.utils";
 
-const padding = 20;
-
 export const drawImageOnCanvas = (imageCanvas, ctx) => {
   timed(() => {
     ctx.drawImage(imageCanvas, 0, 0);
@@ -67,7 +65,7 @@ export const drawJsFeatImageOnContext = (jsFeatImage, ctx, width, height) => {
   timed(() => ctx.putImageData(imageData, 0, 0), 'put image to ctx');
 };
 
-export const floodFill = (ctx, r, g, b, a) => {
+export const floodFill = (ctx, startPos, r, g, b, a) => {
   ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
-  ctx.fillFlood(padding * 2, padding * 2, 32);
+  ctx.fillFlood(startPos, startPos, 32);
 };

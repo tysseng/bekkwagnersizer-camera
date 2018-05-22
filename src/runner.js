@@ -1,14 +1,16 @@
 import logger from "./utils/logger";
 import config from "./config";
-import { findSheet, isSheetPresent, sheetPositionHasChanged } from "./detection/sheetDetection";
+import {
+  findSheet, isSheetPresent, isSheetPresentBW,
+  sheetPositionHasChanged
+} from "./detection/sheetDetection";
 import { captureImage } from "./detection/capturing";
 import { process } from "./processing/processor";
 import { isCircleOccluded } from "./detection/outlineOcclusionDetection";
 import { mapToJsFeatImageData } from "./utils/gfx/jsfeat.utils";
 import { uploadFile } from "./communication/fileUploader";
-import { abortable, timeout } from "./utils/promises";
+import { abortable } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
-import { timed } from "./utils/timer";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -29,16 +31,32 @@ const waitForHandInOut = async (canvases, sourceElement) => {
       await abortable(() => captureImage(canvases, sourceElement));
     }
   }
-}
+};
 
 const runSingleCycle = async (canvases) => {
 
   const videoFrameCtx = canvases.videoFrame.ctx;
 
-  // check for sheet (scan diagonal looking for white pixels)
-  const { width, height } = canvases.videoFrame.dimensions;
-  const videoFrameImage = await abortable(() => mapToJsFeatImageData(videoFrameCtx, width, height));
-  if (!(await abortable(() => isSheetPresent(videoFrameImage, width, height)))) {
+  // check for sheet (scan across image looking for changed pixels)
+
+  if (config.source === 'video'){
+    if(config.differentialSheetPresenceDetection){
+      if(!(await abortable(() => isSheetPresent(canvases.videoFrame)))) {
+        logger.info('No sheet present, aborting');
+        return;
+      }
+    } else {
+      const { width, height } = canvases.videoFrame.dimensions;
+      const videoFrameImage = await abortable(() => mapToJsFeatImageData(videoFrameCtx, width, height));
+
+      if (!(await abortable(() => isSheetPresentBW(videoFrameImage, width, height)))) {
+        logger.info('No sheet present, aborting');
+        return;
+      }
+    }
+  }
+
+  if(config.source === 'video' && !(await abortable(() => isSheetPresent(canvases)))) {
     logger.info('No sheet present, aborting');
     return;
   }

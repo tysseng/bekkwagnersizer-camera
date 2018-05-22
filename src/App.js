@@ -8,6 +8,7 @@ import logger from './utils/logger';
 import Image from "./sources/Image";
 import { captureBaselineVideoFrame } from "./detection/capturing";
 import { captureOriginalCircle } from "./detection/outlineOcclusionDetection";
+import { captureOriginalSheetPresenceLine } from "./detection/sheetDetection";
 
 const setSize = (container, { width, height }) => {
   container.canvas.width = width;
@@ -80,6 +81,7 @@ class App extends Component {
     try {
       captureBaselineVideoFrame(this.state.canvases, this.getSourceElement());
       captureOriginalCircle(this.state.canvases);
+      captureOriginalSheetPresenceLine(this.state.canvases);
     } catch (error) {
       logger.error('Could not set baseline');
       logger.error(error);
@@ -104,7 +106,8 @@ class App extends Component {
         bitCodeDetection: { canvas: all[curr++] },
         edges: { canvas: all[curr++] },
         removedElements: { canvas: all[curr++] },
-        filled: { canvas: all[curr++] },
+        filledExpanded: { canvas: all[curr++] },
+        filledContracted: { canvas: all[curr++] },
         mask: { canvas: all[curr++] },
         extracted: { canvas: all[curr++] },
         uploadable: { canvas: all[curr++] },
@@ -127,7 +130,8 @@ class App extends Component {
     setSize(canvases.bitCodeDetection, sheetSize);
     setSize(canvases.edges, sheetSize);
     setSize(canvases.removedElements, sheetSize);
-    setSize(canvases.filled, sheetSize);
+    setSize(canvases.filledExpanded, {width: sheetSize.width + 10, height: sheetSize.height + 10});
+    setSize(canvases.filledContracted, sheetSize);
     setSize(canvases.mask, sheetSize);
     setSize(canvases.extracted, sheetSize);
     setSize(canvases.uploadable, uploadSize);
@@ -211,7 +215,11 @@ class App extends Component {
             <canvas/>
           </div>
           <div>
-            <h3>Filled</h3>
+            <h3>Filled, with border</h3>
+            <canvas/>
+          </div>
+          <div>
+            <h3>Filled, with border removed</h3>
             <canvas/>
           </div>
           <div>

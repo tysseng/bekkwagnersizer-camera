@@ -2,7 +2,7 @@ import 'floodfill';
 import config from "../config";
 import { detectEdges } from "./edgeDetection";
 import { timed } from "../utils/timer";
-import { drawJsFeatImageOnContext, floodFill } from "../utils/gfx/draw";
+import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
 import { extractSheetUsingRotationAndScaling } from "./sheetExtractorApproximate";
 import { erodeMask, getMonocromeMask, removeMask } from "./mask";
 import { copyCanvas } from "../utils/gfx/context.utils";
@@ -10,6 +10,7 @@ import { removeLogo } from "./logo";
 import { readBitCode, removeBitDots } from "./bitCodeReader";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
 import { resizeToUploadSize } from "./uploadResizer";
+import { floodFillWithoutPadding, floodFillWithPadding } from "./floodFiller";
 
 
 // Extract detected sheet, detect drawing type and isolate drawing.
@@ -64,15 +65,16 @@ export const process = (canvases, sheetParams) => {
   timed(() => removeLogo(canvases.removedElements.ctx), 'removing logo');
   timed(() => removeBitDots(canvases.removedElements.ctx), 'removing bit dots');
 
-  // copy to be able to debug.
-  copyCanvas(canvases.removedElements, canvases.filled);
-
-  // flood fill outside (e.g. the part that will be our mask)
-  timed(() => floodFill(canvases.filled.ctx, 255, 0, 0, 0.5), 'flood fill mask');
+  if(config.floodFillPadding){
+    // expand outline to be able to flood fill safely
+    floodFillWithPadding(canvases.removedElements, canvases);
+  } else {
+    floodFillWithoutPadding(canvases.removedElements, canvases);
+  }
 
   // turn image monocrome by clearing all pixels that are not part of the mask
   const monocromeMask = timed(() => getMonocromeMask(
-    canvases.filled.ctx, sheetWidth, sheetHeight
+    canvases.filledContracted.ctx, sheetWidth, sheetHeight
   ), 'get monocrome mask');
 
   // erode mask, putting back the pixels that were added when the lines were diluted during edge
