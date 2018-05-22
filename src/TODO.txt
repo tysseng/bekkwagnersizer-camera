@@ -1,15 +1,11 @@
 - Fjern litt av kanten av sheet for å hindre svarte linjer pga ujevn kant.
 
 - Detektere når nytt bilde har kommet
-  - Hvis noe bryter outline, vent.
   - Hvis funnet ark - OK. Vent minst 30 sek for nytt bilde (men fortsett å ta bilder)
   - Detekter helt svart flate før nytt bilde tillates
 
 
 
-Sjekk for hånd
-Hvis hånd, vent på ikke hånd
-Ikke hånd: Start timer (2 sek?)
 ---> mangler denne: Ny hånd i grace-period: avbryt og vent på ikke hånd igjen.
 
 Ta bilde.
@@ -25,3 +21,4 @@ Hvis ny posisjon, behandle og upload.
 BUGS:
 
 Klarer ikke landscape-bilder - detekterer hjørner men velger feil.
+Kræsjer på loop nr 2.

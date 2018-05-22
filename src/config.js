@@ -1,6 +1,6 @@
 // 'image', 'video'
-const source = 'video';
-//const source = 'image';
+//const source = 'video';
+const source = 'image';
 
 const videoFrameSize = {
   width: 1024,
@@ -55,10 +55,10 @@ export default {
 
   // while looping - require occlusion of outline before trying to capture new image
   // NB: Hand detection does not work with image, only video.
-  detectHand: true,
+  detectHand: source === 'video',
 
   // set this to false to debug with image without bounds
-  preventDetectionOutsideBoundingCicle: true,
+  preventDetectionOutsideBoundingCicle: source === 'video',
 
   // blocks processing if detected corners are the same as last time
   preventDuplicates: true,
@@ -72,6 +72,9 @@ export default {
   floodFillPadding: true,
 
   showSteps: true,
+
+  // default value for upload after capture checkbox.
+  defaultUploadAfterCapture: true,
 
   // show how long each step takes.
   showTimings: true,
@@ -87,6 +90,7 @@ export default {
     height: 1080,
   },
 
+  //4K cam
   videoCircle: { // relative to videoSize
     x: 2900,
     y: 2050,
@@ -94,6 +98,7 @@ export default {
   },
 
   /*
+  //HD cam
   videoCircle: { // relative to videoSize
     x: 1415,
     y: 975,

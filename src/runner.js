@@ -14,9 +14,14 @@ import { isRunning, startRunning, stopRunning } from "./runstatus";
 
 // STATE! OH NO!
 let oldSheetParams = null;
+let uploadAfterCapture = config.defaultUploadAfterCapture;
 
 const debounceLength = 5;
 const debounce = [];
+
+export const setUploadAfterCapture = (value) => {
+  uploadAfterCapture = value;
+};
 
 const debouncedOccluded = () => {
   for(let i=0; i<debounceLength; i++){
@@ -128,7 +133,7 @@ const runSingleCycle = async (canvases) => {
 
   const bitCode = await abortable(() => process(canvases, sheetParams));
 
-  if (config.uploadFile) {
+  if (config.uploadFile && uploadAfterCapture) {
     await uploadFile(canvases.uploadable.canvas, bitCode);
   }
 };

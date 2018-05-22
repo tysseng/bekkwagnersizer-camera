@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { run, runOnce, stop } from './runner';
+import { run, runOnce, setUploadAfterCapture, stop } from './runner';
 import config from './config';
 import Video from "./sources/Video";
 import logger from './utils/logger';
@@ -24,6 +24,7 @@ class App extends Component {
       canvases: null,
       sourceImageHasLoaded: false,
       sequenceNumber: 0,
+      uploadAfterCapture: config.defaultUploadAfterCapture,
     };
     this.sourceHasLoaded = this.sourceHasLoaded.bind(this);
     this.run = this.run.bind(this);
@@ -32,6 +33,7 @@ class App extends Component {
     this.captureCanvases = this.captureCanvases.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.getSourceElement = this.getSourceElement.bind(this);
+    this.handleUploadAfterCaptureChange = this.handleUploadAfterCaptureChange.bind(this);
   }
 
   componentDidMount() {
@@ -51,6 +53,16 @@ class App extends Component {
     } else {
       return this.refs.imageSource.refs.image;
     }
+  }
+
+  handleUploadAfterCaptureChange(event) {
+    const target = event.target;
+    const value = target.checked;
+    logger.info('Toggled upload after capture to ' + value);
+    this.setState({
+      uploadAfterCapture: value,
+    })
+    setUploadAfterCapture(value);
   }
 
   run() {
@@ -157,6 +169,13 @@ class App extends Component {
           <button onClick={() => this.runSingleCycle()}>Run single</button>
           <button className='primary'onClick={() => this.run()}>Run forever</button>
           <button onClick={() => this.stop()}>Stop!</button>
+          <label>
+            <input
+              type='checkbox'
+              checked={this.state.uploadAfterCapture}
+              onChange={this.handleUploadAfterCaptureChange}/>
+            Upload image after capture
+          </label>
         </div>
         <div>
           {config.source === 'video' ?

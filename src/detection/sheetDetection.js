@@ -11,8 +11,15 @@ import { copyAndSortByY, isSamePoint, sortByX } from '../utils/points';
 import { mapToJsFeatImageData } from "../utils/gfx/jsfeat.utils";
 import { getColorFromImageData } from "../utils/gfx/context.utils";
 
+// for video
+/*
 const border = 3;
 const blurRadius = 4;
+*/
+
+// for image
+const border = 3;
+const blurRadius = 3;
 
 const debug = config.debug;
 const drawingCircleRadiusWithPadding = (config.sourceSize.width / 2) - 5;

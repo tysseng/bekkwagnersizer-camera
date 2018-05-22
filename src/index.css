@@ -34,3 +34,18 @@ button.primary {
 h3 {
   font-size: 3rem;
 }
+
+input[type=checkbox] {
+  transform: scale(10); /* IE */
+  margin-left: 100px;
+  margin-right: 50px;
+  padding: 100px;
+}
+
+/* Might want to wrap a span around your checkbox text */
+label
+{
+  /* Checkbox text */
+  font-size: 3rem;
+  display: inline;
+}
