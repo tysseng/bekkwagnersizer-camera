@@ -12,7 +12,7 @@ import { mapToJsFeatImageData } from "../utils/gfx/jsfeat.utils";
 import { getColorFromImageData } from "../utils/gfx/context.utils";
 
 const border = 3;
-const blurRadius = 3;
+const blurRadius = 4;
 
 const debug = config.debug;
 const drawingCircleRadiusWithPadding = (config.sourceSize.width / 2) - 5;
@@ -99,6 +99,11 @@ const findValidExtremePoints = (xSorted, ySorted, image, width) => {
   const bottom = ySorted.reverse().find(corner => isProbablySheetCorner(corner, image, width));
 
   const corners = { left, right, top, bottom };
+
+  if(left == null || right == null || top == null || bottom == null){
+    logger.error('Could not find enough corners');
+    return null;
+  }
 
   if (validateCorners(corners)) {
     return corners
@@ -264,7 +269,7 @@ export const captureOriginalSheetPresenceLine = (canvases) => {
 };
 
 const changeIsAboveThreshold = (originalColor = 0, newColor) => {
-  const diff = Math.abs(originalColor - newColor);
+  const diff = newColor - originalColor; // new color must be lighter than previous one
   if(diff > sheetColorDifferenceThreshold){
     return 1;
   }
@@ -274,6 +279,7 @@ const changeIsAboveThreshold = (originalColor = 0, newColor) => {
 // If sheet is present, some of the pixels along the center line should be non-black.
 // This is a fast check before trying to find the corners.
 export const isSheetPresent = (canvases) => {
+  console.log(canvases);
   const ctx = canvases.videoFrame.ctx;
   const { width, height } = canvases.videoFrame.dimensions;
   const data = ctx.getImageData(0, 0, width, height).data; // TODO: Possible to extract only a single row?

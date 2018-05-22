@@ -94,7 +94,7 @@ const runSingleCycle = async (canvases) => {
 
   if (config.source === 'video'){
     if(config.differentialSheetPresenceDetection){
-      if(!(await abortable(() => isSheetPresent(canvases.videoFrame)))) {
+      if(!(await abortable(() => isSheetPresent(canvases)))) {
         logger.info('No sheet present, aborting');
         return;
       }
@@ -109,10 +109,6 @@ const runSingleCycle = async (canvases) => {
     }
   }
 
-  if(config.source === 'video' && !(await abortable(() => isSheetPresent(canvases)))) {
-    logger.info('No sheet present, aborting');
-    return;
-  }
   logger.info('Sheet is present, looking for corners');
 
   const sheetParams = await abortable(() => findSheet(canvases));
