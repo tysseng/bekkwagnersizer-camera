@@ -11,6 +11,7 @@ import { readBitCode, removeBitDots } from "./bitCodeReader";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
 import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithoutPadding, floodFillWithPadding } from "./floodFiller";
+import { correctColors } from "./pushwagnerify";
 
 
 // Extract detected sheet, detect drawing type and isolate drawing.
@@ -106,7 +107,9 @@ export const process = (canvases, sheetParams) => {
     sheetHeight
   ), 'remove mask');
 
+
   resizeToUploadSize(canvases.extracted.canvas, canvases.uploadable.ctx, sheetWidth, sheetHeight);
+  timed(() => correctColors(canvases.uploadable), 'Pushwagnerifying!');
 
   return bitCode;
 };

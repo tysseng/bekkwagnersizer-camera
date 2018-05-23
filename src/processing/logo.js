@@ -19,6 +19,7 @@ export const isLogoInCorrectCorner = (image, width, height) => {
 };
 
 export const removeLogo = (ctx) => {
+  return; // TODO:
   const {x, y, width, height} = config.logoBoundingBox;
   ctx.beginPath();
   ctx.fillRect(x, y, width, height);

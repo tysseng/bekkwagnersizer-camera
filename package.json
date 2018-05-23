@@ -8,6 +8,7 @@
     "fix-perspective": "^1.0.0",
     "floodfill": "^2.1.1",
     "jsfeat": "0.0.8",
+    "nearest-color": "^0.4.2",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-scripts": "1.1.4",
