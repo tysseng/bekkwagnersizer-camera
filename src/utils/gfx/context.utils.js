@@ -40,3 +40,9 @@ export const getColorFromImageData = (data, point, width) => {
     b: data[i+2],
   }
 };
+
+export const clearCtx = (container) => {
+  const ctx = container.ctx;
+  const { width, height } = container.dimensions;
+  ctx.clearRect(0, 0, width, height);
+};
