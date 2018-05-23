@@ -1,5 +1,5 @@
 import { floodFill } from "../utils/gfx/draw";
-import { clearCtx, copyCanvas, copyCanvasCentered } from "../utils/gfx/context.utils";
+import { copyCanvas, copyCanvasCentered } from "../utils/gfx/context.utils";
 import { timed } from "../utils/timer";
 
 export const floodFillWithPadding = (source, canvases) => {
@@ -9,13 +9,6 @@ export const floodFillWithPadding = (source, canvases) => {
 
   const {width, height} = canvases.filledExpanded.dimensions;
   const sourceCtx = canvases.filledExpanded.ctx;
-
-  // If not clearing the source (filledExpanded), floodFill crashes the second time arount (!)
-  clearCtx(canvases.filledExpanded);
-
-  // If not clearing the target (filledContracted), the previous image will be visible through the
-  // semi-transparent parts of the new one.
-  clearCtx(canvases.filledContracted);
 
   sourceCtx.fillStyle="#000000";
   sourceCtx.fillRect(0,0,width, height);

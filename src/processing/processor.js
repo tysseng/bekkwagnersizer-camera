@@ -5,7 +5,7 @@ import { timed } from "../utils/timer";
 import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
 import { extractSheetUsingRotationAndScaling } from "./sheetExtractorApproximate";
 import { erodeMask, getMonocromeMask, removeMask } from "./mask";
-import { copyCanvas } from "../utils/gfx/context.utils";
+import { clearCtx, copyCanvas } from "../utils/gfx/context.utils";
 import { removeLogo } from "./logo";
 import { readBitCode, removeBitDots } from "./bitCodeReader";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
@@ -64,6 +64,17 @@ export const process = (canvases, sheetParams) => {
   // remove logos and other stuff
   timed(() => removeLogo(canvases.removedElements.ctx), 'removing logo');
   timed(() => removeBitDots(canvases.removedElements.ctx), 'removing bit dots');
+
+  // If not clearing the source (filledExpanded), floodFill crashes the second time arount (!)
+  clearCtx(canvases.filledExpanded);
+
+  // If not clearing the target (filledContracted), the previous image will be visible through the
+  // semi-transparent parts of the new one.
+  clearCtx(canvases.filledContracted);
+  clearCtx(canvases.extracted);
+  clearCtx(canvases.uploadable);
+
+
 
   if(config.floodFillPadding){
     // expand outline to be able to flood fill safely

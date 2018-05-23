@@ -17,10 +17,10 @@ const correctOrientation = (sheetCorners) => {
   if (topLength > leftLength) {
     // sheet is placed in landscape mode, must rotate 90 degrees
     return {
-      topLeft: bottomRight,
+      topLeft: bottomLeft,
       topRight: topLeft,
       bottomRight: topRight,
-      bottomLeft: bottomLeft,
+      bottomLeft: bottomRight,
     }
   } else {
     return sheetCorners;

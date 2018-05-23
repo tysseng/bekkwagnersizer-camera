@@ -9,7 +9,7 @@ const stepsPerRevolution = 300;
 const initialSamples = [];
 const samples = [];
 const outlineOffset = 4; // pixels to subtract from radius
-const differenceThreshold = 100;
+const differenceThreshold = 200;
 const cumulativeDifferenceThreshold = 5;
 
 let sampleIndex = 0;

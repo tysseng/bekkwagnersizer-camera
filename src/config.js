@@ -1,6 +1,6 @@
 // 'image', 'video'
-//const source = 'video';
-const source = 'image';
+const source = 'video';
+//const source = 'image';
 
 const videoFrameSize = {
   width: 1024,
