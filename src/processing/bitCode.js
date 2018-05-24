@@ -9,8 +9,8 @@ const pixelsNeededFor1 = 30;
 
 export const colorsInPhoto = {
   white: '#e1e2e9',
-  dotColor: '#ff61f9',
-  black: '#000000',
+  dotColor: '#ff05b6',
+  black: '#565656',
 };
 const nearestPhotoColor = nearest.from(colorsInPhoto);
 
@@ -27,7 +27,9 @@ const bit = (sourceContainer, imageWidth, padding, x, y) => {
       // converts pixels to a predefined color to ignore black and only read dot color
       const oldColor = { r: data[i], g: data[i + 1], b: data[i + 2] };
       const isDotColor = nearestPhotoColor(oldColor).value === colorsInPhoto.dotColor;
-
+      if(isDotColor){
+        //console.log(oldColor, nearestPhotoColor(oldColor).rgb);
+      }
       if (isDotColor) pixelCount++;
       if (pixelCount >= pixelsNeededFor1) {
         return '1';
@@ -48,21 +50,22 @@ export const removeBitDots = (ctx) => {
   config.bitPositions.forEach(pos => removeBitDot(ctx, pos, paddingAroundBitPosition + 4));
 };
 
-const readBit = (pos, sourceContainer, width, draw) => {
-  if (draw) {
+const readBit = (pos, sourceContainer, width) => {
+  return bit(sourceContainer, width, paddingAroundBitPosition, pos.x, pos.y);
+};
+
+const drawBitOutline = (pos, sourceContainer) => {
     const padding = paddingAroundBitPosition;
     drawBox(
       sourceContainer.ctx,
       { x: pos.x - (padding + 1), y: pos.y - (padding + 1) },
       { x: pos.x + (padding + 1), y: pos.y + (padding + 1) },
     );
-  }
-  return bit(sourceContainer, width, paddingAroundBitPosition, pos.x, pos.y);
 };
 
 export const readBitCode = (
   sourceContainer, width, height, canvases, draw = true, rotate180 = false) => {
-  const bits = config
+  const bitPositions = config
     .bitPositions
     .map(pos => {
       if (rotate180) {
@@ -70,8 +73,13 @@ export const readBitCode = (
       } else {
         return pos;
       }
-    })
-    .map(pos => readBit(pos, sourceContainer, width, draw));
+    });
+
+  const bits = bitPositions.map(pos => readBit(pos, sourceContainer, width, draw));
+  if(draw) bitPositions.forEach((pos, index) => {
+    if(bits[index] === '1') drawBitOutline(pos, sourceContainer);
+  });
+
   const number = parseInt(bits.join(''), 2);
   if (draw) copyCanvas(sourceContainer, canvases.bitCodeDetection);
   logger.info('Detected bits');

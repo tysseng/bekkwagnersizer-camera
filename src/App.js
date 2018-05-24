@@ -223,11 +223,11 @@ class App extends Component {
           </div>
           <div>
             <h3>CorrectedSheet 2 (scaling)</h3>
-            <canvas/>
+            <canvas id='correctedScale'/>
           </div>
           <div>
             <h3>CorrectedSheet 3 (flipping)</h3>
-            <canvas/>
+            <canvas id='correctedFlip'/>
           </div>
           <div>
             <h3>Bit code detection</h3>

@@ -12,6 +12,7 @@ import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExac
 import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithoutPadding, floodFillWithPadding } from "./floodFiller";
 import { correctColors } from "./pushwagnerify";
+import logger from "../utils/logger";
 
 
 // Extract detected sheet, detect drawing type and isolate drawing.
@@ -55,6 +56,7 @@ export const process = (canvases, sheetParams) => {
 
   // detect bit code to see what image this is
   //const bitCode = timed(() => readBitCode(sheetImageBW, sheetWidth, sheetHeight, canvases), 'Reading bit code');
+  logger.info('Looking for bitcode');
   const bitCode = timed(() => readBitCode(canvases.correctedSheetFlipping, sheetWidth, sheetHeight, canvases), 'Reading bit code');
 
   // find lines to prepare for flood fill
