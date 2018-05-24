@@ -8,7 +8,7 @@ import logger from './utils/logger';
 import Image from "./sources/Image";
 import { captureBaselineVideoFrame } from "./detection/capturing";
 import { captureOriginalCircle } from "./detection/outlineOcclusionDetection";
-import { captureOriginalSheetPresenceLine } from "./detection/sheetDetection";
+import { captureOriginalSheetPresenceLine } from "./detection/sheetPresence";
 
 const setSize = (container, { width, height }) => {
   container.canvas.width = width;
@@ -61,7 +61,7 @@ class App extends Component {
     logger.info('Toggled upload after capture to ' + value);
     this.setState({
       uploadAfterCapture: value,
-    })
+    });
     setUploadAfterCapture(value);
   }
 

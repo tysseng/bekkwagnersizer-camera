@@ -10,16 +10,15 @@ export const isLogoInCorrectCorner = (image, width, height) => {
   const bottomRightColor = getAverageColor(image, width, logoSamplePadding, width - logoCenter.x, height - logoCenter.y);
 
   if(topLeftColor < bottomRightColor) { // logo is black
-    logger.info("LOGO: logo is in correct corner");
+    logger.info("logo is in correct corner");
     return true;
   } else {
-    logger.info("LOGO: logo is in wrong corner, rotate sheet!");
+    logger.info("logo is in wrong corner, rotate sheet!");
     return false;
   }
 };
 
 export const removeLogo = (ctx) => {
-  return; // TODO:
   const {x, y, width, height} = config.logoBoundingBox;
   ctx.beginPath();
   ctx.fillRect(x, y, width, height);

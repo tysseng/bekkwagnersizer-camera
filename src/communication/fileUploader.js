@@ -46,7 +46,7 @@ export const uploadFile = async (canvas, bitCode) => {
 
   logger.info(`uploading ${filename} (bitCode ${bitCode}) to MiraServer`);
 
-  await fetch(config.imageServer, {
+  await fetch(config.uploadUrl, {
     method: 'POST',
     body: formData
   })

@@ -7,7 +7,7 @@ import { extractSheetUsingRotationAndScaling } from "./sheetExtractorApproximate
 import { erodeMask, getMonocromeMask, removeMask } from "./mask";
 import { clearCtx, copyCanvas } from "../utils/gfx/context.utils";
 import { removeLogo } from "./logo";
-import { readBitCode, removeBitDots } from "./bitCodeReader";
+import { readBitCode, removeBitDots } from "./bitCode";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
 import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithoutPadding, floodFillWithPadding } from "./floodFiller";
@@ -29,7 +29,7 @@ export const process = (canvases, sheetParams) => {
   copyCanvas(detectedSheetCanvasContainer, canvases.correctedSheetRotation);
 
   let sheetImageBW;
-  if (config.exactSheetCorrection) {
+  if (config.sheetCorrection === 'exact') {
     sheetImageBW = extractSheetUsingPerspectiveTransformation(
       sheetCorners,
       frameWidth,
@@ -63,10 +63,10 @@ export const process = (canvases, sheetParams) => {
   copyCanvas(canvases.edges, canvases.removedElements);
 
   // remove logos and other stuff
-  timed(() => removeLogo(canvases.removedElements.ctx), 'removing logo');
-  timed(() => removeBitDots(canvases.removedElements.ctx), 'removing bit dots');
+  if(config.removeLogo) timed(() => removeLogo(canvases.removedElements.ctx), 'removing logo');
+  if(config.removeBitcode) timed(() => removeBitDots(canvases.removedElements.ctx), 'removing bit dots');
 
-  // If not clearing the source (filledExpanded), floodFill crashes the second time arount (!)
+  // If not clearing the source (filledExpanded), floodFill crashes the second time around (!)
   clearCtx(canvases.filledExpanded);
 
   // If not clearing the target (filledContracted), the previous image will be visible through the
@@ -77,7 +77,7 @@ export const process = (canvases, sheetParams) => {
 
 
 
-  if(config.floodFillPadding){
+  if(config.padBeforeFloodFilling){
     // expand outline to be able to flood fill safely
     floodFillWithPadding(canvases.removedElements, canvases);
   } else {

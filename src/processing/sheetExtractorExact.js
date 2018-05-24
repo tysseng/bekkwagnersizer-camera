@@ -1,12 +1,10 @@
 // This extractor works with camera placements that are slightly off center. It corrects the
 // perspective but only detects corners up to a certain point.
-
 import { correctPerspective } from "./perspectiveFixer";
 import { timed } from "../utils/timer";
-import { isLogoInCorrectCorner } from './logo';
 import { distance, rotatePointAroundCenter } from '../utils/trigonometry';
-import { mapToJsFeatImageData, rotateGrayscale180 } from '../utils/gfx/jsfeat.utils';
-import { copyCanvas, rotateColor180 } from "../utils/gfx/context.utils";
+import { mapToJsFeatImageData } from '../utils/gfx/jsfeat.utils';
+import { correctSheetOrientation } from "./flipDetection";
 
 const correctOrientation = (sheetCorners) => {
   const { topLeft, topRight, bottomLeft, bottomRight } = sheetCorners;
@@ -49,7 +47,6 @@ export const extractSheetUsingPerspectiveTransformation = (
 
   const imageCtx = canvases.videoFrame.ctx;
   const correctedCtx = canvases.correctedSheetScaling.ctx;
-  const flippedCtx = canvases.correctedSheetFlipping.ctx;
 
   // TODO: this should probably be done in sheetDetection.
   // remove prerotation to get points that match the original image
@@ -67,16 +64,7 @@ export const extractSheetUsingPerspectiveTransformation = (
   // TODO: Remove tiny islands
   const grayPerspectiveCorrectedImage = mapToJsFeatImageData(correctedCtx, sheetWidth, sheetHeight);
 
-  if (!isLogoInCorrectCorner(grayPerspectiveCorrectedImage, sheetWidth, sheetHeight)) {
-    timed(() => rotateGrayscale180(grayPerspectiveCorrectedImage), 'rotating image 180 degrees');
-    const imageData = correctedCtx.getImageData(0, 0, sheetWidth, sheetHeight);
-
-    timed(() => rotateColor180(imageData.data, sheetHeight * sheetWidth * 4), 'rotating color image');
-    flippedCtx.putImageData(imageData, 0, 0);
-  } else {
-    // for debugging
-    copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
-  }
+  correctSheetOrientation(canvases, grayPerspectiveCorrectedImage, sheetWidth, sheetHeight);
 
   return grayPerspectiveCorrectedImage;
 };

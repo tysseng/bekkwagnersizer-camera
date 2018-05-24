@@ -1,4 +1,6 @@
 // 'image', 'video'
+import { flipDetectionMethods } from "./processing/flipDetectionMethods";
+
 const source = 'video';
 //const source = 'image';
 
@@ -13,10 +15,17 @@ const imageSize = {
   height: 1365,
 };
 
-const sheetSizeMM = {
-  width: 210, //A4: 210, A3: 297
-  height: 297, //A4: 297, A3:410
+const sheetSizeA4 = {
+  width: 210,
+  height: 297,
 };
+
+const sheetSizeA3 = {
+  width: 297,
+  height: 410,
+};
+
+const sheetSizeMM = sheetSizeA3;
 
 const sheetWidthPixels = 1024;
 const sheetPPMM = sheetWidthPixels / sheetSizeMM.width;
@@ -36,12 +45,13 @@ const logoBoundingBoxMM = {
 };
 
 // where to find bit dots (to indicate what image this is)
+const bitPositionYMM = sheetSizeMM.height - 18;
 const bitPositionsMM = [
-  { x: sheetSizeMM.width - 20, y: sheetSizeMM.height - 16 },
-  { x: sheetSizeMM.width - 30, y: sheetSizeMM.height - 16 },
-  { x: sheetSizeMM.width - 40, y: sheetSizeMM.height - 16 },
-  { x: sheetSizeMM.width - 50, y: sheetSizeMM.height - 16 },
-  { x: sheetSizeMM.width - 60, y: sheetSizeMM.height - 16 },
+  { x: sheetSizeMM.width - 19, y: bitPositionYMM },
+  { x: sheetSizeMM.width - 36, y: bitPositionYMM },
+  { x: sheetSizeMM.width - 54, y: bitPositionYMM },
+  { x: sheetSizeMM.width - 70, y: bitPositionYMM },
+  { x: sheetSizeMM.width - 88, y: bitPositionYMM },
 ];
 
 const bitPositions = bitPositionsMM.map(
@@ -60,7 +70,7 @@ export default {
   // set this to false to debug with image without bounds
   preventDetectionOutsideBoundingCicle: source === 'video',
 
-  // blocks processing if detected corners are the same as last time
+  // block processing if detected corners are the same as last time
   preventDuplicates: true,
 
   // compare current frame to stored frame and use difference to detect if a sheet is present.
@@ -69,21 +79,44 @@ export default {
 
   // Add padding around the sheet before flood filling, this makes it possible to flood fill all
   // around even if the user has drawn lines all the way to the edge
-  floodFillPadding: true,
-
-  showSteps: true,
+  padBeforeFloodFilling: true,
 
   // default value for upload after capture checkbox.
   defaultUploadAfterCapture: true,
 
   // show how long each step takes.
   showTimings: true,
-  exactSheetCorrection: true,
-  debug: {
-    drawSheetCorners: true,
-    drawBoundingBox: true,
-    drawAllCorners: true,
+
+  // use perspective correction when extracting sheet. A faster but less accurate option is to
+  // detect sheet orientation and rotate sheet but not resample. This works if we can guarantee
+  // that the photo has been taken perpendicular to both the sheet x and y axis.
+  // values: 'exact', 'approximate'
+  sheetCorrection: 'exact',
+
+  // Flip correction checks if sheet has been placed upside down. It can use either logo or bitcode
+  // to decide if sheet is upside down. If none are chosen, no flip will be done and sheet may end
+  // up upside down. Possible options: 'logo', 'bitcode', 'none'.
+  flipCorrection: flipDetectionMethods.BITCODE,
+
+  // center of logo to use when removing logo
+  removeLogo: false,
+  logoDetectionPosition: {
+    x: Math.floor(logoDetectionPositionMM.x * sheetPPMM),
+    y: Math.floor(logoDetectionPositionMM.y * sheetPPMM),
   },
+
+  // bounding box for removing logo
+  logoBoundingBox: {
+    x: Math.floor(logoBoundingBoxMM.x * sheetPPMM),
+    y: Math.floor(logoBoundingBoxMM.y * sheetPPMM),
+    width: Math.floor(logoBoundingBoxMM.width * sheetPPMM),
+    height: Math.floor(logoBoundingBoxMM.height * sheetPPMM),
+  },
+
+  // where to find bit dots (to indicate what image this is)
+  removeBitcode: true,
+  bitPositions,
+  bitPositionPadding: 19,
 
   videoSize: {
     width: 1920,
@@ -113,29 +146,19 @@ export default {
     height: Math.floor(sheetSizeMM.height * sheetPPMM),
   },
 
-  // center of EDawards star
-  logoDetectionPosition: {
-    x: Math.floor(logoDetectionPositionMM.x * sheetPPMM),
-    y: Math.floor(logoDetectionPositionMM.y * sheetPPMM),
-  },
-
-  // bounding box for removing logo
-  logoBoundingBox: {
-    x: Math.floor(logoBoundingBoxMM.x * sheetPPMM),
-    y: Math.floor(logoBoundingBoxMM.y * sheetPPMM),
-    width: Math.floor(logoBoundingBoxMM.width * sheetPPMM),
-    height: Math.floor(logoBoundingBoxMM.height * sheetPPMM),
-  },
-
-  // where to find bit dots (to indicate what image this is)
-  bitPositions,
-  bitPositionPadding: 19,
-
   uploadSize: {
     width: 512,
     height:512,
   },
-  imageServer: 'http://localhost:3000/image',
   uploadFile: true,
+  uploadUrl: 'http://localhost:3000/image',
+
+  // visually show all intermediate steps during processing, to make debugging easier
+  showSteps: true,
+  debug: {
+    drawSheetCorners: true,
+    drawBoundingBox: true,
+    drawAllCorners: true,
+  },
 }
 

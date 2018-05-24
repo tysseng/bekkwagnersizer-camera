@@ -16,9 +16,6 @@ Hvis detektert, sjekk om ny posisjon.
 Hvis ny posisjon, behandle og upload.
 
 
-
-
-BUGS:
-
-Klarer ikke landscape-bilder - detekterer hjørner men velger feil.
-Kræsjer på loop nr 2.
+// TODO:
+Lag platform
+Detekter rotasjon vha bitkode <---- prioriter denne på torsdag.

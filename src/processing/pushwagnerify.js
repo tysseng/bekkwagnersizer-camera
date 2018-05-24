@@ -2,9 +2,9 @@ import nearest from 'nearest-color';
 
 const color = (hexString) => {
   return {
-    r: parseInt(hexString.substring(1, 2)),
-    g: parseInt(hexString.substring(3, 4)),
-    b: parseInt(hexString.substring(5, 6)),
+    r: parseInt(hexString.substring(1, 2), 16),
+    g: parseInt(hexString.substring(3, 4), 16),
+    b: parseInt(hexString.substring(5, 6), 16),
   }
 };
 
@@ -39,10 +39,12 @@ export const correctColors = (container) => {
   for (let i = 0; i < dataLength; i += 4) {
     if(data[i+3] > 0) {
       const oldColor = { r: data[i], g: data[i + 1], b: data[i + 2] };
-      const color = colorMap[nearestPhotoColor(oldColor)];
-      data[i] = color.rgb.r;
-      data[i + 1] = color.rgb.g;
-      data[i + 2] = color.rgb.b;
+      const newPhotoColor = nearestPhotoColor(oldColor).value;
+      const newOutputColor = colorMap[newPhotoColor];
+
+      data[i] = newOutputColor.r;
+      data[i + 1] = newOutputColor.g;
+      data[i + 2] = newOutputColor.b;
     }
   }
 

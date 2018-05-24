@@ -1,7 +1,7 @@
 import logger from "./utils/logger";
 import config from "./config";
 import {
-  findSheet, isSheetPresent, isSheetPresentBW,
+  findSheet,
   sheetPositionHasChanged
 } from "./detection/sheetDetection";
 import { captureImage } from "./detection/capturing";
@@ -11,6 +11,7 @@ import { mapToJsFeatImageData } from "./utils/gfx/jsfeat.utils";
 import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
+import { isSheetPresent, isSheetPresentBW } from "./detection/sheetPresence";
 
 // STATE! OH NO!
 let oldSheetParams = null;
