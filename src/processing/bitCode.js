@@ -1,18 +1,35 @@
+import nearest from 'nearest-color';
 import config from "../config";
-import { drawSquareAroundPoint } from "../utils/gfx/jsfeat.utils";
-import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
 import logger from "../utils/logger";
+import { copyCanvas } from "../utils/gfx/context.utils";
+import { drawBox } from "../utils/gfx/draw";
 
 const paddingAroundBitPosition = config.bitPositionPadding;
-const blackThreshold = 100;
-const blackPixNeededFor1 = 30;
+const pixelsNeededFor1 = 30;
 
-const bit = (image, imageWidth, padding, x, y) => {
+export const colorsInPhoto = {
+  white: '#e1e2e9',
+  dotColor: '#ff61f9',
+  black: '#000000',
+};
+const nearestPhotoColor = nearest.from(colorsInPhoto);
+
+const bit = (sourceContainer, imageWidth, padding, x, y) => {
+  const { width, height } = sourceContainer.dimensions;
+  const imageData = sourceContainer.ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+
   let pixelCount = 0;
   for (let col = x - padding; col <= x + padding; col++) {
     for (let row = y - padding; row <= y + padding; row++) {
-      if (image.data[row * imageWidth + col] < blackThreshold) pixelCount++;
-      if (pixelCount >= blackPixNeededFor1) {
+      const i = (row * width + col) * 4;
+
+      // converts pixels to a predefined color to ignore black and only read dot color
+      const oldColor = { r: data[i], g: data[i + 1], b: data[i + 2] };
+      const isDotColor = nearestPhotoColor(oldColor).value === colorsInPhoto.dotColor;
+
+      if (isDotColor) pixelCount++;
+      if (pixelCount >= pixelsNeededFor1) {
         return '1';
       }
     }
@@ -31,12 +48,20 @@ export const removeBitDots = (ctx) => {
   config.bitPositions.forEach(pos => removeBitDot(ctx, pos, paddingAroundBitPosition + 4));
 };
 
-const readBit = (pos, image, width, draw) => {
-  if (draw) drawSquareAroundPoint(image, width, paddingAroundBitPosition + 1, pos.x, pos.y, 0);
-  return bit(image, width, paddingAroundBitPosition, pos.x, pos.y);
+const readBit = (pos, sourceContainer, width, draw) => {
+  if (draw) {
+    const padding = paddingAroundBitPosition;
+    drawBox(
+      sourceContainer.ctx,
+      { x: pos.x - (padding + 1), y: pos.y - (padding + 1) },
+      { x: pos.x + (padding + 1), y: pos.y + (padding + 1) },
+    );
+  }
+  return bit(sourceContainer, width, paddingAroundBitPosition, pos.x, pos.y);
 };
 
-export const readBitCode = (image, width, height, canvases, draw = true, rotate180 = false) => {
+export const readBitCode = (
+  sourceContainer, width, height, canvases, draw = true, rotate180 = false) => {
   const bits = config
     .bitPositions
     .map(pos => {
@@ -46,18 +71,18 @@ export const readBitCode = (image, width, height, canvases, draw = true, rotate1
         return pos;
       }
     })
-    .map(pos => readBit(pos, image, width, draw));
+    .map(pos => readBit(pos, sourceContainer, width, draw));
   const number = parseInt(bits.join(''), 2);
-  if (draw) drawJsFeatImageOnContext(image, canvases.bitCodeDetection.ctx, width, height);
+  if (draw) copyCanvas(sourceContainer, canvases.bitCodeDetection);
   logger.info('Detected bits');
   logger.info(bits);
   logger.info('Sheet number: ' + number);
   return number;
 };
 
-export const isBitCodeInCorrectCorner = (canvases, image, width, height) => {
-  const result = readBitCode(image, width, height, canvases, false) > 0;
-  if(result) {
+export const isBitCodeInCorrectCorner = (canvases, sourceContainer, width, height) => {
+  const result = readBitCode(sourceContainer, width, height, canvases, false) > 0;
+  if (result) {
     logger.info('bitcode is in correct corner');
   } else {
     logger.info('bitcode is not in correct corner');
@@ -65,9 +90,9 @@ export const isBitCodeInCorrectCorner = (canvases, image, width, height) => {
   return result;
 };
 
-export const isBitCodeInWrongCorner = (canvases, image, width, height) => {
-  const result = readBitCode(image, width, height, canvases, false, true) > 0;
-  if(result) {
+export const isBitCodeInWrongCorner = (canvases, sourceContainer, width, height) => {
+  const result = readBitCode(sourceContainer, width, height, canvases, false, true) > 0;
+  if (result) {
     logger.info('bitcode is in wrong corner');
   } else {
     logger.info('bitcode is not in wrong corner');

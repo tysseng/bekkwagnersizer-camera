@@ -14,3 +14,7 @@ Hvis ikke, vent på hånd igjen.
 
 // TODO:
 Lag platform
+
+BUGS:
+Hand detection er jumpy når ting er mørke, virker som den trigger på ark men ikke hånd.
+

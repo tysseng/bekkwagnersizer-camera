@@ -32,8 +32,8 @@ export const correctSheetOrientation = (canvases, grayImage, sheetWidth, sheetHe
     // as bitcode is more sensitive than logo detection, we want to be as sure as possible that
     // it has been placed wrong before rotating, so we check both positive and negative confirmation
     if (
-      !isBitCodeInCorrectCorner(canvases, grayImage, sheetWidth, sheetHeight) &&
-      isBitCodeInWrongCorner(canvases, grayImage, sheetWidth, sheetHeight)
+      !isBitCodeInCorrectCorner(canvases, canvases.correctedSheetScaling, sheetWidth, sheetHeight) &&
+      isBitCodeInWrongCorner(canvases, canvases.correctedSheetScaling, sheetWidth, sheetHeight)
     ) {
       rotate180(sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight);
     } else {
