@@ -47,11 +47,11 @@ const logoBoundingBoxMM = {
 // where to find bit dots (to indicate what image this is)
 const bitPositionYMM = sheetSizeMM.height - 18;
 const bitPositionsMM = [
-  { x: sheetSizeMM.width - 19, y: bitPositionYMM },
-  { x: sheetSizeMM.width - 36, y: bitPositionYMM },
-  { x: sheetSizeMM.width - 54, y: bitPositionYMM },
-  { x: sheetSizeMM.width - 70, y: bitPositionYMM },
   { x: sheetSizeMM.width - 88, y: bitPositionYMM },
+  { x: sheetSizeMM.width - 70, y: bitPositionYMM },
+  { x: sheetSizeMM.width - 54, y: bitPositionYMM },
+  { x: sheetSizeMM.width - 36, y: bitPositionYMM },
+  { x: sheetSizeMM.width - 19, y: bitPositionYMM },
 ];
 
 const bitPositions = bitPositionsMM.map(
