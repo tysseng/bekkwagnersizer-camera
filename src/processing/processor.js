@@ -5,7 +5,7 @@ import { timed } from "../utils/timer";
 import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
 import { extractSheetUsingRotationAndScaling } from "./sheetExtractorApproximate";
 import { erodeMask, getMonocromeMask, removeMask } from "./mask";
-import { clearCtx, copyCanvas } from "../utils/gfx/context.utils";
+import { copyCanvas, copyCanvasCentered } from "../utils/gfx/context.utils";
 import { removeLogo } from "./logo";
 import { readBitCode, removeBitDots } from "./bitCode";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
@@ -16,6 +16,7 @@ import { correctColors } from "./pushwagnerify";
 
 // Extract detected sheet, detect drawing type and isolate drawing.
 export const process = (canvases, sheetParams) => {
+
   const { width: frameWidth, height: frameHeight } = config.sourceSize;
   const { width: sheetWidth, height: sheetHeight } = config.sheetSize;
 
@@ -66,16 +67,6 @@ export const process = (canvases, sheetParams) => {
   if(config.removeLogo) timed(() => removeLogo(canvases.removedElements.ctx), 'removing logo');
   if(config.removeBitcode) timed(() => removeBitDots(canvases.removedElements.ctx), 'removing bit dots');
 
-  // If not clearing the source (filledExpanded), floodFill crashes the second time around (!)
-  clearCtx(canvases.filledExpanded);
-
-  // If not clearing the target (filledContracted), the previous image will be visible through the
-  // semi-transparent parts of the new one.
-  clearCtx(canvases.filledContracted);
-  clearCtx(canvases.extracted);
-  clearCtx(canvases.uploadable);
-
-
 
   if(config.padBeforeFloodFilling){
     // expand outline to be able to flood fill safely
@@ -107,8 +98,10 @@ export const process = (canvases, sheetParams) => {
     sheetHeight
   ), 'remove mask');
 
+  // crop away unwanted edges
+  copyCanvasCentered(canvases.extracted, canvases.cropped);
 
-  resizeToUploadSize(canvases.extracted.canvas, canvases.uploadable.ctx, sheetWidth, sheetHeight);
+  resizeToUploadSize(canvases.cropped.canvas, canvases.uploadable.ctx, sheetWidth, sheetHeight);
   timed(() => correctColors(canvases.uploadable), 'Pushwagnerifying!');
 
   return bitCode;

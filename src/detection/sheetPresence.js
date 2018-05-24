@@ -40,7 +40,7 @@ export const captureOriginalSheetPresenceLine = (canvases) => {
     initialSamples[col] = getColorAt(data, {x: col, y: row}, width);
   }
 
-  console.log('original sheet presence line captured');
+  logger.info('original sheet presence line captured');
 };
 
 const changeIsAboveThreshold = (originalColor = 0, newColor) => {
@@ -54,7 +54,6 @@ const changeIsAboveThreshold = (originalColor = 0, newColor) => {
 // If sheet is present, some of the pixels along the center line should be non-black.
 // This is a fast check before trying to find the corners.
 export const isSheetPresent = (canvases) => {
-  console.log(canvases);
   const ctx = canvases.videoFrame.ctx;
   const { width, height } = canvases.videoFrame.dimensions;
   const data = ctx.getImageData(0, 0, width, height).data; // TODO: Possible to extract only a single row?

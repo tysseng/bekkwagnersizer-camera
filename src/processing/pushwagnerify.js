@@ -1,17 +1,18 @@
 import nearest from 'nearest-color';
 
 const color = (hexString) => {
+
   return {
-    r: parseInt(hexString.substring(1, 2), 16),
-    g: parseInt(hexString.substring(3, 4), 16),
-    b: parseInt(hexString.substring(5, 6), 16),
+    r: parseInt(hexString.substring(1, 3), 16),
+    g: parseInt(hexString.substring(3, 5), 16),
+    b: parseInt(hexString.substring(5, 7), 16),
   }
 };
 
 // White is not very white in photo, so to get a better color detection we detect it as yellowish-grey
 // but write it as pure blenda white.
 const colorsInPhoto = {
-  white: '#eeeade',
+  white: '#e1e2e9',
   pink: '#ffc9de',
   black: '#000000',
   yellow: '#fffb00',
@@ -39,15 +40,15 @@ export const correctColors = (container) => {
   for (let i = 0; i < dataLength; i += 4) {
     if(data[i+3] > 0) {
       const oldColor = { r: data[i], g: data[i + 1], b: data[i + 2] };
-      const newPhotoColor = nearestPhotoColor(oldColor).value;
-      const newOutputColor = colorMap[newPhotoColor];
+      const newPhotoColor = nearestPhotoColor(oldColor);
+
+      const newOutputColor = colorMap[newPhotoColor.value];
 
       data[i] = newOutputColor.r;
       data[i + 1] = newOutputColor.g;
       data[i + 2] = newOutputColor.b;
     }
   }
-
   ctx.putImageData(imageData, 0, 0);
 
 };

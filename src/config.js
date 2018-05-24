@@ -98,6 +98,9 @@ export default {
   // up upside down. Possible options: 'logo', 'bitcode', 'none'.
   flipCorrection: flipDetectionMethods.BITCODE,
 
+  // Final crop border size - how much to crop away to make sure we don't get a border
+  finalCrop: 10,
+
   // center of logo to use when removing logo
   removeLogo: false,
   logoDetectionPosition: {
@@ -116,7 +119,7 @@ export default {
   // where to find bit dots (to indicate what image this is)
   removeBitcode: true,
   bitPositions,
-  bitPositionPadding: 19,
+  bitPositionPadding: 25,
 
   videoSize: {
     width: 1920,

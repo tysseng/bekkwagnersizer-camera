@@ -12,6 +12,7 @@ import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent, isSheetPresentBW } from "./detection/sheetPresence";
+import { clearCtx } from "./utils/gfx/context.utils";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -131,6 +132,24 @@ const runSingleCycle = async (canvases) => {
     oldSheetParams = sheetParams;
   }
   logger.info('Position has changed, this is a new image. Processing');
+
+
+  // clear all to prepare!
+  // If not clearing the source (filledExpanded), floodFill crashes the second time around (!)
+  // If not clearing the target (filledContracted), the previous image will be visible through the
+  // semi-transparent parts of the new one.
+  clearCtx(canvases.correctedSheetRotation);
+  clearCtx(canvases.correctedSheetScaling);
+  clearCtx(canvases.correctedSheetFlipping);
+  clearCtx(canvases.bitCodeDetection);
+  clearCtx(canvases.edges);
+  clearCtx(canvases.removedElements);
+  clearCtx(canvases.filledExpanded);
+  clearCtx(canvases.filledContracted);
+  clearCtx(canvases.mask);
+  clearCtx(canvases.extracted);
+  clearCtx(canvases.cropped);
+  clearCtx(canvases.uploadable);
 
   const bitCode = await abortable(() => process(canvases, sheetParams));
 

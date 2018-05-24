@@ -17,7 +17,7 @@ const blurRadius = 4;
 */
 
 // for image
-const border = 3;
+const border = 4;
 const blurRadius = 3;
 
 const debug = config.debug;
@@ -57,7 +57,8 @@ const findCornerCandidates = (image) => {
 const isProbablySheetCorner = (corner, image, width) => {
   const { x, y } = corner;
   const padding = 15;
-  const sheetColorThreshold = 180;
+  //const sheetColorThreshold = 180;
+  const sheetColorThreshold = 120;
   const whitePixNeededForSheetCorner = 10;
   // a sheet corner should have at least one rather white field close to to it. Look around the
   // corner to see how many pixels are whiteish, about 1/4 of the pixels should be.

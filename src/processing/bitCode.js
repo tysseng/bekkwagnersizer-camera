@@ -56,7 +56,7 @@ export const readBitCode = (image, width, height, canvases, draw = true, rotate1
 };
 
 export const isBitCodeInCorrectCorner = (canvases, image, width, height) => {
-  const result = readBitCode(image, width, height, canvases, true) > 0;
+  const result = readBitCode(image, width, height, canvases, false) > 0;
   if(result) {
     logger.info('bitcode is in correct corner');
   } else {
@@ -66,7 +66,7 @@ export const isBitCodeInCorrectCorner = (canvases, image, width, height) => {
 };
 
 export const isBitCodeInWrongCorner = (canvases, image, width, height) => {
-  const result = readBitCode(image, width, height, canvases, true, true) > 0;
+  const result = readBitCode(image, width, height, canvases, false, true) > 0;
   if(result) {
     logger.info('bitcode is in wrong corner');
   } else {

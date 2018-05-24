@@ -122,6 +122,7 @@ class App extends Component {
         filledContracted: { canvas: all[curr++] },
         mask: { canvas: all[curr++] },
         extracted: { canvas: all[curr++] },
+        cropped: { canvas: all[curr++] },
         uploadable: { canvas: all[curr++] },
       };
     } else {
@@ -146,6 +147,7 @@ class App extends Component {
     setSize(canvases.filledContracted, sheetSize);
     setSize(canvases.mask, sheetSize);
     setSize(canvases.extracted, sheetSize);
+    setSize(canvases.cropped, {width: sheetSize.width - 2 * config.finalCrop, height: sheetSize.height - 2 * config.finalCrop});
     setSize(canvases.uploadable, uploadSize);
 
     Object.keys(canvases).forEach(key => {
@@ -247,6 +249,10 @@ class App extends Component {
           </div>
           <div>
             <h3>Extracted</h3>
+            <canvas/>
+          </div>
+          <div>
+            <h3>Cropped to prevent edges</h3>
             <canvas/>
           </div>
           <div>

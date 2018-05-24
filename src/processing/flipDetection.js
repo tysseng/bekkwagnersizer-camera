@@ -16,13 +16,17 @@ const rotate180 = (sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight) => 
 };
 
 export const correctSheetOrientation = (canvases, grayImage, sheetWidth, sheetHeight) => {
-  const correctedCtx = canvases.correctedSheetScaling.ctx;
-  const flippedCtx = canvases.correctedSheetFlipping.ctx;
+  const source = canvases.correctedSheetScaling;
+  const target = canvases.correctedSheetFlipping;
+
+  const sourceCtx = source.ctx;
+  const targetCtx = target.ctx;
+
   if (config.flipCorrection === flipDetectionMethods.LOGO) {
     if (!isLogoInCorrectCorner(grayImage, sheetWidth, sheetHeight)) {
-      rotate180(correctedCtx, flippedCtx, grayImage, sheetWidth, sheetHeight);
+      rotate180(sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight);
     } else {
-      copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
+      copyCanvas(source, target);
     }
   } else if (config.flipCorrection === flipDetectionMethods.BITCODE) {
     // as bitcode is more sensitive than logo detection, we want to be as sure as possible that
@@ -31,11 +35,11 @@ export const correctSheetOrientation = (canvases, grayImage, sheetWidth, sheetHe
       !isBitCodeInCorrectCorner(canvases, grayImage, sheetWidth, sheetHeight) &&
       isBitCodeInWrongCorner(canvases, grayImage, sheetWidth, sheetHeight)
     ) {
-      rotate180(correctedCtx, flippedCtx, grayImage, sheetWidth, sheetHeight);
+      rotate180(sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight);
     } else {
-      copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
+      copyCanvas(source, target);
     }
   } else {
-    copyCanvas(canvases.correctedSheetScaling, canvases.correctedSheetFlipping);
+    copyCanvas(source, target);
   }
 };
