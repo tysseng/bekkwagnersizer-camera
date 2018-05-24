@@ -149,12 +149,18 @@ const runSingleCycle = async (canvases) => {
   clearCtx(canvases.mask);
   clearCtx(canvases.extracted);
   clearCtx(canvases.cropped);
-  clearCtx(canvases.uploadable);
+  clearCtx(canvases.uploadable1);
+  clearCtx(canvases.uploadable2);
+  clearCtx(canvases.uploadable3);
+  clearCtx(canvases.uploadable4);
 
   const bitCode = await abortable(() => process(canvases, sheetParams));
 
   if (config.uploadFile && uploadAfterCapture) {
-    await uploadFile(canvases.uploadable.canvas, bitCode);
+    await uploadFile(canvases.uploadable1.canvas, bitCode, 0);
+    await uploadFile(canvases.uploadable2.canvas, bitCode, 1);
+    await uploadFile(canvases.uploadable3.canvas, bitCode, 2);
+    await uploadFile(canvases.uploadable4.canvas, bitCode, 3);
   }
 };
 
@@ -177,6 +183,7 @@ export const run = async (canvases, sourceElement) => {
     }
   } catch (error) {
     logger.info('Caught error, resetting state to be able to restart');
+    console.log(error);
     oldSheetParams = null;
   }
 };
@@ -195,6 +202,7 @@ export const runOnce = async (canvases, sourceElement) => {
     stopRunning();
   } catch (error) {
     logger.info('Caught error, resetting state to be able to restart');
+    console.log(error);
     oldSheetParams = null;
   }
 };

@@ -101,8 +101,8 @@ export const process = (canvases, sheetParams) => {
   // crop away unwanted edges
   copyCanvasCentered(canvases.extracted, canvases.cropped);
 
-  resizeToUploadSize(canvases.cropped.canvas, canvases.uploadable.ctx, sheetWidth, sheetHeight);
-  timed(() => correctColors(canvases.uploadable), 'Pushwagnerifying!');
+  resizeToUploadSize(canvases.cropped.canvas, canvases.uploadable1.ctx, sheetWidth, sheetHeight);
+  timed(() => correctColors(canvases), 'Pushwagnerifying!');
 
   return bitCode;
 };

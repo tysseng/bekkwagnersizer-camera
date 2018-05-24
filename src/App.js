@@ -123,7 +123,10 @@ class App extends Component {
         mask: { canvas: all[curr++] },
         extracted: { canvas: all[curr++] },
         cropped: { canvas: all[curr++] },
-        uploadable: { canvas: all[curr++] },
+        uploadable1: { canvas: all[curr++] },
+        uploadable2: { canvas: all[curr++] },
+        uploadable3: { canvas: all[curr++] },
+        uploadable4: { canvas: all[curr++] },
       };
     } else {
 
@@ -148,7 +151,10 @@ class App extends Component {
     setSize(canvases.mask, sheetSize);
     setSize(canvases.extracted, sheetSize);
     setSize(canvases.cropped, {width: sheetSize.width - 2 * config.finalCrop, height: sheetSize.height - 2 * config.finalCrop});
-    setSize(canvases.uploadable, uploadSize);
+    setSize(canvases.uploadable1, uploadSize);
+    setSize(canvases.uploadable2, uploadSize);
+    setSize(canvases.uploadable3, uploadSize);
+    setSize(canvases.uploadable4, uploadSize);
 
     Object.keys(canvases).forEach(key => {
       canvases[key].ctx = canvases[key].canvas.getContext('2d');
@@ -255,8 +261,12 @@ class App extends Component {
             <h3>Cropped to prevent edges</h3>
             <canvas/>
           </div>
+          <br/>
           <div>
             <h3>Uploadable</h3>
+            <canvas/>
+            <canvas/>
+            <canvas/>
             <canvas/>
           </div>
         </div>

@@ -29,7 +29,7 @@ const b64toBlob = (b64Data, contentType, sliceSize) => {
   return new Blob(byteArrays, {type: contentType});
 };
 
-export const uploadFile = async (canvas, bitCode) => {
+export const uploadFile = async (canvas, bitCode, variation) => {
 
   const png = canvas.toDataURL("image/png");
   const block = png.split(";");
@@ -39,12 +39,12 @@ export const uploadFile = async (canvas, bitCode) => {
   const blob = b64toBlob(realData, contentType);
 
   const filenameStem = filenames[bitCode] || 'fallback';
-  const filename = `${filenameStem}-${uuid()}.png`;
+  const filename = `${filenameStem}-${variation}-${uuid()}.png`;
 
   const formData = new FormData();
   formData.append("image", blob, filename);
 
-  logger.info(`uploading ${filename} (bitCode ${bitCode}) to MiraServer`);
+  logger.info(`uploading ${filename} (bitCode ${bitCode}, variation ${variation}) to MiraServer`);
 
   await fetch(config.uploadUrl, {
     method: 'POST',

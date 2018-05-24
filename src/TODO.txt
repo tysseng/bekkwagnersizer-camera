@@ -1,5 +1,3 @@
-- Fjern litt av kanten av sheet for å hindre svarte linjer pga ujevn kant.
-
 - Detektere når nytt bilde har kommet
   - Hvis funnet ark - OK. Vent minst 30 sek for nytt bilde (men fortsett å ta bilder)
   - Detekter helt svart flate før nytt bilde tillates
@@ -12,10 +10,7 @@ Ta bilde.
 Hvis ikke detektert, vent to sek, prøv igjen
 Hvis ikke, vent på hånd igjen.
 
-Hvis detektert, sjekk om ny posisjon.
-Hvis ny posisjon, behandle og upload.
 
 
 // TODO:
 Lag platform
-Detekter rotasjon vha bitkode <---- prioriter denne på torsdag.
