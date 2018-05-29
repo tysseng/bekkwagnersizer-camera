@@ -123,6 +123,10 @@ class App extends Component {
         mask: { canvas: all[curr++] },
         extracted: { canvas: all[curr++] },
         cropped: { canvas: all[curr++] },
+        colored1: { canvas: all[curr++] },
+        colored2: { canvas: all[curr++] },
+        colored3: { canvas: all[curr++] },
+        colored4: { canvas: all[curr++] },
         uploadable1: { canvas: all[curr++] },
         uploadable2: { canvas: all[curr++] },
         uploadable3: { canvas: all[curr++] },
@@ -135,6 +139,7 @@ class App extends Component {
     const sourceSize = config.sourceSize;
     const sheetSize = config.sheetSize;
     const uploadSize = config.uploadSize;
+    const croppedSize = {width: sheetSize.width - 2 * config.finalCrop, height: sheetSize.height - 2 * config.finalCrop};
 
     setSize(canvases.baselineVideoFrame, sourceSize);
     setSize(canvases.videoFrame, sourceSize);
@@ -150,7 +155,11 @@ class App extends Component {
     setSize(canvases.filledContracted, sheetSize);
     setSize(canvases.mask, sheetSize);
     setSize(canvases.extracted, sheetSize);
-    setSize(canvases.cropped, {width: sheetSize.width - 2 * config.finalCrop, height: sheetSize.height - 2 * config.finalCrop});
+    setSize(canvases.cropped, croppedSize);
+    setSize(canvases.colored1, croppedSize);
+    setSize(canvases.colored2, croppedSize);
+    setSize(canvases.colored3, croppedSize);
+    setSize(canvases.colored4, croppedSize);
     setSize(canvases.uploadable1, uploadSize);
     setSize(canvases.uploadable2, uploadSize);
     setSize(canvases.uploadable3, uploadSize);
@@ -261,7 +270,14 @@ class App extends Component {
             <h3>Cropped to prevent edges</h3>
             <canvas/>
           </div>
-          <br/>
+          <div>
+            <h2>Colored</h2>
+            <canvas/>
+            <canvas/>
+            <canvas/>
+            <canvas/>
+            <br/>
+          </div>
           <div>
             <h3>Uploadable</h3>
             <canvas/>

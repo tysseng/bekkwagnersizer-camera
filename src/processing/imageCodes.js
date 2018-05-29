@@ -1,0 +1,30 @@
+const imageCodes = {
+  kar1: 1,
+  kar2: 2,
+  kar3: 3,
+  kar4: 4,
+  kar5: 5,
+  kar6: 6,
+  kar7: 7,
+  kar8: 8,
+  kar9: 9,
+  kar10: 10,
+  kar11: 11,
+  kar12: 12,
+  kar13: 13,
+  kar14: 14,
+  kar15: 15,
+  // 16 is removed
+  kar17: 17,
+  kar18: 18,
+  kar19: 19,
+  kar20: 20,
+  kar21: 21,
+  kar22: 22,
+  kar23: 23,
+  kar24: 24,
+  kar25: 25,
+  kar26: 26,
+};
+
+export default imageCodes;

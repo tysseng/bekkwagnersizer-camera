@@ -9,7 +9,7 @@ const pixelsNeededFor1 = 30;
 
 export const colorsInPhoto = {
   white: '#e1e2e9',
-  dotColor: '#ff05b6',
+  dotColor: '#8E3395',
   black: '#565656',
 };
 const nearestPhotoColor = nearest.from(colorsInPhoto);

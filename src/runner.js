@@ -1,5 +1,6 @@
 import logger from "./utils/logger";
 import config from "./config";
+import status from './communication/statusIndicator';
 import {
   findSheet,
   sheetPositionHasChanged
@@ -13,6 +14,13 @@ import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent, isSheetPresentBW } from "./detection/sheetPresence";
 import { clearCtx } from "./utils/gfx/context.utils";
+import { defaultMappings, mappings } from "./processing/pushwagnerColorMaps";
+import variations from "./processing/sceneVariations";
+import {
+  getImageMappingsWithDefaults,
+  getVariationMappingsWithDefaults
+} from "./processing/colorMapping";
+import imageCodes from "./processing/imageCodes";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -93,6 +101,28 @@ const waitForHandInOut = async (canvases, sourceElement) => {
   }
 };
 
+const clearCanvases = (canvases) => {
+  clearCtx(canvases.correctedSheetRotation);
+  clearCtx(canvases.correctedSheetScaling);
+  clearCtx(canvases.correctedSheetFlipping);
+  clearCtx(canvases.bitCodeDetection);
+  clearCtx(canvases.edges);
+  clearCtx(canvases.removedElements);
+  clearCtx(canvases.filledExpanded);
+  clearCtx(canvases.filledContracted);
+  clearCtx(canvases.mask);
+  clearCtx(canvases.extracted);
+  clearCtx(canvases.cropped);
+  clearCtx(canvases.colored1);
+  clearCtx(canvases.colored2);
+  clearCtx(canvases.colored3);
+  clearCtx(canvases.colored4);
+  clearCtx(canvases.uploadable1);
+  clearCtx(canvases.uploadable2);
+  clearCtx(canvases.uploadable3);
+  clearCtx(canvases.uploadable4);
+};
+
 const runSingleCycle = async (canvases) => {
 
   const videoFrameCtx = canvases.videoFrame.ctx;
@@ -121,7 +151,7 @@ const runSingleCycle = async (canvases) => {
   const sheetParams = await abortable(() => findSheet(canvases));
   if (sheetParams === null) {
     logger.error('Sheet should be present but I couldnt find it');
-    return;
+    throw new Error('Sheet should be present but I couldnt find it')
   }
 
   logger.info('Corners found, checking if position has changed');
@@ -138,22 +168,9 @@ const runSingleCycle = async (canvases) => {
   // If not clearing the source (filledExpanded), floodFill crashes the second time around (!)
   // If not clearing the target (filledContracted), the previous image will be visible through the
   // semi-transparent parts of the new one.
-  clearCtx(canvases.correctedSheetRotation);
-  clearCtx(canvases.correctedSheetScaling);
-  clearCtx(canvases.correctedSheetFlipping);
-  clearCtx(canvases.bitCodeDetection);
-  clearCtx(canvases.edges);
-  clearCtx(canvases.removedElements);
-  clearCtx(canvases.filledExpanded);
-  clearCtx(canvases.filledContracted);
-  clearCtx(canvases.mask);
-  clearCtx(canvases.extracted);
-  clearCtx(canvases.cropped);
-  clearCtx(canvases.uploadable1);
-  clearCtx(canvases.uploadable2);
-  clearCtx(canvases.uploadable3);
-  clearCtx(canvases.uploadable4);
+  clearCanvases(canvases);
 
+  status.processing();
   const bitCode = await abortable(() => process(canvases, sheetParams));
 
   if (config.uploadFile && uploadAfterCapture) {
@@ -162,6 +179,9 @@ const runSingleCycle = async (canvases) => {
     await uploadFile(canvases.uploadable3.canvas, bitCode, 2);
     await uploadFile(canvases.uploadable4.canvas, bitCode, 3);
   }
+  status.success();
+  await timeout(2000);
+  status.normal();
 };
 
 export const stop = () => {
@@ -169,23 +189,39 @@ export const stop = () => {
   logger.info('Image processing stopped');
 };
 
+const indicateFailure = async (error) => {
+  status.failure();
+  logger.error('Something went wrong in cycle');
+  logger.error(error);
+  await timeout('2000');
+  status.normal();
+};
+
 export const run = async (canvases, sourceElement) => {
+  startRunning();
+  logger.info('Running image processing');
   try {
-    startRunning();
-    logger.info('Running image processing');
     while (isRunning()) {
       await abortable(() => captureImage(canvases, sourceElement));
       await waitForHandInOut(canvases, sourceElement);
-      logger.info("run for your life, Marty!")
+      logger.info("run for your life, Marty!");
       // TODO: wait for 2 seconds with possibility of aborting if hand is detected again.
-      await runSingleCycle(canvases);
+      try {
+        await runSingleCycle(canvases);
+      } catch (error) {
+        if (error !== 'ABORT') {
+          await indicateFailure(error);
+        }
+      }
       logger.info('do the loop');
     }
   } catch (error) {
-    logger.info('Caught error, resetting state to be able to restart');
-    console.log(error);
-    oldSheetParams = null;
+    if (error !== 'ABORT') {
+      await indicateFailure(error);
+    }
   }
+  stopRunning();
+  oldSheetParams = null;
 };
 
 export const runOnce = async (canvases, sourceElement) => {
@@ -198,11 +234,12 @@ export const runOnce = async (canvases, sourceElement) => {
 
     await runSingleCycle(canvases);
     logger.info('Completed single cycle, resetting state to be able to restart');
-    oldSheetParams = null;
-    stopRunning();
   } catch (error) {
-    logger.info('Caught error, resetting state to be able to restart');
-    console.log(error);
-    oldSheetParams = null;
+    if (error !== 'ABORT') {
+      await indicateFailure(error);
+    }
+
   }
+  oldSheetParams = null;
+  stopRunning();
 };

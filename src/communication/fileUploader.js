@@ -38,8 +38,8 @@ export const uploadFile = async (canvas, bitCode, variation) => {
 
   const blob = b64toBlob(realData, contentType);
 
-  const filenameStem = filenames[bitCode] || 'fallback';
-  const filename = `${filenameStem}-${variation}-${uuid()}.png`;
+  //const filenameStem = filenames[bitCode] || 'fallback';
+  const filename = `${bitCode}-${variation}-${uuid()}.png`;
 
   const formData = new FormData();
   formData.append("image", blob, filename);

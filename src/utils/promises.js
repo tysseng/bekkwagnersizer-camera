@@ -12,7 +12,7 @@ export const abortable = (funcToAsync) => {
       resolve(result);
     } else {
       logger.error('- ABORTED, stop was pressed')
-      reject('aborted');
+      reject('ABORT');
     }
   }, 0));
 };
