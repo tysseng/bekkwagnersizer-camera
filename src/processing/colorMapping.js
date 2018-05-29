@@ -22,7 +22,6 @@ const getScreenColors = (photoColors, variationColors, defaultVariationColors) =
       }
     });
   }
-  console.log(screenColors);
   return screenColors;
 };
 
@@ -44,7 +43,7 @@ const getVariationMappingsWithDefaults = (mappings, defaultMappings, imageCode, 
   const photoColors = {};
   mappings[imageCode].photo.forEach(photoColor => {
     photoColors[photoColor] = photoColor;
-  })
+  });
   return {
     photo: photoColors,
     variations: variationsMapped

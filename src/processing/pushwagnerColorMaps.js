@@ -4,16 +4,16 @@ import { color } from './colorMapping';
 
 // all colors found in photos
 const photoColors = {
-  black: '#4C4C4C',
-  white: '#D9D4D8',
-  lightBlue: '#64C5D5',
-  orange: '#D55800',
-  green: '#86C17F',
-  skin: '#EFBFCE',
-  yellow: '#f1eb00',
-  wine: '#CD0031',
-  purple: '#D40FAB',
-  darkBlue: '#557CD7',
+  black: '#4C5556',
+  white: '#F4FEFF',
+  lightBlue: '#7CD8EF',
+  orange: '#FFB254',
+  green: '#8BD19F',
+  skin: '#FDC9DF',
+  yellow: '#FFEF56',
+  wine: '#CF4A6B',
+  purple: '#CD68B9',
+  darkBlue: '#4D8BDF',
 };
 
 // All colors to use for replacing.
@@ -40,32 +40,10 @@ defaultMappings[variations.people] = {
   [photoColors.skin]: screenColorsPeople.skin,
 };
 defaultMappings[variations.manhattan] = {
-  [photoColors.black]: screenColors.black,
-  [photoColors.white]: screenColors.white,
-  [photoColors.lightBlue]: screenColors.lightBlue,
-  [photoColors.orange]: screenColors.orange,
-  [photoColors.mint]: screenColors.mint,
-  [photoColors.skin]: screenColors.skin,
-  [photoColors.yellow]: screenColors.yellow,
 };
 defaultMappings[variations.telly] = {
-  [photoColors.black]: screenColors.black,
-  [photoColors.white]: screenColors.white,
-  [photoColors.lightBlue]: screenColors.lightBlue,
-  [photoColors.orange]: screenColors.orange,
-  [photoColors.mint]: screenColors.mint,
-  [photoColors.skin]: screenColors.skin,
-  [photoColors.yellow]: screenColors.yellow,
 };
-
 defaultMappings[variations.kingscross] = {
-  [photoColors.black]: screenColors.black,
-  [photoColors.white]: screenColors.lightBlue,
-  [photoColors.lightBlue]: screenColors.lightBlue,
-  [photoColors.orange]: screenColors.orange,
-  [photoColors.mint]: screenColors.mint,
-  [photoColors.skin]: screenColors.skin,
-  [photoColors.yellow]: screenColors.yellow,
 };
 
 // mappings between photo colors and variations for each image. Comes in addition to default colors.
