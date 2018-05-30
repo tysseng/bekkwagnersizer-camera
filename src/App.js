@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import keydown from 'react-keydown';
 import logo from './logo.svg';
 import './App.css';
 import {
@@ -19,7 +20,7 @@ const setSize = (container, { width, height }) => {
   container.dimensions = { width, height };
 };
 
-class App extends Component {
+const App = keydown(class App extends Component {
 
   constructor(props) {
     super(props);
@@ -36,8 +37,19 @@ class App extends Component {
     this.setBaseline = this.setBaseline.bind(this);
     this.captureCanvases = this.captureCanvases.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
+    this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
     this.getSourceElement = this.getSourceElement.bind(this);
     this.handleUploadAfterCaptureChange = this.handleUploadAfterCaptureChange.bind(this);
+  }
+
+  componentWillReceiveProps( nextProps ) {
+    const { keydown: { event } } = nextProps;
+    if ( event ) {
+      console.log('KEY', event.which);
+      if(event.which === 190){
+        this.runSingleCycle();
+      }
+    }
   }
 
   componentDidMount() {
@@ -312,6 +324,6 @@ class App extends Component {
       </div>
     );
   }
-}
+});
 
 export default App;
