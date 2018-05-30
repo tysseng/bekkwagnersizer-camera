@@ -242,5 +242,5 @@ export const runOnce = async (canvases, sourceElement) => {
 
 export const init = (canvases) => {
   loadColors(photoColors);
-  drawPhotoColors(photoColors, canvases.photoColors.ctx);
+  drawPhotoColors(photoColors, canvases.photoColors);
 };

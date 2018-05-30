@@ -64,7 +64,7 @@ export const process = (canvases, sheetParams) => {
     throw new Error('No bitcode found, aborting');
   } else if(bitCode === config.colorBitcode){
     calibrateColors(canvases.correctedSheetFlipping, photoColors);
-    drawPhotoColors(photoColors, canvases.photoColors.ctx);
+    drawPhotoColors(photoColors, canvases.photoColors);
     return bitCode;
   }
   // find lines to prepare for flood fill

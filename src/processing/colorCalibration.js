@@ -1,6 +1,7 @@
 import config from "../config";
 import logger from "../utils/logger";
 import { photoColors } from "./pushwagnerColorMaps";
+import { clearCtx } from "../utils/gfx/context.utils";
 
 const LOCAL_STORAGE_KEY = 'colorCalibration';
 
@@ -53,7 +54,9 @@ const averageColorAroundPoint = (sourceContainer, padding, point) => {
   return { r, g, b, hex };
 };
 
-export const drawPhotoColors = (photoColors, ctx) => {
+export const drawPhotoColors = (photoColors, canvasContainer) => {
+  clearCtx(canvasContainer);
+  const ctx = canvasContainer.ctx;
   const paddingX = 100;
   const paddingY = 50;
   logger.info('Drawing calibrated colors');
