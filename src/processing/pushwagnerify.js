@@ -1,17 +1,23 @@
 import nearest from 'nearest-color';
 import { copyCanvas } from "../utils/gfx/context.utils";
 import { getImageMappingsWithDefaults } from "./colorMapping";
-import { defaultMappings, mappings } from "./pushwagnerColorMaps";
+import { getDefaultMappings, getMappings } from "./pushwagnerColorMaps";
 import imageCodes from "./imageCodes";
 import variations from "./sceneVariations";
 import logger from "../utils/logger";
 
-const colorsForAllImages = getImageMappingsWithDefaults(
-  mappings,
-  defaultMappings,
-  Object.values(imageCodes),
-  Object.values(variations)
-);
+let colorsForAllImages;
+
+// Must be run after color calibration
+export const updateColorsForAllImages = () => {
+  colorsForAllImages = getImageMappingsWithDefaults(
+    getMappings(),
+    getDefaultMappings(),
+    Object.values(imageCodes),
+    Object.values(variations)
+  );
+  console.log('UPDATED COLORS FOR ALL IMAGES', colorsForAllImages);
+};
 
 const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorMap) => {
   const { width, height } = target.dimensions;

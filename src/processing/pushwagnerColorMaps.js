@@ -2,9 +2,8 @@ import imageCodes from './imageCodes';
 import variations from './sceneVariations';
 import { color } from './colorMapping';
 
-// all colors found in photos
-export
-const photoColors = {
+// all colors found in photos. Will be changed by calibration!
+export const photoColors = {
   black: '#4C5556',
   white: '#F4FEFF',
   lightBlue: '#7CD8EF',
@@ -35,23 +34,25 @@ const screenColorsPeople = {
 };
 
 // Default mappings to use for the variations, if no other mapping is found.
-export const defaultMappings = [];
-defaultMappings[variations.people] = {
-  [photoColors.black]: screenColorsPeople.black,
-  [photoColors.white]: screenColorsPeople.white,
-  [photoColors.skin]: screenColorsPeople.skin,
+
+export const getDefaultMappings = () => {
+  const defaultMappings = [];
+  defaultMappings[variations.people] = {
+    [photoColors.black]: screenColorsPeople.black,
+    [photoColors.white]: screenColorsPeople.white,
+    [photoColors.skin]: screenColorsPeople.skin,
+  };
+  defaultMappings[variations.manhattan] = {};
+  defaultMappings[variations.telly] = {};
+  defaultMappings[variations.kingscross] = {};
+  return defaultMappings;
 };
-defaultMappings[variations.manhattan] = {
-};
-defaultMappings[variations.telly] = {
-};
-defaultMappings[variations.kingscross] = {
-};
+
 
 // mappings between photo colors and variations for each image. Comes in addition to default colors.
 // NB: photo colors must include ALL colors we expect to find in image, including black and white.
 // TODO: Make black, white and skin color default?
-export const mappings = {
+export const getMappings = () => ({
   [imageCodes.kar1]: {
     photo: [
       photoColors.black,
@@ -406,4 +407,4 @@ export const mappings = {
       [photoColors.orange]: screenColorsPeople.black,
     },
   },
-};
+});

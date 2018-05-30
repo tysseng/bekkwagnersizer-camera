@@ -16,6 +16,7 @@ import { isSheetPresent, isSheetPresentBW } from "./detection/sheetPresence";
 import { clearCtx } from "./utils/gfx/context.utils";
 import { photoColors } from "./processing/pushwagnerColorMaps";
 import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
+import { updateColorsForAllImages } from "./processing/pushwagnerify";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -262,5 +263,6 @@ export const calibrateColors = async (canvases, sourceElement) => {
 
 export const init = (canvases) => {
   loadColors(photoColors);
+  updateColorsForAllImages();
   drawPhotoColors(photoColors, canvases.photoColors);
 };

@@ -11,7 +11,7 @@ import { readBitCode, removeBitDots } from "./bitCode";
 import { extractSheetUsingPerspectiveTransformation } from "./sheetExtractorExact";
 import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithoutPadding, floodFillWithPadding } from "./floodFiller";
-import { correctColors } from "./pushwagnerify";
+import { correctColors, updateColorsForAllImages } from "./pushwagnerify";
 import logger from "../utils/logger";
 import { photoColors } from "./pushwagnerColorMaps";
 import { calibrateColors, drawPhotoColors } from "./colorCalibration";
@@ -62,6 +62,7 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
   if(bitCode === config.colorBitcode || isCalibration ){
     calibrateColors(canvases.correctedSheetFlipping, photoColors);
     drawPhotoColors(photoColors, canvases.photoColors);
+    updateColorsForAllImages();
     return config.colorBitcode;
   } else if(bitCode === 0){
     throw new Error('No bitcode found, aborting');
