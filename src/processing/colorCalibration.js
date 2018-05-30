@@ -63,6 +63,7 @@ export const drawPhotoColors = (photoColors, canvasContainer) => {
   Object.keys(photoColors).forEach(key => {
     const color = photoColors[key];
     const position = config.colorPositions[key];
+    const {x, y} = position;
     ctx.fillStyle=color;
     ctx.fillRect(x - paddingX, y - paddingY, 2 * paddingX, 2 * paddingY);
   });

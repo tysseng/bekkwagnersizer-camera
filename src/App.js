@@ -38,6 +38,7 @@ class App extends Component {
 
   componentDidMount() {
     this.captureCanvases();
+    console.log('canvases', this.state);
     initRunner(this.state.canvases);
   }
 
@@ -172,7 +173,11 @@ class App extends Component {
       canvases[key].ctx = canvases[key].canvas.getContext('2d');
     });
 
-    this.setState({ canvases });
+    this.setState((previousState, currentProps) => {
+      return { ...previousState, canvases: canvases };
+    });
+    console.log('canvases HHH', this.state.canvases)
+    //this.setState({ canvases });
   }
 
   render() {
