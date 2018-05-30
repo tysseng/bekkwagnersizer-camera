@@ -60,6 +60,27 @@ const bitPositions = bitPositionsMM.map(
     y: Math.floor(pos.y * sheetPPMM)
   }));
 
+// color calibration pads position in millimeters
+const colorRowsMM = [20, 40, 60, 80, 100];
+const colorColsMM = [20, 40];
+
+const colorRows = colorRowsMM.map(pos => Math.floor(pos * sheetPPMM));
+const colorCols = colorRowsMM.map(pos => Math.floor(pos * sheetPPMM));
+
+const colorPositions = {
+  black: {x: colorCols[0], y: colorRows[0]},
+  white:  {x: colorCols[0], y: colorRows[0]},
+  lightBlue:  {x: colorCols[0], y: colorRows[0]},
+  orange:  {x: colorCols[0], y: colorRows[0]},
+  green:  {x: colorCols[0], y: colorRows[0]},
+  skin:  {x: colorCols[0], y: colorRows[0]},
+  yellow:  {x: colorCols[0], y: colorRows[0]},
+  wine:  {x: colorCols[0], y: colorRows[0]},
+  purple:  {x: colorCols[0], y: colorRows[0]},
+  darkBlue:  {x: colorCols[0], y: colorRows[0]},
+  pink:  {x: colorCols[0], y: colorRows[0]},
+};
+
 export default {
   source,
 
@@ -120,6 +141,10 @@ export default {
   removeBitcode: true,
   bitPositions,
   bitPositionPadding: 25,
+
+  // where to find colors to use for calibration
+  colorPositions,
+  colorBitcode: 15, // TODO - wrong code
 
   videoSize: {
     width: 1920,

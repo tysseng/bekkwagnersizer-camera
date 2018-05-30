@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { run, runOnce, setUploadAfterCapture, stop } from './runner';
+import { run, runOnce, setUploadAfterCapture, stop, init as initRunner } from './runner';
 import config from './config';
 import Video from "./sources/Video";
 import logger from './utils/logger';
@@ -38,6 +38,7 @@ class App extends Component {
 
   componentDidMount() {
     this.captureCanvases();
+    initRunner(this.state.canvases);
   }
 
   sourceHasLoaded() {
@@ -108,6 +109,7 @@ class App extends Component {
     let canvases;
     if (config.showSteps) {
       canvases = {
+        photoColors: { canvas: all[curr++] },
         baselineVideoFrame: { canvas: all[curr++] },
         videoFrame: { canvas: all[curr++] },
         detectedSheet: { canvas: all[curr++] },
@@ -141,6 +143,7 @@ class App extends Component {
     const uploadSize = config.uploadSize;
     const croppedSize = {width: sheetSize.width - 2 * config.finalCrop, height: sheetSize.height - 2 * config.finalCrop};
 
+    setSize(canvases.photoColors, sheetSize);
     setSize(canvases.baselineVideoFrame, sourceSize);
     setSize(canvases.videoFrame, sourceSize);
     setSize(canvases.detectedSheet, sourceSize);
@@ -210,6 +213,10 @@ class App extends Component {
           }
         </div>
         <div className='canvases'>
+          <div>
+            <h3>Calibrated input colors</h3>
+            <canvas/>
+          </div>
           <div>
             <h3>Baseline VideoFrame</h3>
             <canvas/>

@@ -3,6 +3,7 @@ import variations from './sceneVariations';
 import { color } from './colorMapping';
 
 // all colors found in photos
+export
 const photoColors = {
   black: '#4C5556',
   white: '#F4FEFF',
@@ -14,6 +15,7 @@ const photoColors = {
   wine: '#CF4A6B',
   purple: '#CD68B9',
   darkBlue: '#4D8BDF',
+  pink: '#4D8BDF', // bit pattern stars.
 };
 
 // All colors to use for replacing.

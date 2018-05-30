@@ -14,13 +14,8 @@ import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent, isSheetPresentBW } from "./detection/sheetPresence";
 import { clearCtx } from "./utils/gfx/context.utils";
-import { defaultMappings, mappings } from "./processing/pushwagnerColorMaps";
-import variations from "./processing/sceneVariations";
-import {
-  getImageMappingsWithDefaults,
-  getVariationMappingsWithDefaults
-} from "./processing/colorMapping";
-import imageCodes from "./processing/imageCodes";
+import { photoColors } from "./processing/pushwagnerColorMaps";
+import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -172,8 +167,9 @@ const runSingleCycle = async (canvases) => {
 
   status.processing();
   const bitCode = await abortable(() => process(canvases, sheetParams));
-
-  if (config.uploadFile && uploadAfterCapture) {
+  if(bitCode === config.colorBitcode){
+    status.success();
+  } else if (config.uploadFile && uploadAfterCapture) {
     await uploadFile(canvases.uploadable1.canvas, bitCode, 0);
     await uploadFile(canvases.uploadable2.canvas, bitCode, 1);
     await uploadFile(canvases.uploadable3.canvas, bitCode, 2);
@@ -242,4 +238,9 @@ export const runOnce = async (canvases, sourceElement) => {
   }
   oldSheetParams = null;
   stopRunning();
+};
+
+export const init = (canvases) => {
+  loadColors(photoColors);
+  drawPhotoColors(photoColors, canvases.photoColors.ctx);
 };

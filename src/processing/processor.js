@@ -13,6 +13,8 @@ import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithoutPadding, floodFillWithPadding } from "./floodFiller";
 import { correctColors } from "./pushwagnerify";
 import logger from "../utils/logger";
+import { photoColors } from "./pushwagnerColorMaps";
+import { calibrateColors, drawPhotoColors } from "./colorCalibration";
 
 
 // Extract detected sheet, detect drawing type and isolate drawing.
@@ -60,6 +62,10 @@ export const process = (canvases, sheetParams) => {
   const bitCode = timed(() => readBitCode(canvases.correctedSheetFlipping, sheetWidth, sheetHeight, canvases), 'Reading bit code');
   if(bitCode === 0){
     throw new Error('No bitcode found, aborting');
+  } else if(bitCode === config.colorBitcode){
+    calibrateColors(canvases.correctedSheetFlipping, photoColors);
+    drawPhotoColors(photoColors, canvases.photoColors.ctx);
+    return bitCode;
   }
   // find lines to prepare for flood fill
   const jsFeatImageWithDilutedLines = timed(() => detectEdges(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');
