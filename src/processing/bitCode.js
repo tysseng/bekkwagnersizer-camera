@@ -3,21 +3,23 @@ import config from "../config";
 import logger from "../utils/logger";
 import { copyCanvas } from "../utils/gfx/context.utils";
 import { drawBox } from "../utils/gfx/draw";
+import { photoColors } from "./pushwagnerColorMaps";
 
 const paddingAroundBitPosition = config.bitPositionPadding;
 const pixelsNeededFor1 = 30;
-
-export const colorsInPhoto = {
-  white: '#e1e2e9',
-  dotColor: '#8E3395',
-  black: '#565656',
-};
-const nearestPhotoColor = nearest.from(colorsInPhoto);
 
 const bit = (sourceContainer, imageWidth, padding, x, y) => {
   const { width, height } = sourceContainer.dimensions;
   const imageData = sourceContainer.ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
+
+  const colorsInPhoto = {
+    white: photoColors.white,
+    dotColor: photoColors.pink,
+    black: photoColors.black,
+  };
+
+  const nearestPhotoColor = nearest.from(colorsInPhoto);
 
   let pixelCount = 0;
   for (let col = x - padding; col <= x + padding; col++) {
