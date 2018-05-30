@@ -153,9 +153,9 @@ export default {
 
   //4K cam
   videoCircle: { // relative to videoSize
-    x: 3000,
-    y: 2050,
-    radius: 1900,
+    x: 2930,
+    y: 2010,
+    radius: 1840,
   },
 
   /*
