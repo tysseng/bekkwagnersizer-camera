@@ -18,7 +18,7 @@ import { calibrateColors, drawPhotoColors } from "./colorCalibration";
 
 
 // Extract detected sheet, detect drawing type and isolate drawing.
-export const process = (canvases, sheetParams) => {
+export const process = (canvases, sheetParams, isCalibration = false) => {
 
   const { width: frameWidth, height: frameHeight } = config.sourceSize;
   const { width: sheetWidth, height: sheetHeight } = config.sheetSize;
@@ -57,16 +57,16 @@ export const process = (canvases, sheetParams) => {
   }
 
   // detect bit code to see what image this is
-  //const bitCode = timed(() => readBitCode(sheetImageBW, sheetWidth, sheetHeight, canvases), 'Reading bit code');
   logger.info('Looking for bitcode');
   const bitCode = timed(() => readBitCode(canvases.correctedSheetFlipping, sheetWidth, sheetHeight, canvases), 'Reading bit code');
-  if(bitCode === 0){
-    throw new Error('No bitcode found, aborting');
-  } else if(bitCode === config.colorBitcode){
+  if(bitCode === config.colorBitcode || isCalibration ){
     calibrateColors(canvases.correctedSheetFlipping, photoColors);
     drawPhotoColors(photoColors, canvases.photoColors);
-    return bitCode;
+    return config.colorBitcode;
+  } else if(bitCode === 0){
+    throw new Error('No bitcode found, aborting');
   }
+
   // find lines to prepare for flood fill
   const jsFeatImageWithDilutedLines = timed(() => detectEdges(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');
   drawJsFeatImageOnContext(jsFeatImageWithDilutedLines, canvases.edges.ctx, sheetWidth, sheetHeight);

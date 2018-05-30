@@ -61,24 +61,24 @@ const bitPositions = bitPositionsMM.map(
   }));
 
 // color calibration pads position in millimeters
-const colorRowsMM = [20, 40, 60, 80, 100];
-const colorColsMM = [20, 40];
+const colorRowsMM = [40, 85, 135, 180, 230, 290];
+const colorColsMM = [80, 210];
 
 const colorRows = colorRowsMM.map(pos => Math.floor(pos * sheetPPMM));
-const colorCols = colorRowsMM.map(pos => Math.floor(pos * sheetPPMM));
+const colorCols = colorColsMM.map(pos => Math.floor(pos * sheetPPMM));
 
 const colorPositions = {
-  black: {x: colorCols[0], y: colorRows[0]},
-  white:  {x: colorCols[0], y: colorRows[0]},
   lightBlue:  {x: colorCols[0], y: colorRows[0]},
-  orange:  {x: colorCols[0], y: colorRows[0]},
-  green:  {x: colorCols[0], y: colorRows[0]},
-  skin:  {x: colorCols[0], y: colorRows[0]},
-  yellow:  {x: colorCols[0], y: colorRows[0]},
-  wine:  {x: colorCols[0], y: colorRows[0]},
-  purple:  {x: colorCols[0], y: colorRows[0]},
-  darkBlue:  {x: colorCols[0], y: colorRows[0]},
-  pink:  {x: colorCols[0], y: colorRows[0]},
+  green:  {x: colorCols[0], y: colorRows[1]},
+  yellow:  {x: colorCols[0], y: colorRows[2]},
+  purple:  {x: colorCols[0], y: colorRows[3]},
+  pink:  {x: colorCols[0], y: colorRows[4]},
+  white:  {x: colorCols[0], y: colorRows[5]},
+  orange:  {x: colorCols[1], y: colorRows[0]},
+  skin:  {x: colorCols[1], y: colorRows[1]},
+  wine:  {x: colorCols[1], y: colorRows[2]},
+  darkBlue:  {x: colorCols[1], y: colorRows[3]},
+  black: {x: colorCols[1], y: colorRows[4]},
 };
 
 export default {
@@ -144,7 +144,7 @@ export default {
 
   // where to find colors to use for calibration
   colorPositions,
-  colorBitcode: 15, // TODO - wrong code
+  colorBitcode: 30, // TODO - wrong code
 
   videoSize: {
     width: 1920,
@@ -153,7 +153,7 @@ export default {
 
   //4K cam
   videoCircle: { // relative to videoSize
-    x: 2930,
+    x: 2800,
     y: 2010,
     radius: 1840,
   },

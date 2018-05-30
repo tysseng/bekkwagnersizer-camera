@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { run, runOnce, setUploadAfterCapture, stop, init as initRunner } from './runner';
+import {
+  run, runOnce, setUploadAfterCapture, stop, init as initRunner,
+  calibrateColors
+} from './runner';
 import config from './config';
 import Video from "./sources/Video";
 import logger from './utils/logger';
@@ -29,6 +32,7 @@ class App extends Component {
     this.sourceHasLoaded = this.sourceHasLoaded.bind(this);
     this.run = this.run.bind(this);
     this.runSingleCycle = this.runSingleCycle.bind(this);
+    this.runColorCalibration = this.runColorCalibration.bind(this);
     this.setBaseline = this.setBaseline.bind(this);
     this.captureCanvases = this.captureCanvases.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
@@ -37,9 +41,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.captureCanvases();
+    const canvases = this.captureCanvases();
     console.log('canvases', this.state);
-    initRunner(this.state.canvases);
+    initRunner(canvases);
   }
 
   sourceHasLoaded() {
@@ -81,6 +85,15 @@ class App extends Component {
       runOnce(this.state.canvases, this.getSourceElement());
     } catch (error) {
       logger.error('Could not complete image processing');
+      logger.error(error);
+    }
+  }
+
+  runColorCalibration() {
+    try {
+      calibrateColors(this.state.canvases, this.getSourceElement());
+    } catch (error) {
+      logger.error('Could not complete color calibration');
       logger.error(error);
     }
   }
@@ -173,11 +186,8 @@ class App extends Component {
       canvases[key].ctx = canvases[key].canvas.getContext('2d');
     });
 
-    this.setState((previousState, currentProps) => {
-      return { ...previousState, canvases: canvases };
-    });
-    console.log('canvases HHH', this.state.canvases)
-    //this.setState({ canvases });
+    this.setState({ canvases });
+    return canvases;
   }
 
   render() {
@@ -191,9 +201,10 @@ class App extends Component {
         </p>
         <div>
           <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
+          <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors</button>
+          <button className='initial' onClick={() => this.stop()}>Stop!</button>
           <button onClick={() => this.runSingleCycle()}>Run single</button>
           <button className='primary'onClick={() => this.run()}>Run forever</button>
-          <button onClick={() => this.stop()}>Stop!</button>
           <label>
             <input
               type='checkbox'

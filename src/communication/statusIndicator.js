@@ -14,6 +14,13 @@ const failure = () => {
   logger.info('FAILURE!');
 };
 
+const colorsCalibrated = () => {
+  fetch('http://localhost:3007/blink?r=255&g=255&b=0&duration=1000&times=4', {
+    method: 'GET',
+  });
+  logger.info('FAILURE!');
+};
+
 const processing = () => {
   fetch('http://localhost:3007/spin?r=255&g=255&b=255&speed=20', {
     method: 'GET',
@@ -33,4 +40,5 @@ export default {
   failure,
   normal,
   processing,
+  colorsCalibrated,
 }

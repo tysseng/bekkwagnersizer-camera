@@ -19,13 +19,13 @@ import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
 
 // STATE! OH NO!
 let oldSheetParams = null;
-let uploadAfterCapture = config.defaultUploadAfterCapture;
+let globalUploadAfterCapture = config.defaultUploadAfterCapture;
 
 const debounceLength = 5;
 const debounce = [];
 
 export const setUploadAfterCapture = (value) => {
-  uploadAfterCapture = value;
+  globalUploadAfterCapture = value;
 };
 
 const debouncedOccluded = () => {
@@ -118,7 +118,7 @@ const clearCanvases = (canvases) => {
   clearCtx(canvases.uploadable4);
 };
 
-const runSingleCycle = async (canvases) => {
+const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
 
   const videoFrameCtx = canvases.videoFrame.ctx;
 
@@ -166,17 +166,17 @@ const runSingleCycle = async (canvases) => {
   clearCanvases(canvases);
 
   status.processing();
-  const bitCode = await abortable(() => process(canvases, sheetParams));
+  const bitCode = await abortable(() => process(canvases, sheetParams, isCalibration));
   if(bitCode === config.colorBitcode){
-    status.success();
+    status.colorsCalibrated();
   } else if (config.uploadFile && uploadAfterCapture) {
     await uploadFile(canvases.uploadable1.canvas, bitCode, 0);
     await uploadFile(canvases.uploadable2.canvas, bitCode, 1);
     await uploadFile(canvases.uploadable3.canvas, bitCode, 2);
     await uploadFile(canvases.uploadable4.canvas, bitCode, 3);
+    status.success();
   }
-  status.success();
-  await timeout(2000);
+  await timeout(4000);
   status.normal();
 };
 
@@ -203,7 +203,7 @@ export const run = async (canvases, sourceElement) => {
       logger.info("run for your life, Marty!");
       // TODO: wait for 2 seconds with possibility of aborting if hand is detected again.
       try {
-        await runSingleCycle(canvases);
+        await runSingleCycle(canvases, globalUploadAfterCapture, false);
       } catch (error) {
         if (error !== 'ABORT') {
           await indicateFailure(error);
@@ -228,8 +228,28 @@ export const runOnce = async (canvases, sourceElement) => {
     await abortable(() => captureImage(canvases, sourceElement));
     logger.info('Captured initial frame');
 
-    await runSingleCycle(canvases);
+    await runSingleCycle(canvases, globalUploadAfterCapture, false);
     logger.info('Completed single cycle, resetting state to be able to restart');
+  } catch (error) {
+    if (error !== 'ABORT') {
+      await indicateFailure(error);
+    }
+
+  }
+  oldSheetParams = null;
+  stopRunning();
+};
+
+export const calibrateColors = async (canvases, sourceElement) => {
+  try {
+    startRunning();
+    logger.info('Running color calibration');
+
+    await abortable(() => captureImage(canvases, sourceElement));
+    logger.info('Captured initial frame');
+
+    await runSingleCycle(canvases, false, true);
+    logger.info('Completed color calibration, resetting state to be able to restart');
   } catch (error) {
     if (error !== 'ABORT') {
       await indicateFailure(error);
