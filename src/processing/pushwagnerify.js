@@ -4,6 +4,7 @@ import { getImageMappingsWithDefaults } from "./colorMapping";
 import { defaultMappings, mappings } from "./pushwagnerColorMaps";
 import imageCodes from "./imageCodes";
 import variations from "./sceneVariations";
+import logger from "../utils/logger";
 
 const colorsForAllImages = getImageMappingsWithDefaults(
   mappings,
