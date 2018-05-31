@@ -107,7 +107,7 @@ Object.keys(profiles).forEach(key => {
   profiles[key].id = key;
 });
 
-const imageCodes = {};
+export const imageCodes = {};
 Object.keys(profiles).forEach(key => imageCodes[key] = profiles[key].bitCode);
 
 export const bitCodeToProfileMap = {};

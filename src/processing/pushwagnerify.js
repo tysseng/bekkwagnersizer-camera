@@ -2,7 +2,7 @@ import nearest from 'nearest-color';
 import { copyCanvas } from "../utils/gfx/context.utils";
 import { getImageMappingsWithDefaults } from "./colorMapping";
 import { getDefaultMappings, getMappings } from "./pushwagnerColorMaps";
-import imageCodes from "./imageCodes";
+import { imageCodes } from "./imageCodes";
 import variations from "./sceneVariations";
 import logger from "../utils/logger";
 
