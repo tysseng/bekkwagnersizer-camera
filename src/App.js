@@ -220,9 +220,9 @@ const App = keydown(class App extends Component {
           <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
           <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors</button>
           <button className='initial' onClick={() => this.testUpload()}>Test upload!</button>
-          <button className='initial' onClick={() => this.stop()}>Stop!</button>
           <button onClick={() => this.runSingleCycle()}>Run single</button>
           <button className='primary'onClick={() => this.run()}>Run forever</button>
+          <button className='initial' onClick={() => this.stop()}>Stop!</button>
           <label>
             <input
               type='checkbox'
