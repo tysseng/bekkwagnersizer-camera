@@ -68,6 +68,7 @@ export const correctColors = (containers, imageCode) => {
     const peopleColors = colorsForImage.variations[variations.people];
     const manhattanColors = colorsForImage.variations[variations.manhattan];
 
+    console.log(peopleColors, manhattanColors)
     // replace with screen colors
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored1, peopleColors);
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored2, manhattanColors);

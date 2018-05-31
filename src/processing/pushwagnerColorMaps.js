@@ -35,9 +35,9 @@ const screenColorsPeople = {
 
 // All colors to use for replacing.
 const screenColorsManhattan = {
-  black1: color('#000000'),
-  white2: color('#ffffff'),
-  purple3: color('#b8529e'),
+  black: color('#000000'),
+  white: color('#ffffff'),
+  purple: color('#b8529e'),
   middleBlue: color('#778bc3'),
   darkBlue: color('#4272b8'),
   lightBlue: color('#caeaf2'),
@@ -62,13 +62,11 @@ export const getDefaultMappings = () => {
     [photoColors.white]: screenColorsPeople.white,
     [photoColors.skin]: screenColorsPeople.skin,
   };
-  defaultMappings[variations.people] = {
+  defaultMappings[variations.manhattan] = {
     [photoColors.black]: screenColorsManhattan.black,
     [photoColors.white]: screenColorsManhattan.white,
     [photoColors.skin]: screenColorsManhattan.skin,
   };
-  defaultMappings[variations.manhattan] = {};
-  defaultMappings[variations.telly] = {};
   defaultMappings[variations.kingscross] = {};
   return defaultMappings;
 };
@@ -99,7 +97,6 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsManhattan.lightBlue,
       [photoColors.orange]: screenColorsManhattan.lightYellow,
     },
-    [variations.telly]: {},
   },
   [imageCodes.kar2]: {
     photo: [
@@ -122,7 +119,6 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsManhattan.red,
       [photoColors.purple]: screenColorsManhattan.skin,
     },
-    [variations.telly]: {},
   },
   [imageCodes.kar3]: {
     photo: [
