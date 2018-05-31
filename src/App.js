@@ -44,11 +44,11 @@ const App = keydown(class App extends Component {
     this.testUpload = this.testUpload.bind(this);
   }
 
-  componentWillReceiveProps( nextProps ) {
+  componentWillReceiveProps(nextProps) {
     const { keydown: { event } } = nextProps;
-    if ( event ) {
+    if (event) {
       logger.info('KEY', event.which);
-      if(event.which === 190){
+      if (event.which === 190) {
         this.runSingleCycle();
       }
     }
@@ -159,11 +159,9 @@ const App = keydown(class App extends Component {
         colored1: { canvas: all[curr++] },
         colored2: { canvas: all[curr++] },
         colored3: { canvas: all[curr++] },
-        colored4: { canvas: all[curr++] },
         uploadable1: { canvas: all[curr++] },
         uploadable2: { canvas: all[curr++] },
         uploadable3: { canvas: all[curr++] },
-        uploadable4: { canvas: all[curr++] },
       };
     } else {
 
@@ -172,7 +170,10 @@ const App = keydown(class App extends Component {
     const sourceSize = config.sourceSize;
     const sheetSize = config.sheetSize;
     const uploadSize = config.uploadSize;
-    const croppedSize = {width: sheetSize.width - 2 * config.finalCrop, height: sheetSize.height - 2 * config.finalCrop};
+    const croppedSize = {
+      width: sheetSize.width - 2 * config.finalCrop,
+      height: sheetSize.height - 2 * config.finalCrop
+    };
 
     setSize(canvases.photoColors, sheetSize);
     setSize(canvases.baselineVideoFrame, sourceSize);
@@ -185,7 +186,10 @@ const App = keydown(class App extends Component {
     setSize(canvases.bitCodeDetection, sheetSize);
     setSize(canvases.edges, sheetSize);
     setSize(canvases.removedElements, sheetSize);
-    setSize(canvases.filledExpanded, {width: sheetSize.width + 10, height: sheetSize.height + 10});
+    setSize(canvases.filledExpanded, {
+      width: sheetSize.width + 10,
+      height: sheetSize.height + 10
+    });
     setSize(canvases.filledContracted, sheetSize);
     setSize(canvases.mask, sheetSize);
     setSize(canvases.extracted, sheetSize);
@@ -193,11 +197,9 @@ const App = keydown(class App extends Component {
     setSize(canvases.colored1, croppedSize);
     setSize(canvases.colored2, croppedSize);
     setSize(canvases.colored3, croppedSize);
-    setSize(canvases.colored4, croppedSize);
     setSize(canvases.uploadable1, uploadSize);
     setSize(canvases.uploadable2, uploadSize);
     setSize(canvases.uploadable3, uploadSize);
-    setSize(canvases.uploadable4, uploadSize);
 
     Object.keys(canvases).forEach(key => {
       canvases[key].ctx = canvases[key].canvas.getContext('2d');
@@ -218,10 +220,11 @@ const App = keydown(class App extends Component {
         </p>
         <div>
           <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
-          <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors</button>
+          <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors
+          </button>
           <button className='initial' onClick={() => this.testUpload()}>Test upload!</button>
           <button onClick={() => this.runSingleCycle()}>Run single</button>
-          <button className='primary'onClick={() => this.run()}>Run forever</button>
+          <button className='primary' onClick={() => this.run()}>Run forever</button>
           <button className='initial' onClick={() => this.stop()}>Stop!</button>
           <label>
             <input
@@ -313,15 +316,22 @@ const App = keydown(class App extends Component {
           </div>
           <div>
             <h2>Colored</h2>
-            <canvas/>
-            <canvas/>
-            <canvas/>
-            <canvas/>
+            <div>
+              <h3>People</h3>
+              <canvas/>
+            </div>
+            <div>
+              <h3>Manhattan</h3>
+              <canvas/>
+            </div>
+            <div>
+              <h3>Kings Cross</h3>
+              <canvas/>
+            </div>
             <br/>
           </div>
           <div>
             <h3>Uploadable</h3>
-            <canvas/>
             <canvas/>
             <canvas/>
             <canvas/>

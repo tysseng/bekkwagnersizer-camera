@@ -17,6 +17,7 @@ import { clearCtx } from "./utils/gfx/context.utils";
 import { photoColors } from "./processing/pushwagnerColorMaps";
 import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
 import { updateColorsForAllImages } from "./processing/pushwagnerify";
+import sceneVariations from "./processing/sceneVariations";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -112,11 +113,9 @@ const clearCanvases = (canvases) => {
   clearCtx(canvases.colored1);
   clearCtx(canvases.colored2);
   clearCtx(canvases.colored3);
-  clearCtx(canvases.colored4);
   clearCtx(canvases.uploadable1);
   clearCtx(canvases.uploadable2);
   clearCtx(canvases.uploadable3);
-  clearCtx(canvases.uploadable4);
 };
 
 const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
@@ -171,10 +170,9 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   if(bitCode === config.colorBitcode){
     status.colorsCalibrated();
   } else if (config.uploadFile && uploadAfterCapture) {
-    await uploadFile(canvases.uploadable1.canvas, bitCode, 0);
-    await uploadFile(canvases.uploadable2.canvas, bitCode, 1);
-    await uploadFile(canvases.uploadable3.canvas, bitCode, 2);
-    await uploadFile(canvases.uploadable4.canvas, bitCode, 3);
+    await uploadFile(canvases.uploadable1.canvas, bitCode, sceneVariations.people);
+    await uploadFile(canvases.uploadable2.canvas, bitCode, sceneVariations.manhattan);
+    await uploadFile(canvases.uploadable3.canvas, bitCode, sceneVariations.kingscross);
     status.success();
   }
   await timeout(4000);

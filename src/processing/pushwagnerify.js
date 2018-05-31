@@ -45,7 +45,6 @@ export const correctColors = (containers, imageCode) => {
     copyCanvas(containers.cropped, containers.colored1);
     copyCanvas(containers.cropped, containers.colored2);
     copyCanvas(containers.cropped, containers.colored3);
-    copyCanvas(containers.cropped, containers.colored4);
 
     const imageData = ctx.getImageData(0, 0, width, height);
     const sourceData = imageData.data;
@@ -67,13 +66,12 @@ export const correctColors = (containers, imageCode) => {
     }
 
     const peopleColors = colorsForImage.variations[variations.people];
+    const manhattanColors = colorsForImage.variations[variations.manhattan];
 
     // replace with screen colors
-    //writeColorReplaced(sourceData, dataLength, intermediate, containers.uploadable1, colorMaps[0]);
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored1, peopleColors);
-    // writeColorReplaced(sourceData, dataLength, intermediate, containers.uploadable2, colorMaps[1]);
+    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored2, manhattanColors);
     // writeColorReplaced(sourceData, dataLength, intermediate, containers.uploadable3, colorMaps[2]);
-    // writeColorReplaced(sourceData, dataLength, intermediate, containers.uploadable4, colorMaps[3]);
   } catch (err) {
     logger.error(err);
   }

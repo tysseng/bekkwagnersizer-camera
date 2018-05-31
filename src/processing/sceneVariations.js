@@ -1,6 +1,5 @@
 const variations = {
-  manhattan: 'manhattan',
-  telly: 'telly',
+  manhattan: 'manhattan', // also used for telly
   people: 'people',
   kingscross: 'kingscross',
 };
