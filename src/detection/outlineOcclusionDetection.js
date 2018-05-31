@@ -3,6 +3,7 @@ import config from "../config";
 import { getPointFromAngle } from "../utils/trigonometry";
 import { getColorFromImageData } from "../utils/gfx/context.utils";
 import { drawPoint } from "../utils/gfx/draw";
+import logger from "../utils/logger";
 
 const sampleSize = 20; // how many samples to look at at once
 const stepsPerRevolution = 300;
@@ -42,7 +43,7 @@ export const captureOriginalCircle = (canvases) => {
     const angle = (step / stepsPerRevolution) * 2 * Math.PI;
     initialSamples[step] = getColorAt(ctx, data, angle, center, radius, width);
   }
-  console.log('original captured');
+  logger.info('original captured');
 };
 
 // summing could have been done smarter, but this works fine.

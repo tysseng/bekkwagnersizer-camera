@@ -26,7 +26,20 @@ const b64toBlob = (b64Data, contentType, sliceSize) => {
     byteArrays.push(byteArray);
   }
 
-  return new Blob(byteArrays, {type: contentType});
+  return new Blob(byteArrays, { type: contentType });
+};
+
+const uploadOne = async (url, formData) => {
+  await fetch(url, {
+    method: 'POST',
+    body: formData
+  })
+    .then(response => {
+      logger.info('Upload response:', response);
+    })
+    .catch(err => {
+      logger.info('Upload error:', err);
+    });
 };
 
 export const uploadFile = async (canvas, bitCode, variation) => {
@@ -46,14 +59,9 @@ export const uploadFile = async (canvas, bitCode, variation) => {
 
   logger.info(`uploading ${filename} (bitCode ${bitCode}, variation ${variation}) to MiraServer`);
 
-  await fetch(config.uploadUrl, {
-    method: 'POST',
-    body: formData
-  })
-    .then(response => {
-      console.log('got response', response);
-    })
-    .catch(err => {
-      console.log('error', err);
-    });
+  const uploadPromises = config.uploadUrls.map((url) => {
+    logger.info(`uploading to ${url}`);
+    return uploadOne(url, formData);
+  });
+  await Promise.all(uploadPromises);
 };

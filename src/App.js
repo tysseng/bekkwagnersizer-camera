@@ -13,6 +13,7 @@ import Image from "./sources/Image";
 import { captureBaselineVideoFrame } from "./detection/capturing";
 import { captureOriginalCircle } from "./detection/outlineOcclusionDetection";
 import { captureOriginalSheetPresenceLine } from "./detection/sheetPresence";
+import { uploadFile } from "./communication/fileUploader";
 
 const setSize = (container, { width, height }) => {
   container.canvas.width = width;
@@ -40,12 +41,13 @@ const App = keydown(class App extends Component {
     this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
     this.getSourceElement = this.getSourceElement.bind(this);
     this.handleUploadAfterCaptureChange = this.handleUploadAfterCaptureChange.bind(this);
+    this.testUpload = this.testUpload.bind(this);
   }
 
   componentWillReceiveProps( nextProps ) {
     const { keydown: { event } } = nextProps;
     if ( event ) {
-      console.log('KEY', event.which);
+      logger.info('KEY', event.which);
       if(event.which === 190){
         this.runSingleCycle();
       }
@@ -54,7 +56,6 @@ const App = keydown(class App extends Component {
 
   componentDidMount() {
     const canvases = this.captureCanvases();
-    console.log('canvases', this.state);
     initRunner(canvases);
   }
 
@@ -112,6 +113,10 @@ const App = keydown(class App extends Component {
 
   stop() {
     stop();
+  }
+
+  testUpload() {
+    uploadFile(this.state.canvases.uploadable1.canvas, 1, 2);
   }
 
   setBaseline() {
@@ -214,6 +219,7 @@ const App = keydown(class App extends Component {
         <div>
           <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
           <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors</button>
+          <button className='initial' onClick={() => this.testUpload()}>Test upload!</button>
           <button className='initial' onClick={() => this.stop()}>Stop!</button>
           <button onClick={() => this.runSingleCycle()}>Run single</button>
           <button className='primary'onClick={() => this.run()}>Run forever</button>

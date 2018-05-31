@@ -179,7 +179,10 @@ export default {
     height:512,
   },
   uploadFile: true,
-  uploadUrl: 'http://localhost:3000/image',
+  uploadUrls: [
+    'http://localhost:3000/image',
+    'http://localhost:3000/image',
+  ],
 
   // visually show all intermediate steps during processing, to make debugging easier
   showSteps: true,
