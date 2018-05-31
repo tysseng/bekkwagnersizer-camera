@@ -1,10 +1,7 @@
 import uuid from 'uuid/v1';
 import config from "../config";
 import logger from "../utils/logger";
-
-const filenames = [
-  'miraBird'
-];
+import { bitCodeToProfileMap } from "../processing/imageCodes";
 
 const b64toBlob = (b64Data, contentType, sliceSize) => {
   // from https://ourcodeworld.com/articles/read/322/how-to-convert-a-base64-image-into-a-image-file-and-upload-it-with-an-asynchronous-form-using-jquery
@@ -51,8 +48,10 @@ export const uploadFile = async (canvas, bitCode, variation) => {
 
   const blob = b64toBlob(realData, contentType);
 
+  const profile = bitCodeToProfileMap[bitCode];
+
   //const filenameStem = filenames[bitCode] || 'fallback';
-  const filename = `${bitCode}-${variation}-${uuid()}.png`;
+  const filename = `${variation}-${profile.gender}-${profile.id}-${uuid()}.png`;
 
   const formData = new FormData();
   formData.append("image", blob, filename);
