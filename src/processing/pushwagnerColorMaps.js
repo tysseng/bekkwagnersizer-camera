@@ -53,6 +53,35 @@ const screenColorsManhattan = {
   skin: color('#f7b1c1'),
 };
 
+const screenColorsKingsCross1 = {
+  black: color('#000000'),
+  white: color('#ffffff'),
+  skin: color('#f7b1c1'),
+  pink: color('#ee7cae'),
+  red: color('#c92128'),
+  middleGreen: color('#8ecb8b'),
+  lightGreen: color('#bedfb2'),
+  lightYellow: color('#f8f3a0'),
+  yellow: color('#f5eb0d'),
+  gold: color('#efc52f'),
+  orange: color('#fcbf20'),
+  blue: color('#4172b8'),
+  middleBlue: color('#778bc3'),
+};
+
+const screenColorsKingsCross2 = {
+  black: color('#000000'),
+  white: color('#ffffff'),
+  lightYellow: color('#f8f3a0'),
+  skin: color('#f7b1c1'),
+  peach: color('#f0976f'),
+  red: color('#c92128'),
+  middleGreen: color('#8ecb8b'),
+  blue: color('#4172b8'),
+  yellow: color('#f5eb0d'),
+  orange: color('#fcbf20'),
+};
+
 // Default mappings to use for the variations, if no other mapping is found.
 
 export const getDefaultMappings = () => {
@@ -67,7 +96,16 @@ export const getDefaultMappings = () => {
     [photoColors.white]: screenColorsManhattan.white,
     [photoColors.skin]: screenColorsManhattan.skin,
   };
-  defaultMappings[variations.kingscross] = {};
+  defaultMappings[variations.kingscross1] = {
+    [photoColors.black]: screenColorsKingsCross1.black,
+    [photoColors.white]: screenColorsKingsCross1.white,
+    [photoColors.skin]: screenColorsKingsCross1.skin,
+  };
+  defaultMappings[variations.kingscross2] = {
+    [photoColors.black]: screenColorsKingsCross2.black,
+    [photoColors.white]: screenColorsKingsCross2.white,
+    [photoColors.skin]: screenColorsKingsCross2.skin,
+  };
   return defaultMappings;
 };
 
@@ -97,6 +135,18 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsManhattan.lightBlue,
       [photoColors.orange]: screenColorsManhattan.lightYellow,
     },
+    [variations.kingscross1]: {
+      [photoColors.green]: screenColorsKingsCross1.gold,
+      [photoColors.purple]: screenColorsKingsCross1.white,
+      [photoColors.lightBlue]: screenColorsKingsCross1.pink,
+      [photoColors.orange]: screenColorsKingsCross1.lightYellow,
+    },
+    [variations.kingscross2]: {
+      [photoColors.green]: screenColorsKingsCross2.peach,
+      [photoColors.purple]: screenColorsKingsCross2.white,
+      [photoColors.lightBlue]: screenColorsKingsCross2.blue,
+      [photoColors.orange]: screenColorsKingsCross2.lightYellow,
+    },
   },
   [imageCodes.kar2]: {
     photo: [
@@ -119,6 +169,18 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsManhattan.red,
       [photoColors.purple]: screenColorsManhattan.skin,
     },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.gold,
+      [photoColors.green]: screenColorsKingsCross1.white,
+      [photoColors.lightBlue]: screenColorsKingsCross1.red,
+      [photoColors.purple]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.peach,
+      [photoColors.green]: screenColorsKingsCross2.white,
+      [photoColors.lightBlue]: screenColorsKingsCross2.red,
+      [photoColors.purple]: screenColorsKingsCross2.blue,
+    },
   },
   [imageCodes.kar3]: {
     photo: [
@@ -137,6 +199,16 @@ export const getMappings = () => ({
       [photoColors.wine]: screenColorsManhattan.red,
       [photoColors.green]: screenColorsManhattan.white,
       [photoColors.lightBlue]: screenColorsManhattan.white,
+    },
+    [variations.kingscross1]: {
+      [photoColors.wine]: screenColorsKingsCross1.gold,
+      [photoColors.green]: screenColorsKingsCross1.pink,
+      [photoColors.lightBlue]: screenColorsKingsCross1.white,
+    },
+    [variations.kingscross2]: {
+      [photoColors.wine]: screenColorsKingsCross2.peach,
+      [photoColors.green]: screenColorsKingsCross2.blue,
+      [photoColors.lightBlue]: screenColorsKingsCross2.white,
     }
   },
   [imageCodes.kar4]: {
@@ -159,6 +231,18 @@ export const getMappings = () => ({
       [photoColors.green]: screenColorsManhattan.white,
       [photoColors.purple]: screenColorsManhattan.darkBlue,
       [photoColors.lightBlue]: screenColorsManhattan.lightBlue,
+    },
+    [variations.kingscross1]: {
+      [photoColors.orange]: screenColorsKingsCross1.gold,
+      [photoColors.green]: screenColorsKingsCross1.white,
+      [photoColors.purple]: screenColorsKingsCross1.blue,
+      [photoColors.lightBlue]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.orange]: screenColorsKingsCross2.peach,
+      [photoColors.green]: screenColorsKingsCross2.white,
+      [photoColors.purple]: screenColorsKingsCross2.blue,
+      [photoColors.lightBlue]: screenColorsKingsCross2.blue,
     }
   },
   [imageCodes.kar5]: {
@@ -181,6 +265,18 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsManhattan.orange,
       [photoColors.yellow]: screenColorsManhattan.white,
       [photoColors.green]: screenColorsManhattan.darkYellow,
+    },
+    [variations.kingscross1]: {
+      [photoColors.purple]: screenColorsKingsCross1.gold,
+      [photoColors.lightBlue]: screenColorsKingsCross1.pink,
+      [photoColors.yellow]: screenColorsKingsCross1.white,
+      [photoColors.green]: screenColorsKingsCross1.middleGreen,
+    },
+    [variations.kingscross2]: {
+      [photoColors.purple]: screenColorsKingsCross2.peach,
+      [photoColors.lightBlue]: screenColorsKingsCross2.blue,
+      [photoColors.yellow]: screenColorsKingsCross2.white,
+      [photoColors.green]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar6]: {
@@ -203,6 +299,18 @@ export const getMappings = () => ({
       [photoColors.orange]: screenColorsManhattan.white,
       [photoColors.wine]: screenColorsManhattan.red,
       [photoColors.green]: screenColorsManhattan.darkGreen,
+    },
+    [variations.kingscross1]: {
+      [photoColors.darkBlue]: screenColorsKingsCross1.gold,
+      [photoColors.orange]: screenColorsKingsCross1.white,
+      [photoColors.wine]: screenColorsKingsCross1.red,
+      [photoColors.green]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.darkBlue]: screenColorsKingsCross2.peach,
+      [photoColors.orange]: screenColorsKingsCross2.white,
+      [photoColors.wine]: screenColorsKingsCross2.red,
+      [photoColors.green]: screenColorsKingsCross2.blue,
     }
   },
   [imageCodes.kar7]: {
@@ -216,6 +324,12 @@ export const getMappings = () => ({
     },
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
     }
   },
   [imageCodes.kar8]: {
@@ -232,6 +346,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.lightBlue]: screenColorsManhattan.white,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar9]: {
@@ -248,6 +370,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.purple]: screenColorsManhattan.paleOrange,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.purple]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.purple]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar10]: {
@@ -264,6 +394,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.orange]: screenColorsManhattan.lightYellow,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.orange]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.orange]: screenColorsKingsCross2.blue,
     }
   },
   [imageCodes.kar11]: {
@@ -280,6 +418,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.orange]: screenColorsManhattan.white,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.orange]: screenColorsKingsCross1.white,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.orange]: screenColorsKingsCross2.white,
     }
   },
   [imageCodes.kar12]: {
@@ -296,6 +442,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.green]: screenColorsManhattan.white,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.green]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.green]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar13]: {
@@ -318,6 +472,18 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsManhattan.middleBlue,
       [photoColors.wine]: screenColorsManhattan.lightBlue,
       [photoColors.orange]: screenColorsManhattan.darkYellow,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross1.middleBlue,
+      [photoColors.wine]: screenColorsKingsCross1.white,
+      [photoColors.orange]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross2.peach,
+      [photoColors.wine]: screenColorsKingsCross2.white,
+      [photoColors.orange]: screenColorsKingsCross2.blue,
     }
   },
   [imageCodes.kar14]: {
@@ -334,6 +500,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.darkBlue]: screenColorsManhattan.middleBlue,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.darkBlue]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.darkBlue]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar15]: {
@@ -359,6 +533,20 @@ export const getMappings = () => ({
       [photoColors.darkBlue]: screenColorsManhattan.white,
       [photoColors.orange]: screenColorsManhattan.yellow,
       [photoColors.wine]: screenColorsManhattan.darkGreen,
+    },
+    [variations.kingscross1]: {
+      [photoColors.green]: screenColorsKingsCross1.gold,
+      [photoColors.lightBlue]: screenColorsKingsCross1.middleBlue,
+      [photoColors.darkBlue]: screenColorsKingsCross1.white,
+      [photoColors.orange]: screenColorsKingsCross1.yellow,
+      [photoColors.wine]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.green]: screenColorsKingsCross2.peach,
+      [photoColors.lightBlue]: screenColorsKingsCross2.peach,
+      [photoColors.darkBlue]: screenColorsKingsCross2.white,
+      [photoColors.orange]: screenColorsKingsCross2.yellow,
+      [photoColors.wine]: screenColorsKingsCross2.blue,
     }
   },
   [imageCodes.kar17]: {
@@ -375,6 +563,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.darkBlue]: screenColorsManhattan.middleBlue,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.darkBlue]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.darkBlue]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar18]: {
@@ -391,6 +587,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.purple]: screenColorsManhattan.paleOrange,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.purple]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.purple]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar19]: {
@@ -407,6 +611,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.orange]: screenColorsManhattan.lightYellow,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.orange]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.orange]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar20]: {
@@ -429,6 +641,18 @@ export const getMappings = () => ({
       [photoColors.purple]: screenColorsManhattan.middleBlue,
       [photoColors.wine]: screenColorsManhattan.paleOrange,
       [photoColors.darkBlue]: screenColorsManhattan.middleBlue,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.white,
+      [photoColors.purple]: screenColorsKingsCross1.gold,
+      [photoColors.wine]: screenColorsKingsCross1.red,
+      [photoColors.darkBlue]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.white,
+      [photoColors.purple]: screenColorsKingsCross2.peach,
+      [photoColors.wine]: screenColorsKingsCross2.red,
+      [photoColors.darkBlue]: screenColorsKingsCross2.blue,
     }
   },
   [imageCodes.kar21]: {
@@ -445,6 +669,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.wine]: screenColorsManhattan.white,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.wine]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.wine]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar22]: {
@@ -470,6 +702,20 @@ export const getMappings = () => ({
       [photoColors.purple]: screenColorsManhattan.white,
       [photoColors.green]: screenColorsManhattan.darkGreen,
       [photoColors.orange]: screenColorsManhattan.black,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross1.middleBlue,
+      [photoColors.purple]: screenColorsKingsCross1.white,
+      [photoColors.green]: screenColorsKingsCross1.pink,
+      [photoColors.orange]: screenColorsKingsCross1.black,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross2.middleGreen,
+      [photoColors.purple]: screenColorsKingsCross2.white,
+      [photoColors.green]: screenColorsKingsCross2.blue,
+      [photoColors.orange]: screenColorsKingsCross2.black,
     }
   },
   [imageCodes.kar23]: {
@@ -495,6 +741,20 @@ export const getMappings = () => ({
       [photoColors.green]: screenColorsManhattan.white,
       [photoColors.orange]: screenColorsManhattan.darkYellow,
       [photoColors.wine]: screenColorsManhattan.red,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross1.middleBlue,
+      [photoColors.green]: screenColorsKingsCross1.white,
+      [photoColors.orange]: screenColorsKingsCross1.gold,
+      [photoColors.wine]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross2.middleBlue,
+      [photoColors.green]: screenColorsKingsCross2.white,
+      [photoColors.orange]: screenColorsKingsCross2.orange,
+      [photoColors.wine]: screenColorsKingsCross2.blue,
     }
   },
   [imageCodes.kar24]: {
@@ -517,6 +777,18 @@ export const getMappings = () => ({
       [photoColors.wine]: screenColorsManhattan.white,
       [photoColors.orange]: screenColorsManhattan.lightYellow,
       [photoColors.lightBlue]: screenColorsManhattan.lightBlue,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.wine]: screenColorsKingsCross1.white,
+      [photoColors.orange]: screenColorsKingsCross1.lightYellow,
+      [photoColors.lightBlue]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.wine]: screenColorsKingsCross2.white,
+      [photoColors.orange]: screenColorsKingsCross2.lightYellow,
+      [photoColors.lightBlue]: screenColorsKingsCross2.blue,
     }
   },
   [imageCodes.kar25]: {
@@ -533,6 +805,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.lightBlue]: screenColorsManhattan.white,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.lightBlue]: screenColorsKingsCross2.middleGreen,
     }
   },
   [imageCodes.kar26]: {
@@ -549,6 +829,14 @@ export const getMappings = () => ({
     [variations.manhattan]: {
       [photoColors.yellow]: screenColorsManhattan.yellow,
       [photoColors.orange]: screenColorsManhattan.lightYellow,
+    },
+    [variations.kingscross1]: {
+      [photoColors.yellow]: screenColorsKingsCross1.yellow,
+      [photoColors.orange]: screenColorsKingsCross1.pink,
+    },
+    [variations.kingscross2]: {
+      [photoColors.yellow]: screenColorsKingsCross2.yellow,
+      [photoColors.orange]: screenColorsKingsCross2.middleGreen,
     }
   },
 });

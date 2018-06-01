@@ -23,7 +23,8 @@ const getColorAt = (ctx, data, angle, center, radius, width, drawPoints = false)
 };
 
 const changeIsAboveThreshold = (originalColor = 0, newColor) => {
-  const diff = Math.abs(originalColor - newColor);
+  //const diff = Math.abs(originalColor - newColor);
+  const diff = newColor - originalColor; // only lighter colors should trigger occlusion (so shadows are ignored)
   if(diff > differenceThreshold){
     //console.log('diff above treshold', diff, originalColor, newColor);
     return 1;

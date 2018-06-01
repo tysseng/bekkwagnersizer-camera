@@ -117,6 +117,7 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
   resizeToUploadSize(canvases.colored1.canvas, canvases.uploadable1.ctx, sheetWidth, sheetHeight);
   resizeToUploadSize(canvases.colored2.canvas, canvases.uploadable2.ctx, sheetWidth, sheetHeight);
   resizeToUploadSize(canvases.colored3.canvas, canvases.uploadable3.ctx, sheetWidth, sheetHeight);
+  resizeToUploadSize(canvases.colored4.canvas, canvases.uploadable4.ctx, sheetWidth, sheetHeight);
 
   return bitCode;
 };

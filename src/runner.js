@@ -113,9 +113,11 @@ const clearCanvases = (canvases) => {
   clearCtx(canvases.colored1);
   clearCtx(canvases.colored2);
   clearCtx(canvases.colored3);
+  clearCtx(canvases.colored4);
   clearCtx(canvases.uploadable1);
   clearCtx(canvases.uploadable2);
   clearCtx(canvases.uploadable3);
+  clearCtx(canvases.uploadable4);
 };
 
 const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
@@ -172,7 +174,8 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   } else if (config.uploadFile && uploadAfterCapture) {
     await uploadFile(canvases.uploadable1.canvas, bitCode, sceneVariations.people);
     await uploadFile(canvases.uploadable2.canvas, bitCode, sceneVariations.manhattan);
-    await uploadFile(canvases.uploadable3.canvas, bitCode, sceneVariations.kingscross);
+    await uploadFile(canvases.uploadable3.canvas, bitCode, sceneVariations.kingscross1);
+    await uploadFile(canvases.uploadable4.canvas, bitCode, sceneVariations.kingscross2);
     status.success();
   }
   await timeout(4000);

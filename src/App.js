@@ -159,9 +159,11 @@ const App = keydown(class App extends Component {
         colored1: { canvas: all[curr++] },
         colored2: { canvas: all[curr++] },
         colored3: { canvas: all[curr++] },
+        colored4: { canvas: all[curr++] },
         uploadable1: { canvas: all[curr++] },
         uploadable2: { canvas: all[curr++] },
         uploadable3: { canvas: all[curr++] },
+        uploadable4: { canvas: all[curr++] },
       };
     } else {
 
@@ -197,9 +199,11 @@ const App = keydown(class App extends Component {
     setSize(canvases.colored1, croppedSize);
     setSize(canvases.colored2, croppedSize);
     setSize(canvases.colored3, croppedSize);
+    setSize(canvases.colored4, croppedSize);
     setSize(canvases.uploadable1, uploadSize);
     setSize(canvases.uploadable2, uploadSize);
     setSize(canvases.uploadable3, uploadSize);
+    setSize(canvases.uploadable4, uploadSize);
 
     Object.keys(canvases).forEach(key => {
       canvases[key].ctx = canvases[key].canvas.getContext('2d');
@@ -325,13 +329,18 @@ const App = keydown(class App extends Component {
               <canvas/>
             </div>
             <div>
-              <h3>Kings Cross</h3>
+              <h3>Kings Cross 1</h3>
+              <canvas/>
+            </div>
+            <div>
+              <h3>Kings Cross 2</h3>
               <canvas/>
             </div>
             <br/>
           </div>
           <div>
             <h3>Uploadable</h3>
+            <canvas/>
             <canvas/>
             <canvas/>
             <canvas/>
