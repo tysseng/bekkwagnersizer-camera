@@ -67,12 +67,16 @@ export const correctColors = (containers, imageCode) => {
 
     const peopleColors = colorsForImage.variations[variations.people];
     const manhattanColors = colorsForImage.variations[variations.manhattan];
+    const kingscross1Colors = colorsForImage.variations[variations.kingscross1];
+    const kingscross2Colors = colorsForImage.variations[variations.kingscross2];
 
-    console.log(peopleColors, manhattanColors)
+    console.log(colorsForAllImages);
+
     // replace with screen colors
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored1, peopleColors);
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored2, manhattanColors);
-    // writeColorReplaced(sourceData, dataLength, intermediate, containers.uploadable3, colorMaps[2]);
+    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored3, kingscross1Colors);
+    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored4, kingscross2Colors);
   } catch (err) {
     logger.error(err);
   }

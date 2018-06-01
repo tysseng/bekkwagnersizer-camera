@@ -751,7 +751,7 @@ export const getMappings = () => ({
     },
     [variations.kingscross2]: {
       [photoColors.yellow]: screenColorsKingsCross2.yellow,
-      [photoColors.lightBlue]: screenColorsKingsCross2.middleBlue,
+      [photoColors.lightBlue]: screenColorsKingsCross2.blue,
       [photoColors.green]: screenColorsKingsCross2.white,
       [photoColors.orange]: screenColorsKingsCross2.orange,
       [photoColors.wine]: screenColorsKingsCross2.blue,
