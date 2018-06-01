@@ -1,5 +1,4 @@
 import uuid from 'uuid/v1';
-import fetchTimeout from 'fetch-timeout';
 import config from "../config";
 import logger from "../utils/logger";
 import { bitCodeToProfileMap } from "../processing/imageCodes";
@@ -28,10 +27,10 @@ const b64toBlob = (b64Data, contentType, sliceSize) => {
 };
 
 const uploadOne = async (url, formData) => {
-  await fetchTimeout(url, {
+  await fetch(url, {
     method: 'POST',
     body: formData
-  }, 3000)
+  })
     .then(response => {
       logger.info('Upload response:', response);
       if (response.status !== 200) {

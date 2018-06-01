@@ -151,21 +151,29 @@ export default {
     height: 1080,
   },
 
+  /*
   //4K cam
   videoCircle: { // relative to videoSize
     x: 2950,
     y: 2010,
     radius: 1840,
   },
-
-  /*
+*/
   //HD cam
+  /*
+  // Full circle
   videoCircle: { // relative to videoSize
-    x: 1415,
-    y: 975,
-    radius: 895,
+    x: 1470,
+    y: 1010,
+    radius: 920,
   },
   */
+
+  videoCircle: { // relative to videoSize
+    x: 1440,
+    y: 980,
+    radius: 870,
+  },
 
   sourceSize: source === 'video' ? videoFrameSize : imageSize,
 
@@ -180,8 +188,7 @@ export default {
   },
   uploadFile: true,
   uploadUrls: [
-    'http://localhost:3000/image',
-    'http://localhost:3000/image',
+    'http://169.254.43.21:3000/image',
   ],
 
   // visually show all intermediate steps during processing, to make debugging easier
