@@ -45,6 +45,7 @@ export const correctColors = (containers, imageCode) => {
     copyCanvas(containers.cropped, containers.colored1);
     copyCanvas(containers.cropped, containers.colored2);
     copyCanvas(containers.cropped, containers.colored3);
+    copyCanvas(containers.cropped, containers.colored4);
 
     const imageData = ctx.getImageData(0, 0, width, height);
     const sourceData = imageData.data;
@@ -70,7 +71,7 @@ export const correctColors = (containers, imageCode) => {
     const kingscross1Colors = colorsForImage.variations[variations.kingscross1];
     const kingscross2Colors = colorsForImage.variations[variations.kingscross2];
 
-    console.log(colorsForAllImages);
+    console.log(kingscross2Colors);
 
     // replace with screen colors
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored1, peopleColors);
