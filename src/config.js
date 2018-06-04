@@ -191,8 +191,6 @@ export default {
     'http://169.254.43.21:3000/image',
   ],
 
-  // visually show all intermediate steps during processing, to make debugging easier
-  showSteps: true,
   debug: {
     drawSheetCorners: true,
     drawBoundingBox: true,

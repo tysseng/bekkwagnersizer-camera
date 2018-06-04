@@ -7,75 +7,27 @@ import {
 } from "./detection/sheetDetection";
 import { captureImage } from "./detection/capturing";
 import { process } from "./processing/processor";
-import { isCircleOccluded } from "./detection/outlineOcclusionDetection";
+import {
+  isNotOccludedDebounced,
+  isOccludedDebounced
+} from "./detection/outlineOcclusionDetection";
 import { mapToJsFeatImageData } from "./utils/gfx/jsfeat.utils";
 import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent, isSheetPresentBW } from "./detection/sheetPresence";
-import { clearCtx } from "./utils/gfx/context.utils";
 import { photoColors } from "./processing/pushwagnerColorMaps";
 import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
 import { updateColorsForAllImages } from "./processing/pushwagnerify";
 import sceneVariations from "./processing/sceneVariations";
+import { clearCanvases } from "./canvases";
 
 // STATE! OH NO!
 let oldSheetParams = null;
 let globalUploadAfterCapture = config.defaultUploadAfterCapture;
 
-const debounceLength = 5;
-const debounce = [];
-
 export const setUploadAfterCapture = (value) => {
   globalUploadAfterCapture = value;
-};
-
-const debouncedOccluded = () => {
-  for(let i=0; i<debounceLength; i++){
-    if(debounce[i] !== true){
-      //console.log('not occ', i);
-      return false;
-    }
-  }
-  return true;
-};
-
-const debouncedNotOccluded = () => {
-  for(let i=0; i<debounceLength; i++){
-    if(debounce[i] !== false){
-     // console.log('occ', i);
-      return false;
-    }
-  }
-  return true;
-};
-
-const isOccludedDebounced = async (canvases, sourceElement) => {
-  for(let i=0; i<debounceLength; i++){
-    debounce[i] = false;
-  }
-
-  let debounceNum = 0;
-  while(!debouncedOccluded() && isRunning()){
-    debounce[debounceNum] = isCircleOccluded(canvases);
-    debounceNum = (debounceNum + 1) % debounceLength;
-    await abortable(() => captureImage(canvases, sourceElement));
-  }
-  logger.info('HAND detected');
-};
-
-const isNotOccludedDebounced = async (canvases, sourceElement) => {
-  for(let i=0; i<debounceLength; i++){
-    debounce[i] = true;
-  }
-
-  let debounceNum = 0;
-  while(!debouncedNotOccluded() && isRunning()){
-    debounce[debounceNum] = isCircleOccluded(canvases);
-    debounceNum = (debounceNum + 1) % debounceLength;
-    await abortable(() => captureImage(canvases, sourceElement));
-  }
-  logger.info('HAND NOT detected');
 };
 
 const waitForHandInOut = async (canvases, sourceElement) => {
@@ -98,27 +50,6 @@ const waitForHandInOut = async (canvases, sourceElement) => {
   }
 };
 
-const clearCanvases = (canvases) => {
-  clearCtx(canvases.correctedSheetRotation);
-  clearCtx(canvases.correctedSheetScaling);
-  clearCtx(canvases.correctedSheetFlipping);
-  clearCtx(canvases.bitCodeDetection);
-  clearCtx(canvases.edges);
-  clearCtx(canvases.removedElements);
-  clearCtx(canvases.filledExpanded);
-  clearCtx(canvases.filledContracted);
-  clearCtx(canvases.mask);
-  clearCtx(canvases.extracted);
-  clearCtx(canvases.cropped);
-  clearCtx(canvases.colored1);
-  clearCtx(canvases.colored2);
-  clearCtx(canvases.colored3);
-  clearCtx(canvases.colored4);
-  clearCtx(canvases.uploadable1);
-  clearCtx(canvases.uploadable2);
-  clearCtx(canvases.uploadable3);
-  clearCtx(canvases.uploadable4);
-};
 
 const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
 

@@ -4,6 +4,9 @@ import { getPointFromAngle } from "../utils/trigonometry";
 import { getColorFromImageData } from "../utils/gfx/context.utils";
 import { drawPoint } from "../utils/gfx/draw";
 import logger from "../utils/logger";
+import { abortable } from "../utils/promises";
+import { captureImage } from "./capturing";
+import { isRunning } from "../runstatus";
 
 const sampleSize = 20; // how many samples to look at at once
 const stepsPerRevolution = 300;
@@ -12,6 +15,8 @@ const samples = [];
 const outlineOffset = 4; // pixels to subtract from radius
 const differenceThreshold = 100;
 const cumulativeDifferenceThreshold = 5;
+const debounceLength = 5;
+const debounce = [];
 
 let sampleIndex = 0;
 
@@ -84,6 +89,53 @@ export const isCircleOccluded = (canvases) => {
     sampleIndex = (sampleIndex + 1) % sampleSize;
   }
   return false;
+};
+
+
+const debouncedOccluded = () => {
+  for(let i=0; i<debounceLength; i++){
+    if(debounce[i] !== true){
+      return false;
+    }
+  }
+  return true;
+};
+
+const debouncedNotOccluded = () => {
+  for(let i=0; i<debounceLength; i++){
+    if(debounce[i] !== false){
+      return false;
+    }
+  }
+  return true;
+};
+
+export const isOccludedDebounced = async (canvases, sourceElement) => {
+  for(let i=0; i<debounceLength; i++){
+    debounce[i] = false;
+  }
+
+  let debounceNum = 0;
+  while(!debouncedOccluded() && isRunning()){
+    debounce[debounceNum] = isCircleOccluded(canvases);
+    debounceNum = (debounceNum + 1) % debounceLength;
+    await abortable(() => captureImage(canvases, sourceElement));
+  }
+  logger.info('HAND detected');
+};
+
+export const isNotOccludedDebounced = async (canvases, sourceElement) => {
+  for(let i=0; i<debounceLength; i++){
+    debounce[i] = true;
+  }
+
+  let debounceNum = 0;
+  while(!debouncedNotOccluded() && isRunning()){
+    debounce[debounceNum] = isCircleOccluded(canvases);
+    debounceNum = (debounceNum + 1) % debounceLength;
+    await abortable(() => captureImage(canvases, sourceElement));
+  }
+  logger.info('HAND NOT detected');
 };
 
 // TODO: Precalc sample points

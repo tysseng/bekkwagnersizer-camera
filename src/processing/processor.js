@@ -56,15 +56,19 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
     );
   }
 
-  // detect bit code to see what image this is
-  logger.info('Looking for bitcode');
-  const bitCode = timed(() => readBitCode(canvases.correctedSheetFlipping, sheetWidth, sheetHeight, canvases), 'Reading bit code');
-  if(bitCode === config.colorBitcode || isCalibration ){
+  // Calibration used to be triggable using a bitCode, but errors while reading bit code
+  // caused calibrations from non calibration sheets, so now it's purely manual.
+  if(isCalibration){
     calibrateColors(canvases.correctedSheetFlipping, photoColors);
     drawPhotoColors(photoColors, canvases.photoColors);
     updateColorsForAllImages();
     return config.colorBitcode;
-  } else if(bitCode === 0){
+  }
+
+  // detect bit code to see what image this is
+  logger.info('Looking for bitcode');
+  const bitCode = timed(() => readBitCode(canvases.correctedSheetFlipping, sheetWidth, sheetHeight, canvases), 'Reading bit code');
+  if(bitCode === 0){
     throw new Error('No bitcode found, aborting');
   }
 
