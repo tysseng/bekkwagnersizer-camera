@@ -1,7 +1,7 @@
 // try to figure out when something (like a hand) enters the circle
 import config from "../config";
 import { getPointFromAngle } from "../utils/trigonometry";
-import { getColorFromImageData } from "../utils/gfx/context.utils";
+import { getPointColorFromImageData } from "../utils/gfx/context.utils";
 import { drawPoint } from "../utils/gfx/draw";
 import logger from "../utils/logger";
 import { abortable } from "../utils/promises";
@@ -22,7 +22,7 @@ let sampleIndex = 0;
 
 const getColorAt = (ctx, data, angle, center, radius, width, drawPoints = false) => {
   const point = getPointFromAngle(angle, center, radius);
-  const color = getColorFromImageData(data, point, width);
+  const color = getPointColorFromImageData(data, point, width);
   if(drawPoints) drawPoint(ctx, point, 'red');
   return color.r + color.g + color.b;
 };

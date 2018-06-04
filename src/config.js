@@ -94,10 +94,6 @@ export default {
   // block processing if detected corners are the same as last time
   preventDuplicates: true,
 
-  // compare current frame to stored frame and use difference to detect if a sheet is present.
-  // If false, a black and white threshold will be used instead (looking for white pixels).
-  differentialSheetPresenceDetection: true,
-
   // Add padding around the sheet before flood filling, this makes it possible to flood fill all
   // around even if the user has drawn lines all the way to the edge
   padBeforeFloodFilling: true,

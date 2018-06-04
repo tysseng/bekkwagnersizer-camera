@@ -13,7 +13,9 @@ export const extractAndResizeCanvases = (all) => {
   const canvases = {
     photoColors: { canvas: all[curr++] },
     baselineVideoFrame: { canvas: all[curr++] },
+    whitePixelsVideoFrame: { canvas: all[curr++] },
     videoFrame: { canvas: all[curr++] },
+    whiteCorrectedVideoFrame: { canvas: all[curr++] },
     detectedSheet: { canvas: all[curr++] },
     detectedSheetRotated: { canvas: all[curr++] },
     correctedSheetRotation: { canvas: all[curr++] },
@@ -47,7 +49,9 @@ export const extractAndResizeCanvases = (all) => {
 
   setSize(canvases.photoColors, sheetSize);
   setSize(canvases.baselineVideoFrame, sourceSize);
+  setSize(canvases.whitePixelsVideoFrame, sourceSize);
   setSize(canvases.videoFrame, sourceSize);
+  setSize(canvases.whiteCorrectedVideoFrame, sourceSize);
   setSize(canvases.detectedSheet, sourceSize);
   setSize(canvases.detectedSheetRotated, sourceSize);
   setSize(canvases.correctedSheetRotation, sourceSize);

@@ -11,16 +11,16 @@ import {
   isNotOccludedDebounced,
   isOccludedDebounced
 } from "./detection/outlineOcclusionDetection";
-import { mapToJsFeatImageData } from "./utils/gfx/jsfeat.utils";
 import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
-import { isSheetPresent, isSheetPresentBW } from "./detection/sheetPresence";
+import { isSheetPresent } from "./detection/sheetPresence";
 import { photoColors } from "./processing/pushwagnerColorMaps";
 import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
 import { updateColorsForAllImages } from "./processing/pushwagnerify";
 import sceneVariations from "./processing/sceneVariations";
 import { clearCanvases } from "./canvases";
+import { removeShadows } from "./detection/shadowCatcher";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -53,28 +53,18 @@ const waitForHandInOut = async (canvases, sourceElement) => {
 
 const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
 
-  const videoFrameCtx = canvases.videoFrame.ctx;
-
   // check for sheet (scan across image looking for changed pixels)
-
-  if (config.source === 'video'){
-    if(config.differentialSheetPresenceDetection){
-      if(!(await abortable(() => isSheetPresent(canvases)))) {
-        logger.info('No sheet present, aborting');
-        return;
-      }
-    } else {
-      const { width, height } = canvases.videoFrame.dimensions;
-      const videoFrameImage = await abortable(() => mapToJsFeatImageData(videoFrameCtx, width, height));
-
-      if (!(await abortable(() => isSheetPresentBW(videoFrameImage, width, height)))) {
-        logger.info('No sheet present, aborting');
-        return;
-      }
+  if (config.source === 'video') {
+    if (!(await abortable(() => isSheetPresent(canvases)))) {
+      logger.info('No sheet present, aborting');
+      return;
     }
   }
 
   logger.info('Sheet is present, looking for corners');
+
+  // TODO: This should be moved elsewhere, just here for testing.
+  removeShadows(canvases.videoFrame, canvases.whiteCorrectedVideoFrame, canvases.whitePixelsVideoFrame);
 
   const sheetParams = await abortable(() => findSheet(canvases));
   if (sheetParams === null) {
@@ -100,7 +90,7 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
 
   status.processing();
   const bitCode = await abortable(() => process(canvases, sheetParams, isCalibration));
-  if(bitCode === config.colorBitcode){
+  if (bitCode === config.colorBitcode) {
     status.colorsCalibrated();
   } else if (config.uploadFile && uploadAfterCapture) {
     await uploadFile(canvases.uploadable1.canvas, bitCode, sceneVariations.people);

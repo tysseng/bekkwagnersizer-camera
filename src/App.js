@@ -10,7 +10,7 @@ import config from './config';
 import Video from "./sources/Video";
 import logger from './utils/logger';
 import Image from "./sources/Image";
-import { captureBaselineVideoFrame } from "./detection/capturing";
+import { captureBaselineVideoFrame, captureWhitePixelsVideoFrame } from "./detection/capturing";
 import { captureOriginalCircle } from "./detection/outlineOcclusionDetection";
 import { captureOriginalSheetPresenceLine } from "./detection/sheetPresence";
 import { uploadFile } from "./communication/fileUploader";
@@ -31,6 +31,7 @@ const App = keydown(class App extends Component {
     this.runSingleCycle = this.runSingleCycle.bind(this);
     this.runColorCalibration = this.runColorCalibration.bind(this);
     this.setBaseline = this.setBaseline.bind(this);
+    this.setWhitePixels = this.setWhitePixels.bind(this);
     this.captureCanvases = this.captureCanvases.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
@@ -127,6 +128,15 @@ const App = keydown(class App extends Component {
     }
   }
 
+  setWhitePixels() {
+    try {
+      captureWhitePixelsVideoFrame(this.state.canvases, this.getSourceElement());
+    } catch (error) {
+      logger.error('Could not set white pixels');
+      logger.error(error);
+    }
+  }
+
   captureCanvases() {
     const canvasesDiv = document.querySelector('.canvases');
     const all = canvasesDiv.querySelectorAll('canvas');
@@ -146,6 +156,7 @@ const App = keydown(class App extends Component {
         </p>
         <div>
           <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
+          <button className='initial' onClick={() => this.setWhitePixels()}>Set white pixels</button>
           <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors
           </button>
           <button className='initial' onClick={() => this.testUpload()}>Test upload!</button>
@@ -177,15 +188,26 @@ const App = keydown(class App extends Component {
         </div>
         <div className='canvases'>
           <div>
-            <h3>Calibrated input colors</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Baseline VideoFrame</h3>
-            <canvas/>
+            <h2>Pre-capture frames</h2>
+            <div>
+              <h3>Calibrated input colors</h3>
+              <canvas/>
+            </div>
+            <div>
+              <h3>Baseline VideoFrame</h3>
+              <canvas/>
+            </div>
+            <div>
+              <h3>White VideoFrame</h3>
+              <canvas/>
+            </div>
           </div>
           <div>
             <h3>VideoFrame</h3>
+            <canvas/>
+          </div>
+          <div>
+            <h3>White-corrected video frame</h3>
             <canvas/>
           </div>
           <div>

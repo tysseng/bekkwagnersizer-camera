@@ -32,8 +32,17 @@ export const copyCanvasCentered = (source, target) => {
   timed(() => target.ctx.drawImage(source.canvas, offsetX, offsetY), 'Copying canvas centered');
 };
 
-export const getColorFromImageData = (data, point, width) => {
+export const getPointColorFromImageData = (data, point, width) => {
   const i = (point.y * width + point.x) * 4;
+  return {
+    r: data[i],
+    g: data[i+1],
+    b: data[i+2],
+  }
+};
+
+export const getIndexColorFromImageData = (data, pixelIndex) => {
+  const i = pixelIndex * 4;
   return {
     r: data[i],
     g: data[i+1],

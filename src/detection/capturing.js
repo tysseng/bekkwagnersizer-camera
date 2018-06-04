@@ -12,20 +12,25 @@ const captureVideoToCanvas = (ctx, videoElement) => {
   // contains our circular drawing area.
   ctx.drawImage(videoElement,
     videoOffsetX, videoOffsetY, videoCircle.diameter, videoCircle.diameter, // source
-    0, 0, width, height); // target
+    0, 0, width, height  // target
+  );
 
   // Draw crop circle (...)
   drawCircle(ctx, { x: width / 2, y: width / 2, radius: width / 2 });
 };
 
 const captureVideoFrame = (canvases, videoElement) => {
-
   const ctx = canvases.videoFrame.ctx;
   captureVideoToCanvas(ctx, videoElement);
 };
 
 export const captureBaselineVideoFrame = (canvases, videoElement) => {
   const ctx = canvases.baselineVideoFrame.ctx;
+  captureVideoToCanvas(ctx, videoElement);
+};
+
+export const captureWhitePixelsVideoFrame = (canvases, videoElement) => {
+  const ctx = canvases.whitePixelsVideoFrame.ctx;
   captureVideoToCanvas(ctx, videoElement);
 };
 
