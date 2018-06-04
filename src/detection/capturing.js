@@ -2,8 +2,8 @@ import config from '../config';
 import { drawCircle } from "../utils/gfx/draw";
 
 const { videoCircle } = config;
-const videoOffsetX = videoCircle.x - videoCircle.radius;
-const videoOffsetY = videoCircle.y - videoCircle.radius;
+const videoOffsetX = videoCircle.x - videoCircle.diameter / 2;
+const videoOffsetY = videoCircle.y - videoCircle.diameter / 2;
 
 const captureVideoToCanvas = (ctx, videoElement) => {
   const { width, height } = config.sourceSize;
@@ -11,7 +11,7 @@ const captureVideoToCanvas = (ctx, videoElement) => {
   // capture, crop and scale video, making sure we only get the part of the video frame that
   // contains our circular drawing area.
   ctx.drawImage(videoElement,
-    videoOffsetX, videoOffsetY, videoCircle.radius, videoCircle.radius, // source
+    videoOffsetX, videoOffsetY, videoCircle.diameter, videoCircle.diameter, // source
     0, 0, width, height); // target
 
   // Draw crop circle (...)

@@ -172,7 +172,7 @@ export default {
   videoCircle: { // relative to videoSize
     x: 1440,
     y: 980,
-    radius: 870,
+    diameter: 870,
   },
 
   sourceSize: source === 'video' ? videoFrameSize : imageSize,
