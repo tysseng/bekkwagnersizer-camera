@@ -81,6 +81,12 @@ const colorPositions = {
   black: {x: colorCols[1], y: colorRows[4]},
 };
 
+
+const sheetSize = {
+  width: sheetWidthPixels,
+  height: Math.floor(sheetSizeMM.height * sheetPPMM),
+};
+
 export default {
   source,
 
@@ -167,9 +173,11 @@ export default {
 
   sourceSize: source === 'video' ? videoFrameSize : imageSize,
 
-  sheetSize: {
-    width: sheetWidthPixels,
-    height: Math.floor(sheetSizeMM.height * sheetPPMM),
+  sheetSize,
+
+  croppedSize: {
+    width: sheetSize.width - 2 * config.finalCrop,
+    height: sheetSize.height - 2 * config.finalCrop
   },
 
   uploadSize: {

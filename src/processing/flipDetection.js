@@ -7,6 +7,7 @@ import { copyCanvas, rotateColor180 } from "../utils/gfx/context.utils";
 import { timed } from "../utils/timer";
 import { isBitCodeInCorrectCorner, isBitCodeInWrongCorner } from "./bitCode";
 import { flipDetectionMethods } from "./flipDetectionMethods";
+import { getNextProcessingContainer } from "../canvases";
 
 const rotate180 = (sourceCtx, targetContainer, grayImage, sheetWidth, sheetHeight) => {
   const imageData = sourceCtx.getImageData(0, 0, sheetWidth, sheetHeight);
@@ -23,7 +24,7 @@ export const correctSheetOrientation = (sourceContainer, canvases) => {
   const grayImage = sourceContainer.gray;
   const {width: sheetWidth, height: sheetHeight} = sourceContainer.dimensions;
 
-  const targetContainer = canvases.correctedSheetFlipping;
+  const targetContainer = getNextProcessingContainer(config.sheetSize);
   const targetCtx = targetContainer.ctx;
 
   if (config.flipCorrection === flipDetectionMethods.LOGO) {
@@ -36,8 +37,8 @@ export const correctSheetOrientation = (sourceContainer, canvases) => {
     // as bitcode is more sensitive than logo detection, we want to be as sure as possible that
     // it has been placed wrong before rotating, so we check both positive and negative confirmation
     if (
-      !isBitCodeInCorrectCorner(canvases, canvases.correctedSheetScaling, sheetWidth, sheetHeight) &&
-      isBitCodeInWrongCorner(canvases, canvases.correctedSheetScaling, sheetWidth, sheetHeight)
+      !isBitCodeInCorrectCorner(canvases, canvases.correctedSheetScaling) &&
+      isBitCodeInWrongCorner(canvases, canvases.correctedSheetScaling)
     ) {
       rotate180(sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight);
     } else {

@@ -13,6 +13,7 @@ import { correctColors, updateColorsForAllImages } from "./pushwagnerify";
 import logger from "../utils/logger";
 import { photoColors } from "./pushwagnerColorMaps";
 import { calibrateColors, drawPhotoColors } from "./colorCalibration";
+import { getNextProcessingContainer } from "../canvases";
 
 
 // Extract detected sheet, detect drawing type and isolate drawing.
@@ -25,13 +26,13 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
   }
 
   // copy to be able to debug.
-  copyCanvas(detectedSheetCanvasContainer, canvases.correctedSheetRotation);
+  const correctedSheetRotationContainer = getNextProcessingContainer(config.sourceSize);
+  copyCanvas(detectedSheetCanvasContainer, correctedSheetRotationContainer); // TODO: NOT USED????
 
   const extractedSheetContainer = extractSheetUsingPerspectiveTransformation(
     canvases.videoFrame,
     sheetCorners,
     prerotation,
-    canvases,
   );
 
   // Calibration used to be triggable using a bitCode, but errors while reading bit code
@@ -45,7 +46,7 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
 
   // detect bit code to see what image this is
   logger.info('Looking for bitcode');
-  const bitCode = timed(() => readBitCode(extractedSheetContainer, canvases), 'Reading bit code');
+  const bitCode = timed(() => readBitCode(extractedSheetContainer), 'Reading bit code');
   if (bitCode === 0) {
     throw new Error('No bitcode found, aborting');
   }
@@ -55,19 +56,21 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
 
   // remove logos and other stuff
   // copy to be able to debug.
-  copyCanvas(edgesContainer, canvases.removedElements);
-  if (config.removeLogo) timed(() => removeLogo(canvases.removedElements), 'removing logo');
-  if (config.removeBitcode) timed(() => removeBitDots(canvases.removedElements), 'removing bit dots');
+  const removedElementsContainer = getNextProcessingContainer(config.sheetSize);
+  copyCanvas(edgesContainer, removedElementsContainer);
+  if (config.removeLogo) timed(() => removeLogo(removedElementsContainer), 'removing logo');
+  if (config.removeBitcode) timed(() => removeBitDots(removedElementsContainer), 'removing bit dots');
 
+  let filledContractedContainer;
   if (config.padBeforeFloodFilling) {
     // expand outline to be able to flood fill safely
-    floodFillWithPadding(canvases.removedElements, canvases);
+    filledContractedContainer = floodFillWithPadding(removedElementsContainer, canvases);
   } else {
-    floodFillWithoutPadding(canvases.removedElements, canvases);
+    filledContractedContainer = floodFillWithoutPadding(removedElementsContainer, canvases);
   }
 
   // turn image monocrome by clearing all pixels that are not part of the mask
-  const monocromeMask = timed(() => getMonocromeMask(canvases.filledContracted), 'get monocrome mask');
+  const monocromeMask = timed(() => getMonocromeMask(filledContractedContainer), 'get monocrome mask');
 
   // erode mask, putting back the pixels that were added when the lines were diluted during edge
   // detection
@@ -75,9 +78,10 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
   const extractedContainer = timed(() => removeMask(maskContainer, extractedSheetContainer, canvases), 'remove mask');
 
   // crop away unwanted edges
-  copyCanvasCentered(extractedContainer, canvases.cropped);
+  const croppedContainer = getNextProcessingContainer(config.croppedSize);
+  copyCanvasCentered(extractedContainer, croppedContainer);
 
-  const coloredContainers = timed(() => correctColors(canvases, bitCode), 'Pushwagnerifying!');
+  const coloredContainers = timed(() => correctColors(croppedContainer, canvases, bitCode), 'Pushwagnerifying!');
   const uploadContainers = coloredContainers.map(coloredContainer => resizeToUploadSize(coloredContainer, canvases));
 
   return {

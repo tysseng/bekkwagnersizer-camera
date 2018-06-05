@@ -4,6 +4,7 @@ import logger from "../utils/logger";
 import { copyCanvas } from "../utils/gfx/context.utils";
 import { drawBox } from "../utils/gfx/draw";
 import { photoColors } from "./pushwagnerColorMaps";
+import { getNextProcessingContainer } from "../canvases";
 
 const paddingAroundBitPosition = config.bitPositionPadding;
 const pixelsNeededFor1 = 30;
@@ -67,7 +68,7 @@ const drawBitOutline = (pos, sourceContainer) => {
 };
 
 export const readBitCode = (
-  sourceContainer, canvases, draw = true, rotate180 = false) => {
+  sourceContainer, draw = true, rotate180 = false) => {
   const {width, height} = sourceContainer.dimensions;
   const bitPositions = config
     .bitPositions
@@ -85,15 +86,15 @@ export const readBitCode = (
   });
 
   const number = parseInt(bits.join(''), 2);
-  if (draw) copyCanvas(sourceContainer, canvases.bitCodeDetection);
+  if (draw) copyCanvas(sourceContainer, getNextProcessingContainer(config.sheetSize));
   logger.info('Detected bits');
   logger.info(bits);
   logger.info('Sheet number: ' + number);
   return number;
 };
 
-export const isBitCodeInCorrectCorner = (canvases, sourceContainer, width, height) => {
-  const result = readBitCode(sourceContainer, canvases, false) > 0;
+export const isBitCodeInCorrectCorner = (canvases, sourceContainer) => {
+  const result = readBitCode(sourceContainer, false) > 0;
   if (result) {
     logger.info('bitcode is in correct corner');
   } else {
@@ -102,8 +103,8 @@ export const isBitCodeInCorrectCorner = (canvases, sourceContainer, width, heigh
   return result;
 };
 
-export const isBitCodeInWrongCorner = (canvases, sourceContainer, width, height) => {
-  const result = readBitCode(sourceContainer, canvases, false, true) > 0;
+export const isBitCodeInWrongCorner = (canvases, sourceContainer) => {
+  const result = readBitCode(sourceContainer, false, true) > 0;
   if (result) {
     logger.info('bitcode is in wrong corner');
   } else {

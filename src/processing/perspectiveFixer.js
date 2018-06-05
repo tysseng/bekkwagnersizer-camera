@@ -1,5 +1,7 @@
 import fixperspective from 'fix-perspective';
 import { timed } from "../utils/timer";
+import config from "../config";
+import { getNextProcessingContainer } from "../canvases";
 
 export const getPerspectiveCorrectionTransform = (sheetCorners, width, height) => {
   const from = [
@@ -35,12 +37,12 @@ const copyPixel = (sourceImgData, targetImgData, from, to, width, height) => {
   targetImgData.data[destPos+3] = sourceImgData.data[sourcePos+3];
 };
 
-export const correctPerspective = (sourceContainer, canvases, sheetCorners) => {
+export const correctPerspective = (sourceContainer, sheetCorners) => {
 
   const sourceCtx = sourceContainer.ctx;
   const {height, width} = sourceContainer.dimensions;
 
-  const correctedCtx = canvases.correctedSheetScaling.ctx;
+  const correctedCtx = getNextProcessingContainer(config.sheetSize).ctx;
 
   const transform = timed(() => getPerspectiveCorrectionTransform(
     sheetCorners, width, height

@@ -39,7 +39,6 @@ export const extractSheetUsingPerspectiveTransformation = (
   sourceContainer,
   sheetCorners,
   prerotation,
-  canvases,
 ) => {
 
   const frameWidth = sourceContainer.dimensions.width;
@@ -52,10 +51,10 @@ export const extractSheetUsingPerspectiveTransformation = (
   // adjust landscape/portrait. We want a portrait view.
   sheetCorners = correctOrientation(sheetCorners);
 
-  const correctedContainer = timed(() => correctPerspective(sourceContainer, canvases, sheetCorners), 'correct perspective');
+  const correctedContainer = timed(() => correctPerspective(sourceContainer, sheetCorners), 'correct perspective');
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands
   correctedContainer.grey = mapToJsFeatImageData(correctedContainer);
-  return correctSheetOrientation(correctedContainer, canvases);
+  return correctSheetOrientation(correctedContainer);
 };

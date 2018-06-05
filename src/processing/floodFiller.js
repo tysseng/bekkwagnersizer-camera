@@ -1,6 +1,7 @@
 import { floodFill } from "../utils/gfx/draw";
 import { copyCanvas, copyCanvasCentered } from "../utils/gfx/context.utils";
 import { timed } from "../utils/timer";
+import { getNextProcessingContainer } from "../canvases";
 
 export const floodFillWithPadding = (source, canvases) => {
 
@@ -20,13 +21,17 @@ export const floodFillWithPadding = (source, canvases) => {
   timed(() => floodFill(sourceCtx, 2, 255, 0, 0, 0.5), 'flood fill mask');
 
   // remove expansion
-  copyCanvasCentered(canvases.filledExpanded, canvases.filledContracted);
+  const filledContractedContainer = getNextProcessingContainer(config.sheetSize);
+  copyCanvasCentered(canvases.filledExpanded, filledContractedContainer);
+  return filledContractedContainer;
 };
 
 export const floodFillWithoutPadding = (source, canvases) => {
-  copyCanvas(source, canvases.filledContracted);
+  const filledContractedContainer = getNextProcessingContainer(config.sheetSize);
+  copyCanvas(source, filledContractedContainer);
 
   // flood fill outside (e.g. the part that will be our mask)
   //TODO: What does padding really mean, isn't it the origin for the flood fill????
-  timed(() => floodFill(canvases.filledContracted.ctx, 20, 255, 0, 0, 0.5), 'flood fill mask');
+  timed(() => floodFill(filledContractedContainer.ctx, 20, 255, 0, 0, 0.5), 'flood fill mask');
+  return filledContractedContainer;
 };

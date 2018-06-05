@@ -1,13 +1,31 @@
 import { clearCtx } from "./utils/gfx/context.utils";
 import config from "./config";
 
+let currentProcessingContainer = 0;
+const detectionContainers = [];
+const processingContainers = [];
+const colorContainers = [];
+const uploadContainers = [];
+
 const setSize = (container, { width, height }) => {
   container.canvas.width = width;
   container.canvas.height = height;
   container.dimensions = { width, height };
 };
 
-export const getCanvasAndHeading = entry => ({
+export const reset = () => {
+  currentProcessingContainer = 0;
+  // todo: clear canvases
+};
+
+export const getNextProcessingContainer = () => {
+  return processingContainers[currentProcessingContainer++];
+};
+
+export const getColorContainers = () => colorContainers;
+export const getUploadContainers = () => uploadContainers;
+
+const getCanvasAndHeading = entry => ({
   canvas: entry.querySelector('canvas'),
   heading: entry.querySelector('h3'),
 });
@@ -43,6 +61,7 @@ export const extractAndResizeCanvases = (all) => {
     uploadable3: getCanvasAndHeading(all[curr++]),
     uploadable4: getCanvasAndHeading(all[curr++]),
   };
+
 
   const sourceSize = config.sourceSize;
   const sheetSize = config.sheetSize;
@@ -85,10 +104,43 @@ export const extractAndResizeCanvases = (all) => {
     canvases[key].ctx = canvases[key].canvas.getContext('2d');
   });
 
+  detectionContainers.push(canvases.videoFrame);
+  detectionContainers.push(canvases.whiteCorrectedVideoFrame);
+  detectionContainers.push(canvases.detectedSheet);
+  detectionContainers.push(canvases.detectedSheetRotated);
+
+  processingContainers.push(canvases.correctedSheetRotation);
+  processingContainers.push(canvases.correctedSheetScaling);
+  processingContainers.push(canvases.correctedSheetFlipping);
+  processingContainers.push(canvases.bitCodeDetection);
+  processingContainers.push(canvases.edges);
+  processingContainers.push(canvases.removedElements);
+  processingContainers.push(canvases.filledExpanded);
+  processingContainers.push(canvases.filledContracted);
+  processingContainers.push(canvases.mask);
+  processingContainers.push(canvases.extracted);
+  processingContainers.push(canvases.cropped);
+
+  colorContainers.push(canvases.colored1);
+  colorContainers.push(canvases.colored2);
+  colorContainers.push(canvases.colored3);
+  colorContainers.push(canvases.colored4);
+
+  uploadContainers.push(canvases.uploadable1);
+  uploadContainers.push(canvases.uploadable2);
+  uploadContainers.push(canvases.uploadable3);
+  uploadContainers.push(canvases.uploadable4);
+
   return canvases;
 };
 
 export const clearCanvases = (canvases) => {
+
+  processingContainers.forEach(container => clearCtx(container));
+  colorContainers.forEach(container => clearCtx(container));
+  uploadContainers.forEach(container => clearCtx(container));
+
+  /*
   clearCtx(canvases.correctedSheetRotation);
   clearCtx(canvases.correctedSheetScaling);
   clearCtx(canvases.correctedSheetFlipping);
@@ -107,5 +159,5 @@ export const clearCanvases = (canvases) => {
   clearCtx(canvases.uploadable1);
   clearCtx(canvases.uploadable2);
   clearCtx(canvases.uploadable3);
-  clearCtx(canvases.uploadable4);
+  clearCtx(canvases.uploadable4);*/
 };
