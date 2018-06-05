@@ -37,22 +37,11 @@ const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorM
   targetCtx.putImageData(imageData, 0, 0);
 };
 
-export const correctColors = (sourceContainer, imageCode) => {
+export const correctColors = (sourceContainer, imageCode, variations) => {
   try {
 
     const { width, height } = sourceContainer.dimensions;
     const ctx = sourceContainer.ctx;
-
-    const coloredContainers = [
-      getNextColoredContainer(sourceContainer.dimensions, 'People'),
-      getNextColoredContainer(sourceContainer.dimensions, 'Manhattan'),
-      getNextColoredContainer(sourceContainer.dimensions, 'Kings Cross 1'),
-      getNextColoredContainer(sourceContainer.dimensions, 'Kings Cross 2')
-    ];
-    coloredContainers.forEach(coloredContainer => {
-      copyCanvas(sourceContainer, coloredContainer);
-    });
-
     const imageData = ctx.getImageData(0, 0, width, height);
     const sourceData = imageData.data;
     const dataLength = height * width * 4;
@@ -72,19 +61,17 @@ export const correctColors = (sourceContainer, imageCode) => {
       }
     }
 
-    const peopleColors = colorsForImage.variations[variations.people];
-    const manhattanColors = colorsForImage.variations[variations.manhattan];
-    const kingscross1Colors = colorsForImage.variations[variations.kingscross1];
-    const kingscross2Colors = colorsForImage.variations[variations.kingscross2];
-
-    // replace with screen colors
-    writeColorReplaced(sourceData, dataLength, intermediate, coloredContainers[0], peopleColors);
-    writeColorReplaced(sourceData, dataLength, intermediate, coloredContainers[1], manhattanColors);
-    writeColorReplaced(sourceData, dataLength, intermediate, coloredContainers[2], kingscross1Colors);
-    writeColorReplaced(sourceData, dataLength, intermediate, coloredContainers[3], kingscross2Colors);
+    // replace colors for all variations
+    const coloredContainers = {};
+    Object.keys(variations).map(key => {
+      const coloredContainer = getNextColoredContainer(sourceContainer.dimensions);
+      copyCanvas(sourceContainer, coloredContainer);
+      const colors = colorsForImage.variations[key];
+      writeColorReplaced(sourceData, dataLength, intermediate, coloredContainer, colors);
+      coloredContainers[key] = coloredContainer;
+    });
 
     return coloredContainers;
-
   } catch (err) {
     logger.error(err);
   }

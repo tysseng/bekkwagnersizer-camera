@@ -14,6 +14,7 @@ import logger from "../utils/logger";
 import { photoColors } from "./pushwagnerColorMaps";
 import { calibrateColors, drawPhotoColors } from "./colorCalibration";
 import { getNextProcessingContainer } from "../canvases";
+import variations from "./sceneVariations";
 
 export const calibrate = (videoFrameContainer, photoColorsContainer, sheetParams) => {
 
@@ -72,10 +73,14 @@ export const process = (videoFrameContainer, sheetParams) => {
   const croppedContainer = getNextProcessingContainer(config.croppedSize, 'Cropped');
   copyCanvasCentered(extractedContainer, croppedContainer);
 
-  const coloredContainers = timed(() => correctColors(croppedContainer, bitCode), 'Pushwagnerifying!');
-  const uploadContainers = coloredContainers.map(
-    coloredContainer => resizeToUploadSize(coloredContainer)
-  );
+  // change colors to match variations
+  const coloredContainers = timed(() => correctColors(croppedContainer, bitCode, variations), 'Pushwagnerifying!');
+
+  // resize to uploadable size
+  const uploadContainers = {};
+  Object.keys(coloredContainers).forEach(key => {
+    uploadContainers[key] = resizeToUploadSize(coloredContainers[key]);
+  });
 
   return {
     uploadable: uploadContainers,

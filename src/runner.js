@@ -97,10 +97,11 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   } else {
     const { bitCode, uploadable } = await abortable(() => process(canvases.videoFrame, sheetParams));
     if (config.uploadFile && uploadAfterCapture) {
-      await uploadFile(uploadable[0], bitCode, sceneVariations.people);
-      await uploadFile(uploadable[1], bitCode, sceneVariations.manhattan);
-      await uploadFile(uploadable[2], bitCode, sceneVariations.kingscross1);
-      await uploadFile(uploadable[3], bitCode, sceneVariations.kingscross2);
+
+      // upload all variations
+      await Promise.all(Object.keys(uploadable).map(key => {
+        return uploadFile(uploadable[key], bitCode, key);
+      }));
       status.success();
     }
     await timeout(4000);
