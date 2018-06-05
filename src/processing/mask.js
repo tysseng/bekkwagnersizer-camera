@@ -3,6 +3,8 @@ import jsfeat from 'jsfeat';
 import { detectEdges, subMatrixTouchesMask } from "./edgeDetection";
 import { mapToCanvasImageData } from "../utils/gfx/jsfeat.utils";
 import { floodFill } from "../utils/gfx/draw";
+import { getNextProcessingContainer } from "../canvases";
+import config from "../config";
 
 // TODO: Must be possible to do this faster, directly in a monocrome image
 export const getMonocromeMask = (container) => {
@@ -28,8 +30,8 @@ export const getMonocromeMask = (container) => {
 };
 
 
-export const getErodedMask = (edgesContainer, monocromeMask, canvases) => {
-  const maskContainer = canvases.mask;
+export const getErodedMask = (edgesContainer, monocromeMask) => {
+  const maskContainer = getNextProcessingContainer(config.sheetSize);
   const maskCtx = maskContainer.ctx;
   const edgesCtx = edgesContainer.ctx;
   const {width, height} = maskContainer.dimensions;
@@ -53,12 +55,12 @@ export const getErodedMask = (edgesContainer, monocromeMask, canvases) => {
 };
 
 // TODO: Faster to do this from a greyscale matrix, not a ctx?
-export const removeMask = (maskContainer, containerToFilter, canvases) => {
+export const removeMask = (maskContainer, containerToFilter) => {
 
   const maskCtx = maskContainer.ctx;
   const ctxToFilter = containerToFilter.ctx;
 
-  const filteredContainer = canvases.extracted;
+  const filteredContainer = getNextProcessingContainer(config.sheetSize);
   const filteredCtx = filteredContainer.ctx;
   const { width, height } = maskContainer.dimensions;
 

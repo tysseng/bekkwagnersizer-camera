@@ -19,15 +19,11 @@ import { getNextProcessingContainer } from "../canvases";
 // Extract detected sheet, detect drawing type and isolate drawing.
 export const process = (canvases, sheetParams, isCalibration = false) => {
 
-  const { sheetCorners, detectedSheetCanvasContainer, prerotation } = sheetParams;
+  const { sheetCorners, prerotation } = sheetParams;
 
   if (sheetCorners === null) {
     throw Error('Could not detect sheet corners');
   }
-
-  // copy to be able to debug.
-  const correctedSheetRotationContainer = getNextProcessingContainer(config.sourceSize);
-  copyCanvas(detectedSheetCanvasContainer, correctedSheetRotationContainer); // TODO: NOT USED????
 
   const extractedSheetContainer = extractSheetUsingPerspectiveTransformation(
     canvases.videoFrame,
@@ -64,9 +60,9 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
   let filledContractedContainer;
   if (config.padBeforeFloodFilling) {
     // expand outline to be able to flood fill safely
-    filledContractedContainer = floodFillWithPadding(removedElementsContainer, canvases);
+    filledContractedContainer = floodFillWithPadding(removedElementsContainer);
   } else {
-    filledContractedContainer = floodFillWithoutPadding(removedElementsContainer, canvases);
+    filledContractedContainer = floodFillWithoutPadding(removedElementsContainer);
   }
 
   // turn image monocrome by clearing all pixels that are not part of the mask
@@ -74,8 +70,8 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
 
   // erode mask, putting back the pixels that were added when the lines were diluted during edge
   // detection
-  const maskContainer = timed(() => getErodedMask(edgesContainer, monocromeMask, canvases), 'mask erosion');
-  const extractedContainer = timed(() => removeMask(maskContainer, extractedSheetContainer, canvases), 'remove mask');
+  const maskContainer = timed(() => getErodedMask(edgesContainer, monocromeMask), 'mask erosion');
+  const extractedContainer = timed(() => removeMask(maskContainer, extractedSheetContainer), 'remove mask');
 
   // crop away unwanted edges
   const croppedContainer = getNextProcessingContainer(config.croppedSize);

@@ -68,17 +68,17 @@ const colorRows = colorRowsMM.map(pos => Math.floor(pos * sheetPPMM));
 const colorCols = colorColsMM.map(pos => Math.floor(pos * sheetPPMM));
 
 const colorPositions = {
-  lightBlue:  {x: colorCols[0], y: colorRows[0]},
-  green:  {x: colorCols[0], y: colorRows[1]},
-  yellow:  {x: colorCols[0], y: colorRows[2]},
-  purple:  {x: colorCols[0], y: colorRows[3]},
-  pink:  {x: colorCols[0], y: colorRows[4]},
-  white:  {x: colorCols[0], y: colorRows[5]},
-  orange:  {x: colorCols[1], y: colorRows[0]},
-  skin:  {x: colorCols[1], y: colorRows[1]},
-  wine:  {x: colorCols[1], y: colorRows[2]},
-  darkBlue:  {x: colorCols[1], y: colorRows[3]},
-  black: {x: colorCols[1], y: colorRows[4]},
+  lightBlue: { x: colorCols[0], y: colorRows[0] },
+  green: { x: colorCols[0], y: colorRows[1] },
+  yellow: { x: colorCols[0], y: colorRows[2] },
+  purple: { x: colorCols[0], y: colorRows[3] },
+  pink: { x: colorCols[0], y: colorRows[4] },
+  white: { x: colorCols[0], y: colorRows[5] },
+  orange: { x: colorCols[1], y: colorRows[0] },
+  skin: { x: colorCols[1], y: colorRows[1] },
+  wine: { x: colorCols[1], y: colorRows[2] },
+  darkBlue: { x: colorCols[1], y: colorRows[3] },
+  black: { x: colorCols[1], y: colorRows[4] },
 };
 
 
@@ -180,9 +180,14 @@ export default {
     height: sheetSize.height - 2 * config.finalCrop
   },
 
+  filledExpandedSize: {
+    width: sheetSize.width + 10,
+    height: sheetSize.height + 10
+  },
+
   uploadSize: {
     width: 512,
-    height:512,
+    height: 512,
   },
   uploadFile: true,
   uploadUrls: [
