@@ -48,7 +48,8 @@ const removeBitDot = (ctx, pos, padding) => {
   ctx.stroke();
 };
 
-export const removeBitDots = (ctx) => {
+export const removeBitDots = (container) => {
+  const ctx = container.ctx;
   config.bitPositions.forEach(pos => removeBitDot(ctx, pos, paddingAroundBitPosition + 4));
 };
 
@@ -66,7 +67,8 @@ const drawBitOutline = (pos, sourceContainer) => {
 };
 
 export const readBitCode = (
-  sourceContainer, width, height, canvases, draw = true, rotate180 = false) => {
+  sourceContainer, canvases, draw = true, rotate180 = false) => {
+  const {width, height} = sourceContainer.dimensions;
   const bitPositions = config
     .bitPositions
     .map(pos => {
@@ -91,7 +93,7 @@ export const readBitCode = (
 };
 
 export const isBitCodeInCorrectCorner = (canvases, sourceContainer, width, height) => {
-  const result = readBitCode(sourceContainer, width, height, canvases, false) > 0;
+  const result = readBitCode(sourceContainer, canvases, false) > 0;
   if (result) {
     logger.info('bitcode is in correct corner');
   } else {
@@ -101,7 +103,7 @@ export const isBitCodeInCorrectCorner = (canvases, sourceContainer, width, heigh
 };
 
 export const isBitCodeInWrongCorner = (canvases, sourceContainer, width, height) => {
-  const result = readBitCode(sourceContainer, width, height, canvases, false, true) > 0;
+  const result = readBitCode(sourceContainer, canvases, false, true) > 0;
   if (result) {
     logger.info('bitcode is in wrong corner');
   } else {

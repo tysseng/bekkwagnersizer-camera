@@ -30,7 +30,7 @@ export const setUploadAfterCapture = (value) => {
   globalUploadAfterCapture = value;
 };
 
-const waitForHandInOut = async (canvases, sourceElement) => {
+const waitForHandInOut = async (sourceElement, canvases) => {
   if (config.detectHand) {
     // TODO: convert isCircleOccluded to grayscale?
 
@@ -38,10 +38,10 @@ const waitForHandInOut = async (canvases, sourceElement) => {
 
     // wait for hand
     logger.info('waiting for hand');
-    await isOccludedDebounced(canvases, sourceElement);
+    await isOccludedDebounced(sourceElement, canvases);
 
     logger.info('waiting for hand to go away');
-    await isNotOccludedDebounced(canvases, sourceElement);
+    await isNotOccludedDebounced(sourceElement, canvases );
 
     logger.info('no hand, waiting to take photo');
     await timeout(1000);
@@ -116,13 +116,13 @@ const indicateFailure = async (error) => {
   status.normal();
 };
 
-export const run = async (canvases, sourceElement) => {
+export const run = async (sourceElement, canvases) => {
   startRunning();
   logger.info('Running image processing');
   try {
     while (isRunning()) {
-      await abortable(() => captureImage(canvases, sourceElement));
-      await waitForHandInOut(canvases, sourceElement);
+      await abortable(() => captureImage(sourceElement, canvases));
+      await waitForHandInOut(sourceElement, canvases);
       logger.info("run for your life, Marty!");
       // TODO: wait for 2 seconds with possibility of aborting if hand is detected again.
       try {
@@ -143,12 +143,12 @@ export const run = async (canvases, sourceElement) => {
   oldSheetParams = null;
 };
 
-export const runOnce = async (canvases, sourceElement) => {
+export const runOnce = async (sourceElement, canvases) => {
   try {
     startRunning();
     logger.info('Running image processing once');
 
-    await abortable(() => captureImage(canvases, sourceElement));
+    await abortable(() => captureImage(sourceElement, canvases));
     logger.info('Captured initial frame');
 
     await runSingleCycle(canvases, globalUploadAfterCapture, false);
@@ -163,12 +163,12 @@ export const runOnce = async (canvases, sourceElement) => {
   stopRunning();
 };
 
-export const calibrateColors = async (canvases, sourceElement) => {
+export const calibrateColors = async (sourceElement, canvases) => {
   try {
     startRunning();
     logger.info('Running color calibration');
 
-    await abortable(() => captureImage(canvases, sourceElement));
+    await abortable(() => captureImage(sourceElement, canvases));
     logger.info('Captured initial frame');
 
     await runSingleCycle(canvases, false, true);

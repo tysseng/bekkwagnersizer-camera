@@ -44,7 +44,7 @@ const captureImageAsVideoFrame = (canvases, img ) => {
   captureImageToCanvas(ctx, img);
 };
 
-export const captureImage = (canvases, sourceElement) => {
+export const captureImage = (sourceElement, canvases) => {
   if(config.source === 'video'){
     captureVideoFrame(canvases, sourceElement);
   } else {

@@ -17,32 +17,23 @@ export const rotateColor180 = (data, length) => {
   }
 };
 
-export const copyCanvas = (source, target) => {
-  timed(() => target.ctx.drawImage(source.canvas, 0, 0), 'Copying canvas');
+export const copyCanvas = (sourceContainer, targetContainer) => {
+  timed(() => targetContainer.ctx.drawImage(sourceContainer.canvas, 0, 0), 'Copying canvas');
 };
 
-export const copyCanvasCentered = (source, target) => {
+export const copyCanvasCentered = (sourceContainer, targetContainer) => {
 
-  const {width: sourceWidth, height: sourceHeight} = source.dimensions;
-  const {width: targetWidth, height: targetHeight} = target.dimensions;
+  const {width: sourceWidth, height: sourceHeight} = sourceContainer.dimensions;
+  const {width: targetWidth, height: targetHeight} = targetContainer.dimensions;
 
   const offsetX = Math.floor((targetWidth - sourceWidth) / 2);
   const offsetY = Math.floor((targetHeight - sourceHeight) / 2);
 
-  timed(() => target.ctx.drawImage(source.canvas, offsetX, offsetY), 'Copying canvas centered');
+  timed(() => targetContainer.ctx.drawImage(sourceContainer.canvas, offsetX, offsetY), 'Copying canvas centered');
 };
 
 export const getPointColorFromImageData = (data, point, width) => {
   const i = (point.y * width + point.x) * 4;
-  return {
-    r: data[i],
-    g: data[i+1],
-    b: data[i+2],
-  }
-};
-
-export const getIndexColorFromImageData = (data, pixelIndex) => {
-  const i = pixelIndex * 4;
   return {
     r: data[i],
     g: data[i+1],

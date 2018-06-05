@@ -3,7 +3,9 @@ import jsfeat from 'jsfeat';
 const dilutionWidth = 1;
 
 // Detect all lines in image. Lines are diluted to plug single pixel holes before flow filling
-export const detectEdges = (image, width, height) => {
+export const detectEdges = (container) => {
+  const image = container.gray;
+  const { height, width } = container.dimensions;
   jsfeat.imgproc.canny(image, image, 30, 60);
   return diluteLines(image, width, height, 255, dilutionWidth);
 };
@@ -12,7 +14,7 @@ const diluteLines = (image, width, height, color, dilutionWidth) => {
   const imageWithDilutedLines = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   for (let x = dilutionWidth; x < width - dilutionWidth; x++) {
     for (let y = dilutionWidth; y < height - dilutionWidth; y++) {
-      if(image.data[y * width + x] === 255) {
+      if (image.data[y * width + x] === 255) {
         fillSubMatrix(image, imageWithDilutedLines, x, y, width, color);
       }
     }
@@ -27,7 +29,7 @@ const fillSubMatrix = (image, targetImage, x, y, width, color) => {
   targetImage.data[row * width + col] = color; // can be done more efficiently
 
   col++;
-  row = y-1;
+  row = y - 1;
   targetImage.data[(row++) * width + col] = color; // can be done more efficiently
   targetImage.data[(row++) * width + col] = color; // can be done more efficiently
   targetImage.data[(row) * width + col] = color; // can be done more efficiently
@@ -39,15 +41,15 @@ const fillSubMatrix = (image, targetImage, x, y, width, color) => {
 export const subMatrixTouchesMask = (image, x, y, width, maskColor) => {
   let col = x - 1;
   let row = y;
-  if(image.data[row * width + col] === maskColor) return true;
+  if (image.data[row * width + col] === maskColor) return true;
 
   col++;
-  row = y-1;
-  if(image.data[(row++) * width + col] === maskColor) return true;
-  if(image.data[(row++) * width + col] === maskColor) return true;
-  if(image.data[(row) * width + col] === maskColor) return true;
+  row = y - 1;
+  if (image.data[(row++) * width + col] === maskColor) return true;
+  if (image.data[(row++) * width + col] === maskColor) return true;
+  if (image.data[(row) * width + col] === maskColor) return true;
   col++;
-  if(image.data[(y) * width + col] === maskColor) return true;
+  if (image.data[(y) * width + col] === maskColor) return true;
 
   return false;
 };

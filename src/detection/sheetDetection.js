@@ -1,6 +1,6 @@
 import jsfeat from 'jsfeat';
 import {
-  drawAllPoints, drawBox, drawCorners, drawImageOnCanvas,
+  drawAllPoints, drawBox, drawCorners, drawImageOnContext,
   drawImageRotatedAroundCenter
 } from '../utils/gfx/draw';
 import { timed } from '../utils/timer';
@@ -183,14 +183,16 @@ const detectCorners = (ctx, image, width) => {
   return sheetCorners;
 };
 
-const drawImageOnCanvasAndDetectCorners = (imageCanvas, ctx, width, height, rotation = 0) => {
+const drawImageOnCanvasAndDetectCorners = (sourceContainer, targetContainer, width, height, rotation = 0) => {
   if (rotation !== 0) {
-    timed(() => drawImageRotatedAroundCenter(imageCanvas, ctx, width, height, -rotation), 'rotate');
+    timed(() => drawImageRotatedAroundCenter(sourceContainer, targetContainer, -rotation), 'rotate');
   } else {
-    drawImageOnCanvas(imageCanvas, ctx);
+    drawImageOnContext(sourceContainer, targetContainer);
   }
-  const grayscaledImage = mapToJsFeatImageData(ctx, width, height);
-  return detectCorners(ctx, grayscaledImage, width);
+
+  const targetCtx = targetContainer.ctx;
+  const grayscaledImage = mapToJsFeatImageData(targetContainer);
+  return detectCorners(targetCtx, grayscaledImage, width);
 };
 
 export const findSheet = (canvases) => {
@@ -200,8 +202,8 @@ export const findSheet = (canvases) => {
   let prerotation = 0;
 
   sheetCorners = drawImageOnCanvasAndDetectCorners(
-    canvases.videoFrame.canvas,
-    canvases.detectedSheet.ctx,
+    canvases.videoFrame,
+    canvases.detectedSheet,
     frameWidth,
     frameHeight,
     0
@@ -213,8 +215,8 @@ export const findSheet = (canvases) => {
     // TODO: This may not be necessary when doing centered-above photos.
     prerotation = 0.10;
     sheetCorners = drawImageOnCanvasAndDetectCorners(
-      canvases.videoFrame.canvas,
-      canvases.detectedSheetRotated.ctx,
+      canvases.videoFrame,
+      canvases.detectedSheetRotated,
       frameWidth,
       frameHeight,
       prerotation

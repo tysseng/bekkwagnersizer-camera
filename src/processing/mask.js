@@ -5,7 +5,9 @@ import { mapToCanvasImageData } from "../utils/gfx/jsfeat.utils";
 import { floodFill } from "../utils/gfx/draw";
 
 // TODO: Must be possible to do this faster, directly in a monocrome image
-export const getMonocromeMask = (ctx, width, height) => {
+export const getMonocromeMask = (container) => {
+  const ctx = container.ctx;
+  const { width, height } = container.dimensions;
   const maskImage = ctx.getImageData(0, 0, width, height);
   const data = maskImage.data;
 
@@ -26,7 +28,11 @@ export const getMonocromeMask = (ctx, width, height) => {
 };
 
 
-export const erodeMask = (maskCtx, edgesCtx, monocromeMask, width, height) => {
+export const erodeMask = (maskContainer, edgesContainer, monocromeMask) => {
+  const maskCtx = maskContainer.ctx;
+  const edgesCtx = edgesContainer.ctx;
+  const {width, height} = maskContainer.dimensions;
+
   const lineImageData = edgesCtx.getImageData(0, 0, width, height);
   const erosionWidth = 1; // must be same as dilution width;
   const maskColor = 255;
@@ -45,7 +51,13 @@ export const erodeMask = (maskCtx, edgesCtx, monocromeMask, width, height) => {
 };
 
 // TODO: Faster to do this from a greyscale matrix, not a ctx?
-export const removeMask = (maskCtx, ctxToFilter, filteredCtx, width, height) => {
+export const removeMask = (maskContainer, containerToFilter, filteredContainer) => {
+
+  const maskCtx = maskContainer.ctx;
+  const ctxToFilter = containerToFilter.ctx;
+  const filteredCtx = filteredContainer.ctx;
+  const { width, height } = maskContainer.dimensions;
+
   const mask = maskCtx.getImageData(0, 0, width, height);
   const image = ctxToFilter.getImageData(0, 0, width, height);
   const maskData = mask.data;

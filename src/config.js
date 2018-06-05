@@ -104,12 +104,6 @@ export default {
   // show how long each step takes.
   showTimings: true,
 
-  // use perspective correction when extracting sheet. A faster but less accurate option is to
-  // detect sheet orientation and rotate sheet but not resample. This works if we can guarantee
-  // that the photo has been taken perpendicular to both the sheet x and y axis.
-  // values: 'exact', 'approximate'
-  sheetCorrection: 'exact',
-
   // Flip correction checks if sheet has been placed upside down. It can use either logo or bitcode
   // to decide if sheet is upside down. If none are chosen, no flip will be done and sheet may end
   // up upside down. Possible options: 'logo', 'bitcode', 'none'.

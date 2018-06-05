@@ -1,5 +1,4 @@
 // lets us even out shadows by capturing a white sheet and setting a per-pixel white balance.
-
 import { timed } from "../utils/timer";
 
 export const getCorrectedColorComponent = (colorComponent, whiteComponent) => {
@@ -12,14 +11,14 @@ export const getCorrectedColorComponent = (colorComponent, whiteComponent) => {
 };
 
 export const removeShadows = (sourceContainer, targetContainer, whiteContainer) => {
-  // TODO: Only remove pixels inside circle to speed up process.
+
   const {width, height} = sourceContainer;
   const sourceCtx = sourceContainer.ctx;
   const correctedImageData = sourceCtx.getImageData(0, 0, width, height);
   const correctedData = correctedImageData.data;
   const whiteData = whiteContainer.ctx.getImageData(0, 0, width, height).data;
 
-  const index = 0;
+  // TODO: Only remove pixels inside circle to speed up process.
   timed(() => {
     for (let i = 0; i < width * height * 4; i++) {
       correctedData[i] = getCorrectedColorComponent(correctedData[i], whiteData[i]);

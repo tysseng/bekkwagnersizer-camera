@@ -82,7 +82,7 @@ const App = keydown(class App extends Component {
 
   run() {
     try {
-      run(this.state.canvases, this.getSourceElement());
+      run(this.getSourceElement(), this.state.canvases);
     } catch (error) {
       logger.error('Could not complete image processing');
       logger.error(error);
@@ -91,7 +91,7 @@ const App = keydown(class App extends Component {
 
   runSingleCycle() {
     try {
-      runOnce(this.state.canvases, this.getSourceElement());
+      runOnce(this.getSourceElement(), this.state.canvases);
     } catch (error) {
       logger.error('Could not complete image processing');
       logger.error(error);
@@ -100,7 +100,7 @@ const App = keydown(class App extends Component {
 
   runColorCalibration() {
     try {
-      calibrateColors(this.state.canvases, this.getSourceElement());
+      calibrateColors(this.getSourceElement(), this.state.canvases);
     } catch (error) {
       logger.error('Could not complete color calibration');
       logger.error(error);

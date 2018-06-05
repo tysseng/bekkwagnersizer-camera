@@ -3,7 +3,11 @@ import { timed } from "../utils/timer";
 
 const padding = 2;
 
-export const resizeToUploadSize = (extractedCanvas, uploadableCtx, width, height) => {
+export const resizeToUploadSize = (extractedContainer, uploadableContainer) => {
+
+  const extractedCanvas = extractedContainer.canvas;
+  const uploadableCtx = uploadableContainer.ctx;
+  const { height, width } = uploadableContainer.dimensions;
 
   const unpaddedWidth = width - 2 * padding;
   const unpaddedHeight = height - 2 * padding;

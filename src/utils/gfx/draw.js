@@ -1,9 +1,9 @@
 import { timed } from "../timer";
 import { mapToCanvasImageData } from "./jsfeat.utils";
 
-export const drawImageOnCanvas = (imageCanvas, ctx) => {
+export const drawImageOnContext = (sourceContainer, targetContainer) => {
   timed(() => {
-    ctx.drawImage(imageCanvas, 0, 0);
+    targetContainer.ctx.drawImage(sourceContainer.canvas, 0, 0);
   }, 'draw image on canvas');
 };
 
@@ -51,15 +51,20 @@ export const drawCircle = (ctx, point) => {
   ctx.stroke();
 };
 
-export const drawImageRotatedAroundCenter = (imageCanvas, ctx, width, height, angle) => {
-  ctx.translate(width / 2, height / 2);
-  ctx.rotate(angle);
-  ctx.translate(-width / 2, -height / 2);
-  drawImageOnCanvas(imageCanvas, ctx);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+export const drawImageRotatedAroundCenter = (sourceContainer, targetContainer, angle) => {
+  const targetCtx = targetContainer.ctx;
+
+  const { width, height } = targetContainer.dimensions;
+  targetCtx.translate(width / 2, height / 2);
+  targetCtx.rotate(angle);
+  targetCtx.translate(-width / 2, -height / 2);
+  drawImageOnContext(sourceContainer, targetContainer);
+  targetCtx.setTransform(1, 0, 0, 1, 0, 0);
 };
 
-export const drawJsFeatImageOnContext = (jsFeatImage, ctx, width, height) => {
+export const drawJsFeatImageOnContext = (jsFeatImage, container) => {
+  const ctx = container.ctx;
+  const { width, height} = container.dimensions;
   const imageData = timed(() => ctx.getImageData(0, 0, width, height), 'get image data');
   mapToCanvasImageData(jsFeatImage, imageData);
   timed(() => ctx.putImageData(imageData, 0, 0), 'put image to ctx');

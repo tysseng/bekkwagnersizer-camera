@@ -28,10 +28,8 @@ const getColorAt = (ctx, data, angle, center, radius, width, drawPoints = false)
 };
 
 const changeIsAboveThreshold = (originalColor = 0, newColor) => {
-  //const diff = Math.abs(originalColor - newColor);
-  const diff = newColor - originalColor; // only lighter colors should trigger occlusion (so shadows are ignored)
+  const diff = newColor - originalColor;
   if(diff > differenceThreshold){
-    //console.log('diff above treshold', diff, originalColor, newColor);
     return 1;
   }
   return 0;
@@ -110,7 +108,7 @@ const debouncedNotOccluded = () => {
   return true;
 };
 
-export const isOccludedDebounced = async (canvases, sourceElement) => {
+export const isOccludedDebounced = async (sourceElement, canvases) => {
   for(let i=0; i<debounceLength; i++){
     debounce[i] = false;
   }
@@ -119,12 +117,12 @@ export const isOccludedDebounced = async (canvases, sourceElement) => {
   while(!debouncedOccluded() && isRunning()){
     debounce[debounceNum] = isCircleOccluded(canvases);
     debounceNum = (debounceNum + 1) % debounceLength;
-    await abortable(() => captureImage(canvases, sourceElement));
+    await abortable(() => captureImage(sourceElement, canvases));
   }
   logger.info('HAND detected');
 };
 
-export const isNotOccludedDebounced = async (canvases, sourceElement) => {
+export const isNotOccludedDebounced = async (sourceElement, canvases) => {
   for(let i=0; i<debounceLength; i++){
     debounce[i] = true;
   }
@@ -133,7 +131,7 @@ export const isNotOccludedDebounced = async (canvases, sourceElement) => {
   while(!debouncedNotOccluded() && isRunning()){
     debounce[debounceNum] = isCircleOccluded(canvases);
     debounceNum = (debounceNum + 1) % debounceLength;
-    await abortable(() => captureImage(canvases, sourceElement));
+    await abortable(() => captureImage(sourceElement, canvases));
   }
   logger.info('HAND NOT detected');
 };

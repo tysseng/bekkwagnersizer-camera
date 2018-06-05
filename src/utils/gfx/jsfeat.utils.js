@@ -7,7 +7,7 @@ export const drawSquareAroundPoint = (image, imageWidth, padding, x, y, color) =
   const right = x + padding;
   for (let row = y - padding; row <= y + padding; row++) {
     const rowIndex = row * imageWidth;
-    if(row === y-padding || row === y + padding){
+    if (row === y - padding || row === y + padding) {
       for (let col = x - padding; col <= x + padding; col++) {
         image.data[rowIndex + col] = color;
       }
@@ -23,10 +23,10 @@ export const getAverageColor = (image, imageWidth, padding, x, y) => {
   let area = (2 * padding + 1) * (2 * padding + 1);
   for (let col = x - padding; col <= x + padding; col++) {
     for (let row = y - padding; row <= y + padding; row++) {
-      sum +=image.data[row * imageWidth + col];
+      sum += image.data[row * imageWidth + col];
     }
   }
-  return sum/area;
+  return sum / area;
 };
 
 export const mapToCanvasImageData = (jsFeatImageData, canvasImageData) => {
@@ -40,12 +40,13 @@ export const mapToCanvasImageData = (jsFeatImageData, canvasImageData) => {
   }
 };
 
-export const mapToJsFeatImageData = (ctx, width, height) => {
+export const mapToJsFeatImageData = (container) => {
+  const ctx = container.ctx;
+  const { height, width } = container.dimensions;
   return timed(() => {
     const contextImageData = ctx.getImageData(0, 0, width, height);
     const jsFeatImageData = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
     jsfeat.imgproc.grayscale(contextImageData.data, width, height, jsFeatImageData);
-    //writeToGrayscaleImageData(image_data, grayImage);
     return jsFeatImageData;
   }, 'get grayscale');
 };

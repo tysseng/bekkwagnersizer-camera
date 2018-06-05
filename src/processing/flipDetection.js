@@ -15,12 +15,13 @@ const rotate180 = (sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight) => 
   targetCtx.putImageData(imageData, 0, 0);
 };
 
-export const correctSheetOrientation = (canvases, grayImage, sheetWidth, sheetHeight) => {
+export const correctSheetOrientation = (canvases, sheetWidth, sheetHeight) => {
   const source = canvases.correctedSheetScaling;
   const target = canvases.correctedSheetFlipping;
 
   const sourceCtx = source.ctx;
   const targetCtx = target.ctx;
+  const grayImage = source.gray;
 
   if (config.flipCorrection === flipDetectionMethods.LOGO) {
     if (!isLogoInCorrectCorner(grayImage, sheetWidth, sheetHeight)) {
