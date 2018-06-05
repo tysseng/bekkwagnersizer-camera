@@ -1,12 +1,12 @@
 import config from "../config";
 import { timed } from "../utils/timer";
+import { getNextUploadableContainer } from "../canvases";
 
 const padding = 2;
 
-export const resizeToUploadSize = (extractedContainer, canvases) => {
+export const resizeToUploadSize = (extractedContainer) => {
 
-  // TODO: Need separate containers here!
-  const uploadableContainer = canvases.uploadable1;
+  const uploadableContainer = getNextUploadableContainer(config.uploadSize, 'Uploadable');
   const extractedCanvas = extractedContainer.canvas;
   const uploadableCtx = uploadableContainer.ctx;
   const { height, width } = uploadableContainer.dimensions;

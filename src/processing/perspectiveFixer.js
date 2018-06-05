@@ -42,7 +42,7 @@ export const correctPerspective = (sourceContainer, sheetCorners) => {
   const sourceCtx = sourceContainer.ctx;
   const {height, width} = sourceContainer.dimensions;
 
-  const correctedCtx = getNextProcessingContainer(config.sheetSize).ctx;
+  const correctedCtx = getNextProcessingContainer(config.sheetSize, 'Perspective corrected').ctx;
 
   const transform = timed(() => getPerspectiveCorrectionTransform(
     sheetCorners, width, height

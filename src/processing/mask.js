@@ -1,8 +1,7 @@
 import { timed } from "../utils/timer";
 import jsfeat from 'jsfeat';
-import { detectEdges, subMatrixTouchesMask } from "./edgeDetection";
+import { subMatrixTouchesMask } from "./edgeDetection";
 import { mapToCanvasImageData } from "../utils/gfx/jsfeat.utils";
-import { floodFill } from "../utils/gfx/draw";
 import { getNextProcessingContainer } from "../canvases";
 import config from "../config";
 
@@ -31,7 +30,7 @@ export const getMonocromeMask = (container) => {
 
 
 export const getErodedMask = (edgesContainer, monocromeMask) => {
-  const maskContainer = getNextProcessingContainer(config.sheetSize);
+  const maskContainer = getNextProcessingContainer(config.sheetSize, 'Mask');
   const maskCtx = maskContainer.ctx;
   const edgesCtx = edgesContainer.ctx;
   const {width, height} = maskContainer.dimensions;
@@ -60,7 +59,7 @@ export const removeMask = (maskContainer, containerToFilter) => {
   const maskCtx = maskContainer.ctx;
   const ctxToFilter = containerToFilter.ctx;
 
-  const filteredContainer = getNextProcessingContainer(config.sheetSize);
+  const filteredContainer = getNextProcessingContainer(config.sheetSize, 'Filtered image');
   const filteredCtx = filteredContainer.ctx;
   const { width, height } = maskContainer.dimensions;
 
@@ -77,16 +76,4 @@ export const removeMask = (maskContainer, containerToFilter) => {
 
   filteredCtx.putImageData(image, 0, 0);
   return filteredContainer;
-};
-
-export const erodeMaskWithEdgeDetection = (maskCtx, lineImageData, monocromeMask, width, height) => {
-
-  // erode mask, removing the pixels that were added by diluting the original lines. This works
-  // by detecting the new mask outline, which is exactly one dilute distance from the real line. As
-  // dilute works in both directions, a second dilute will reclaim the missing pixels without
-  // going into the holes that were plugged by the original dilute.
-  const maskOutline = timed(() => detectEdges(monocromeMask, width, height), 'erode mask');
-  mapToCanvasImageData(maskOutline, lineImageData);
-  timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
-  timed(() => floodFill(maskCtx, 255, 255, 255, 0), 'flood fill mask again');
 };

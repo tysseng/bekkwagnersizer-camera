@@ -35,7 +35,7 @@ const rotateSheetCorners = (sheetCorners, width, height, angle) => {
   }
 };
 
-export const extractSheetUsingPerspectiveTransformation = (
+export const extractSheet = (
   sourceContainer,
   sheetCorners,
   prerotation,

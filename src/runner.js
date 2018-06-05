@@ -6,7 +6,7 @@ import {
   sheetPositionHasChanged
 } from "./detection/sheetDetection";
 import { captureImage } from "./detection/capturing";
-import { process } from "./processing/processor";
+import { calibrate, process } from "./processing/processor";
 import {
   isNotOccludedDebounced,
   isOccludedDebounced
@@ -19,7 +19,7 @@ import { photoColors } from "./processing/pushwagnerColorMaps";
 import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
 import { updateColorsForAllImages } from "./processing/pushwagnerify";
 import sceneVariations from "./processing/sceneVariations";
-import { clearCanvases } from "./canvases";
+import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";
 
 // STATE! OH NO!
@@ -86,21 +86,26 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   // If not clearing the source (filledExpanded), floodFill crashes the second time around (!)
   // If not clearing the target (filledContracted), the previous image will be visible through the
   // semi-transparent parts of the new one.
-  clearCanvases(canvases);
+  resetCanvases(canvases);
 
   status.processing();
-  const { bitCode, uploadable } = await abortable(() => process(canvases, sheetParams, isCalibration));
-  if (bitCode === config.colorBitcode) {
+  if(isCalibration){
+    await abortable(() => calibrate(canvases, sheetParams));
     status.colorsCalibrated();
-  } else if (config.uploadFile && uploadAfterCapture) {
-    await uploadFile(uploadable[0], bitCode, sceneVariations.people);
-    await uploadFile(uploadable[1], bitCode, sceneVariations.manhattan);
-    await uploadFile(uploadable[2], bitCode, sceneVariations.kingscross1);
-    await uploadFile(uploadable[3], bitCode, sceneVariations.kingscross2);
-    status.success();
+    await timeout(4000);
+    status.normal();
+  } else {
+    const { bitCode, uploadable } = await abortable(() => process(canvases.videoFrame, sheetParams));
+    if (config.uploadFile && uploadAfterCapture) {
+      await uploadFile(uploadable[0], bitCode, sceneVariations.people);
+      await uploadFile(uploadable[1], bitCode, sceneVariations.manhattan);
+      await uploadFile(uploadable[2], bitCode, sceneVariations.kingscross1);
+      await uploadFile(uploadable[3], bitCode, sceneVariations.kingscross2);
+      status.success();
+    }
+    await timeout(4000);
+    status.normal();
   }
-  await timeout(4000);
-  status.normal();
 };
 
 export const stop = () => {

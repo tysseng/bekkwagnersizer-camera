@@ -87,6 +87,9 @@ const sheetSize = {
   height: Math.floor(sheetSizeMM.height * sheetPPMM),
 };
 
+// Final crop border size - how much to crop away to make sure we don't get a border
+const finalCrop = 10;
+
 export default {
   source,
 
@@ -100,10 +103,6 @@ export default {
   // block processing if detected corners are the same as last time
   preventDuplicates: true,
 
-  // Add padding around the sheet before flood filling, this makes it possible to flood fill all
-  // around even if the user has drawn lines all the way to the edge
-  padBeforeFloodFilling: true,
-
   // default value for upload after capture checkbox.
   defaultUploadAfterCapture: true,
 
@@ -114,9 +113,6 @@ export default {
   // to decide if sheet is upside down. If none are chosen, no flip will be done and sheet may end
   // up upside down. Possible options: 'logo', 'bitcode', 'none'.
   flipCorrection: flipDetectionMethods.BITCODE,
-
-  // Final crop border size - how much to crop away to make sure we don't get a border
-  finalCrop: 10,
 
   // center of logo to use when removing logo
   removeLogo: false,
@@ -176,8 +172,8 @@ export default {
   sheetSize,
 
   croppedSize: {
-    width: sheetSize.width - 2 * config.finalCrop,
-    height: sheetSize.height - 2 * config.finalCrop
+    width: sheetSize.width - 2 * finalCrop,
+    height: sheetSize.height - 2 * finalCrop
   },
 
   filledExpandedSize: {

@@ -5,6 +5,7 @@ import { getDefaultMappings, getMappings } from "./pushwagnerColorMaps";
 import { imageCodes } from "./imageCodes";
 import variations from "./sceneVariations";
 import logger from "../utils/logger";
+import { getNextColoredContainer } from "../canvases";
 
 let colorsForAllImages;
 
@@ -36,16 +37,21 @@ const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorM
   targetCtx.putImageData(imageData, 0, 0);
 };
 
-export const correctColors = (sourceContainer, containers, imageCode) => {
+export const correctColors = (sourceContainer, imageCode) => {
   try {
 
     const { width, height } = sourceContainer.dimensions;
     const ctx = sourceContainer.ctx;
 
-    copyCanvas(sourceContainer, containers.colored1);
-    copyCanvas(sourceContainer, containers.colored2);
-    copyCanvas(sourceContainer, containers.colored3);
-    copyCanvas(sourceContainer, containers.colored4);
+    const coloredContainers = [
+      getNextColoredContainer(sourceContainer.dimensions, 'People'),
+      getNextColoredContainer(sourceContainer.dimensions, 'Manhattan'),
+      getNextColoredContainer(sourceContainer.dimensions, 'Kings Cross 1'),
+      getNextColoredContainer(sourceContainer.dimensions, 'Kings Cross 2')
+    ];
+    coloredContainers.forEach(coloredContainer => {
+      copyCanvas(sourceContainer, coloredContainer);
+    });
 
     const imageData = ctx.getImageData(0, 0, width, height);
     const sourceData = imageData.data;
@@ -72,17 +78,12 @@ export const correctColors = (sourceContainer, containers, imageCode) => {
     const kingscross2Colors = colorsForImage.variations[variations.kingscross2];
 
     // replace with screen colors
-    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored1, peopleColors);
-    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored2, manhattanColors);
-    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored3, kingscross1Colors);
-    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored4, kingscross2Colors);
+    writeColorReplaced(sourceData, dataLength, intermediate, coloredContainers[0], peopleColors);
+    writeColorReplaced(sourceData, dataLength, intermediate, coloredContainers[1], manhattanColors);
+    writeColorReplaced(sourceData, dataLength, intermediate, coloredContainers[2], kingscross1Colors);
+    writeColorReplaced(sourceData, dataLength, intermediate, coloredContainers[3], kingscross2Colors);
 
-    return [
-      containers.colored1,
-      containers.colored2,
-      containers.colored3,
-      containers.colored4,
-    ];
+    return coloredContainers;
 
   } catch (err) {
     logger.error(err);

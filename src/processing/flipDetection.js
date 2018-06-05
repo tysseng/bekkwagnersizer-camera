@@ -18,13 +18,13 @@ const rotate180 = (sourceCtx, targetContainer, grayImage, sheetWidth, sheetHeigh
   targetContainer.gray = grayImage;
 };
 
-export const correctSheetOrientation = (sourceContainer, canvases) => {
+export const correctSheetOrientation = (sourceContainer) => {
 
   const sourceCtx = sourceContainer.ctx;
   const grayImage = sourceContainer.gray;
   const {width: sheetWidth, height: sheetHeight} = sourceContainer.dimensions;
 
-  const targetContainer = getNextProcessingContainer(config.sheetSize);
+  const targetContainer = getNextProcessingContainer(config.sheetSize, 'Correct sheet orientation');
   const targetCtx = targetContainer.ctx;
 
   if (config.flipCorrection === flipDetectionMethods.LOGO) {
@@ -37,8 +37,8 @@ export const correctSheetOrientation = (sourceContainer, canvases) => {
     // as bitcode is more sensitive than logo detection, we want to be as sure as possible that
     // it has been placed wrong before rotating, so we check both positive and negative confirmation
     if (
-      !isBitCodeInCorrectCorner(canvases, canvases.correctedSheetScaling) &&
-      isBitCodeInWrongCorner(canvases, canvases.correctedSheetScaling)
+      !isBitCodeInCorrectCorner(sourceContainer) &&
+      isBitCodeInWrongCorner(sourceContainer)
     ) {
       rotate180(sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight);
     } else {

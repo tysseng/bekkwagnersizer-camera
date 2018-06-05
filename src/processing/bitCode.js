@@ -86,14 +86,14 @@ export const readBitCode = (
   });
 
   const number = parseInt(bits.join(''), 2);
-  if (draw) copyCanvas(sourceContainer, getNextProcessingContainer(config.sheetSize));
+  if (draw) copyCanvas(sourceContainer, getNextProcessingContainer(config.sheetSize, 'Bit code'));
   logger.info('Detected bits');
   logger.info(bits);
   logger.info('Sheet number: ' + number);
   return number;
 };
 
-export const isBitCodeInCorrectCorner = (canvases, sourceContainer) => {
+export const isBitCodeInCorrectCorner = (sourceContainer) => {
   const result = readBitCode(sourceContainer, false) > 0;
   if (result) {
     logger.info('bitcode is in correct corner');
@@ -103,7 +103,7 @@ export const isBitCodeInCorrectCorner = (canvases, sourceContainer) => {
   return result;
 };
 
-export const isBitCodeInWrongCorner = (canvases, sourceContainer) => {
+export const isBitCodeInWrongCorner = (sourceContainer) => {
   const result = readBitCode(sourceContainer, false, true) > 0;
   if (result) {
     logger.info('bitcode is in wrong corner');
