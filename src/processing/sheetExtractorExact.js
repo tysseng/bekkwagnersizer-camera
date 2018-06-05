@@ -35,23 +35,19 @@ const rotateSheetCorners = (sheetCorners, width, height, angle) => {
   }
 };
 
-export const extractSheet = (
-  sourceContainer,
-  sheetCorners,
-  prerotation,
-) => {
-
+export const extractSheet = (sourceContainer, sheetParams) => {
+  const { sheetCorners, prerotation } = sheetParams;
   const frameWidth = sourceContainer.dimensions.width;
   const frameHeight = sourceContainer.dimensions.height;
 
   // TODO: this should probably be done in sheetDetection.
   // remove prerotation to get points that match the original image
-  sheetCorners = timed(() => rotateSheetCorners(sheetCorners, frameWidth, frameHeight, prerotation), 'rotating corners');
+  const rotatedCorners = timed(() => rotateSheetCorners(sheetCorners, frameWidth, frameHeight, prerotation), 'rotating corners');
 
   // adjust landscape/portrait. We want a portrait view.
-  sheetCorners = correctOrientation(sheetCorners);
+  const reorientatedCorners = correctOrientation(rotatedCorners);
 
-  const correctedContainer = timed(() => correctPerspective(sourceContainer, sheetCorners), 'correct perspective');
+  const correctedContainer = timed(() => correctPerspective(sourceContainer, reorientatedCorners), 'correct perspective');
 
   // Detect lines to prepare for flood fill
   // TODO: Remove tiny islands

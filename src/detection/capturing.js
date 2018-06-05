@@ -5,8 +5,9 @@ const { videoCircle } = config;
 const videoOffsetX = videoCircle.x - videoCircle.diameter / 2;
 const videoOffsetY = videoCircle.y - videoCircle.diameter / 2;
 
-const captureVideoToCanvas = (ctx, videoElement) => {
-  const { width, height } = config.sourceSize;
+const captureVideoToCanvas = (videoElement, container) => {
+  const ctx = container.ctx;
+  const { width, height } = container.dimensions;
 
   // capture, crop and scale video, making sure we only get the part of the video frame that
   // contains our circular drawing area.
@@ -19,36 +20,25 @@ const captureVideoToCanvas = (ctx, videoElement) => {
   drawCircle(ctx, { x: width / 2, y: width / 2, radius: width / 2 });
 };
 
-const captureVideoFrame = (canvases, videoElement) => {
-  const ctx = canvases.videoFrame.ctx;
-  captureVideoToCanvas(ctx, videoElement);
+export const captureBaselineVideoFrame = (videoElement, container) => {
+  captureVideoToCanvas(videoElement, container);
 };
 
-export const captureBaselineVideoFrame = (canvases, videoElement) => {
-  const ctx = canvases.baselineVideoFrame.ctx;
-  captureVideoToCanvas(ctx, videoElement);
+export const captureWhitePixelsVideoFrame = (videoElement, container) => {
+  captureVideoToCanvas(videoElement, container);
 };
 
-export const captureWhitePixelsVideoFrame = (canvases, videoElement) => {
-  const ctx = canvases.whitePixelsVideoFrame.ctx;
-  captureVideoToCanvas(ctx, videoElement);
-};
-
-const captureImageToCanvas = (ctx, img) => {
-  const { width, height } = config.sourceSize;
+const captureImageAsVideoFrame = (img, container) => {
+  const ctx = container.ctx;
+  const { width, height } = container.dimensions;
   ctx.drawImage(img, 0, 0, width, height);
 };
 
-const captureImageAsVideoFrame = (canvases, img ) => {
-  const ctx = canvases.videoFrame.ctx;
-  captureImageToCanvas(ctx, img);
-};
-
-export const captureImage = (sourceElement, canvases) => {
+export const captureImage = (sourceElement, container) => {
   if(config.source === 'video'){
-    captureVideoFrame(canvases, sourceElement);
+    captureVideoToCanvas(sourceElement, container);
   } else {
-    captureImageAsVideoFrame(canvases, sourceElement);
+    captureImageAsVideoFrame(sourceElement, container);
   }
 };
 

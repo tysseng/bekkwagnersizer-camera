@@ -30,7 +30,7 @@ export const setUploadAfterCapture = (value) => {
   globalUploadAfterCapture = value;
 };
 
-const waitForHandInOut = async (sourceElement, canvases) => {
+const waitForHandInOut = async (sourceElement, videoFrameContainer) => {
   if (config.detectHand) {
     // TODO: convert isCircleOccluded to grayscale?
 
@@ -38,14 +38,14 @@ const waitForHandInOut = async (sourceElement, canvases) => {
 
     // wait for hand
     logger.info('waiting for hand');
-    await isOccludedDebounced(sourceElement, canvases);
+    await isOccludedDebounced(sourceElement, videoFrameContainer);
 
     logger.info('waiting for hand to go away');
-    await isNotOccludedDebounced(sourceElement, canvases);
+    await isNotOccludedDebounced(sourceElement, videoFrameContainer);
 
     logger.info('no hand, waiting to take photo');
     await timeout(1000);
-    captureImage(canvases, sourceElement);
+    captureImage(sourceElement, videoFrameContainer);
     logger.info('Lets go!')
   }
 };
@@ -55,7 +55,7 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
 
   // check for sheet (scan across image looking for changed pixels)
   if (config.source === 'video') {
-    if (!(await abortable(() => isSheetPresent(canvases)))) {
+    if (!(await abortable(() => isSheetPresent(canvases.videoFrame)))) {
       logger.info('No sheet present, aborting');
       return;
     }
@@ -64,9 +64,9 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   logger.info('Sheet is present, looking for corners');
 
   // TODO: This should be moved elsewhere, just here for testing.
-  const whiteCorrectedVideoFrameContainer = removeShadows(canvases.videoFrame, canvases.whitePixelsVideoFrame, canvases);
+  const whiteCorrectedVideoFrameContainer = removeShadows(canvases.videoFrame, canvases.whitePixelsVideoFrame);
 
-  const sheetParams = await abortable(() => findSheet(canvases));
+  const sheetParams = await abortable(() => findSheet(canvases.videoFrame));
   if (sheetParams === null) {
     logger.error('Sheet should be present but I couldnt find it');
     throw new Error('Sheet should be present but I couldnt find it')
@@ -90,7 +90,7 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
 
   status.processing();
   if(isCalibration){
-    await abortable(() => calibrate(canvases, sheetParams));
+    await abortable(() => calibrate(canvases.videoFrame, canvases.photoColors, sheetParams));
     status.colorsCalibrated();
     await timeout(4000);
     status.normal();
@@ -126,8 +126,9 @@ export const run = async (sourceElement, canvases) => {
   logger.info('Running image processing');
   try {
     while (isRunning()) {
-      await abortable(() => captureImage(sourceElement, canvases));
-      await waitForHandInOut(sourceElement, canvases);
+      const videoFrameContainer = canvases.videoFrame;
+      await abortable(() => captureImage(sourceElement, videoFrameContainer));
+      await waitForHandInOut(sourceElement, videoFrameContainer);
       logger.info("run for your life, Marty!");
       // TODO: wait for 2 seconds with possibility of aborting if hand is detected again.
       try {
@@ -153,7 +154,7 @@ export const runOnce = async (sourceElement, canvases) => {
     startRunning();
     logger.info('Running image processing once');
 
-    await abortable(() => captureImage(sourceElement, canvases));
+    await abortable(() => captureImage(sourceElement, canvases.videoFrame));
     logger.info('Captured initial frame');
 
     await runSingleCycle(canvases, globalUploadAfterCapture, false);
@@ -173,7 +174,7 @@ export const calibrateColors = async (sourceElement, canvases) => {
     startRunning();
     logger.info('Running color calibration');
 
-    await abortable(() => captureImage(sourceElement, canvases));
+    await abortable(() => captureImage(sourceElement, canvases.videoFrame));
     logger.info('Captured initial frame');
 
     await runSingleCycle(canvases, false, true);

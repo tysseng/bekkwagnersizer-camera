@@ -119,9 +119,9 @@ const App = keydown(class App extends Component {
     logger.info("Process baseline image");
 
     try {
-      captureBaselineVideoFrame(this.state.canvases, this.getSourceElement());
-      captureOriginalCircle(this.state.canvases);
-      captureOriginalSheetPresenceLine(this.state.canvases);
+      captureBaselineVideoFrame(this.getSourceElement(), this.state.canvases.baselineVideoFrame);
+      captureOriginalCircle(this.state.canvases.baselineVideoFrame);
+      captureOriginalSheetPresenceLine(this.state.canvases.baselineVideoFrame);
     } catch (error) {
       logger.error('Could not set baseline');
       logger.error(error);
@@ -130,7 +130,7 @@ const App = keydown(class App extends Component {
 
   setWhitePixels() {
     try {
-      captureWhitePixelsVideoFrame(this.state.canvases, this.getSourceElement());
+      captureWhitePixelsVideoFrame(this.getSourceElement(), this.state.canvases.whitePixelsVideoFrame);
     } catch (error) {
       logger.error('Could not set white pixels');
       logger.error(error);

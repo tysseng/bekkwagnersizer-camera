@@ -13,9 +13,9 @@ const getColorAt = (data, point, width) => {
   return color.r + color.g + color.b;
 };
 
-export const captureOriginalSheetPresenceLine = (canvases) => {
-  const ctx = canvases.baselineVideoFrame.ctx;
-  const { width, height } = canvases.baselineVideoFrame.dimensions;
+export const captureOriginalSheetPresenceLine = (container) => {
+  const ctx = container.ctx;
+  const { width, height } = container.dimensions;
   const data = ctx.getImageData(0, 0, width, height).data; // TODO: Possible to extract only a single row?
 
   let row = Math.floor(height / 2);
@@ -36,9 +36,9 @@ const changeIsAboveThreshold = (originalColor = 0, newColor) => {
 
 // If sheet is present, some of the pixels along the center line should be non-black.
 // This is a fast check before trying to find the corners.
-export const isSheetPresent = (canvases) => {
-  const ctx = canvases.videoFrame.ctx;
-  const { width, height } = canvases.videoFrame.dimensions;
+export const isSheetPresent = (videoFrameContainer) => {
+  const ctx = videoFrameContainer.ctx;
+  const { width, height } = videoFrameContainer.dimensions;
   const data = ctx.getImageData(0, 0, width, height).data; // TODO: Possible to extract only a single row?
 
   let pixelCount = 0;

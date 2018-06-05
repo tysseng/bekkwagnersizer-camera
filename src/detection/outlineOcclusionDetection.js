@@ -35,8 +35,8 @@ const changeIsAboveThreshold = (originalColor = 0, newColor) => {
   return 0;
 };
 
-export const captureOriginalCircle = (canvases) => {
-  const ctx = canvases.baselineVideoFrame.ctx;
+export const captureOriginalCircle = (container) => {
+  const ctx = container.ctx;
   const { width, height } = config.sourceSize;
   const data = ctx.getImageData(0, 0, width, height).data;
   const radius = width / 2 - outlineOffset;
@@ -59,8 +59,8 @@ const sum = (samples) => {
   return sum;
 };
 
-export const isCircleOccluded = (canvases) => {
-  const ctx = canvases.videoFrame.ctx;
+export const isCircleOccluded = (videoFrameContainer) => {
+  const ctx = videoFrameContainer.ctx;
   const { width, height } = config.sourceSize;
   const data = ctx.getImageData(0, 0, width, height).data;
   const radius = width / 2 - outlineOffset;
@@ -108,30 +108,30 @@ const debouncedNotOccluded = () => {
   return true;
 };
 
-export const isOccludedDebounced = async (sourceElement, canvases) => {
+export const isOccludedDebounced = async (sourceElement, videoFrameContainer) => {
   for(let i=0; i<debounceLength; i++){
     debounce[i] = false;
   }
 
   let debounceNum = 0;
   while(!debouncedOccluded() && isRunning()){
-    debounce[debounceNum] = isCircleOccluded(canvases);
+    debounce[debounceNum] = isCircleOccluded(videoFrameContainer);
     debounceNum = (debounceNum + 1) % debounceLength;
-    await abortable(() => captureImage(sourceElement, canvases));
+    await abortable(() => captureImage(sourceElement, videoFrameContainer));
   }
   logger.info('HAND detected');
 };
 
-export const isNotOccludedDebounced = async (sourceElement, canvases) => {
+export const isNotOccludedDebounced = async (sourceElement, videoFrameContainer) => {
   for(let i=0; i<debounceLength; i++){
     debounce[i] = true;
   }
 
   let debounceNum = 0;
   while(!debouncedNotOccluded() && isRunning()){
-    debounce[debounceNum] = isCircleOccluded(canvases);
+    debounce[debounceNum] = isCircleOccluded(videoFrameContainer);
     debounceNum = (debounceNum + 1) % debounceLength;
-    await abortable(() => captureImage(sourceElement, canvases));
+    await abortable(() => captureImage(sourceElement, videoFrameContainer));
   }
   logger.info('HAND NOT detected');
 };

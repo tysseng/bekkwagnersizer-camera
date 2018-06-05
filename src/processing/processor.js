@@ -15,41 +15,29 @@ import { photoColors } from "./pushwagnerColorMaps";
 import { calibrateColors, drawPhotoColors } from "./colorCalibration";
 import { getNextProcessingContainer } from "../canvases";
 
-export const calibrate = (canvases, sheetParams) => {
+export const calibrate = (videoFrameContainer, photoColorsContainer, sheetParams) => {
 
-  const { sheetCorners, prerotation } = sheetParams;
-
-  if (sheetCorners === null) {
+  if (sheetParams.sheetCorners === null) {
     throw Error('Could not detect sheet corners');
   }
 
-  const extractedSheetContainer = extractSheet(
-    canvases.videoFrame,
-    sheetCorners,
-    prerotation,
-  );
+  const extractedSheetContainer = extractSheet(videoFrameContainer, sheetParams);
 
   // Calibration used to be triggable using a bitCode, but errors while reading bit code
   // caused calibrations from non calibration sheets, so now it's purely manual.
   calibrateColors(extractedSheetContainer, photoColors);
-  drawPhotoColors(photoColors, canvases.photoColors);
+  drawPhotoColors(photoColors, photoColorsContainer);
   updateColorsForAllImages();
 };
 
 // Extract detected sheet, detect drawing type and isolate drawing.
-export const process = (videoFrame, sheetParams) => {
+export const process = (videoFrameContainer, sheetParams) => {
 
-  const { sheetCorners, prerotation } = sheetParams;
-
-  if (sheetCorners === null) {
+  if (sheetParams.sheetCorners === null) {
     throw Error('Could not detect sheet corners');
   }
 
-  const extractedSheetContainer = extractSheet(
-    videoFrame,
-    sheetCorners,
-    prerotation,
-  );
+  const extractedSheetContainer = extractSheet(videoFrameContainer, sheetParams);
 
   // detect bit code to see what image this is
   logger.info('Looking for bitcode');
@@ -65,13 +53,12 @@ export const process = (videoFrame, sheetParams) => {
   // copy to be able to debug.
   const removedElementsContainer = getNextProcessingContainer(config.sheetSize, 'Removed design elements');
   copyCanvas(edgesContainer, removedElementsContainer);
+
   if (config.removeLogo) timed(() => removeLogo(removedElementsContainer), 'removing logo');
   if (config.removeBitcode) timed(() => removeBitDots(removedElementsContainer), 'removing bit dots');
 
-  let filledContractedContainer;
-
   // expand outline to be able to flood fill safely
-  filledContractedContainer = floodFillWithPadding(removedElementsContainer);
+  const filledContractedContainer = floodFillWithPadding(removedElementsContainer);
 
   // turn image monocrome by clearing all pixels that are not part of the mask
   const monocromeMask = timed(() => getMonocromeMask(filledContractedContainer), 'get monocrome mask');

@@ -9,6 +9,7 @@ import logger from "../utils/logger";
 import { isApproximatelyPerpendicular, isInsideCircle } from "../utils/trigonometry";
 import { copyAndSortByY, isSamePoint, sortByX } from '../utils/points';
 import { mapToJsFeatImageData } from "../utils/gfx/jsfeat.utils";
+import { getNextProcessingContainer } from "../canvases";
 
 // for video
 /*
@@ -102,7 +103,7 @@ const findValidExtremePoints = (xSorted, ySorted, image, width) => {
 
   const corners = { left, right, top, bottom };
 
-  if(left == null || right == null || top == null || bottom == null){
+  if (left == null || right == null || top == null || bottom == null) {
     logger.error('Could not find enough corners');
     return null;
   }
@@ -183,7 +184,8 @@ const detectCorners = (ctx, image, width) => {
   return sheetCorners;
 };
 
-const drawImageOnCanvasAndDetectCorners = (sourceContainer, targetContainer, width, height, rotation = 0) => {
+const drawImageOnCanvasAndDetectCorners = (sourceContainer, targetContainer, rotation = 0) => {
+
   if (rotation !== 0) {
     timed(() => drawImageRotatedAroundCenter(sourceContainer, targetContainer, -rotation), 'rotate');
   } else {
@@ -192,36 +194,29 @@ const drawImageOnCanvasAndDetectCorners = (sourceContainer, targetContainer, wid
 
   const targetCtx = targetContainer.ctx;
   const grayscaledImage = mapToJsFeatImageData(targetContainer);
+  const { width, } = targetContainer.dimensions;
   return detectCorners(targetCtx, grayscaledImage, width);
 };
 
-export const findSheet = (canvases) => {
-  const { width: frameWidth, height: frameHeight } = config.sourceSize;
+export const findSheet = (videoFrameContainer) => {
   let sheetCorners;
-  let detectedSheetCanvasContainer;
   let prerotation = 0;
 
   sheetCorners = drawImageOnCanvasAndDetectCorners(
-    canvases.videoFrame,
-    canvases.detectedSheet,
-    frameWidth,
-    frameHeight,
+    videoFrameContainer,
+    getNextProcessingContainer(videoFrameContainer.dimensions, 'Detected sheet'),
     0
   );
-  detectedSheetCanvasContainer = canvases.detectedSheet;
 
   if (sheetCorners === null) {
     // rotate and try again. 0.10 seems like a good rotation,
     // TODO: This may not be necessary when doing centered-above photos.
     prerotation = 0.10;
     sheetCorners = drawImageOnCanvasAndDetectCorners(
-      canvases.videoFrame,
-      canvases.detectedSheetRotated,
-      frameWidth,
-      frameHeight,
+      videoFrameContainer,
+      getNextProcessingContainer(videoFrameContainer.dimensions, 'Detected sheet second try (rotated)'),
       prerotation
     );
-    detectedSheetCanvasContainer = canvases.detectedSheetRotated;
   }
 
   if (sheetCorners === null) {
@@ -229,7 +224,6 @@ export const findSheet = (canvases) => {
   } else {
     return {
       sheetCorners,
-      detectedSheetCanvasContainer,
       prerotation
     }
   }

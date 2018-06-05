@@ -1,5 +1,6 @@
 // lets us even out shadows by capturing a white sheet and setting a per-pixel white balance.
 import { timed } from "../utils/timer";
+import { getNextProcessingContainer } from "../canvases";
 
 export const getCorrectedColorComponent = (colorComponent, whiteComponent) => {
   const whiteDiff = 255 - whiteComponent;
@@ -10,7 +11,7 @@ export const getCorrectedColorComponent = (colorComponent, whiteComponent) => {
   return 0;
 };
 
-export const removeShadows = (sourceContainer, whiteContainer, canvases) => {
+export const removeShadows = (sourceContainer, whiteContainer) => {
 
   const {width, height} = sourceContainer;
   const sourceCtx = sourceContainer.ctx;
@@ -28,7 +29,7 @@ export const removeShadows = (sourceContainer, whiteContainer, canvases) => {
     }
   }, 'Removing whitepoint from all pixels');
 
-  const targetContainer = canvases.whiteCorrectedVideoFrame;
+  const targetContainer = getNextProcessingContainer(sourceContainer.dimensions, 'Shadow removed');
   const targetCtx = targetContainer.ctx;
   targetCtx.putImageData(correctedData, 0, 0);
   return targetContainer;
