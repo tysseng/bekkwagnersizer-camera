@@ -139,7 +139,7 @@ const App = keydown(class App extends Component {
 
   captureCanvases() {
     const canvasesDiv = document.querySelector('.canvases');
-    const all = canvasesDiv.querySelectorAll('canvas');
+    const all = canvasesDiv.querySelectorAll('.canvas');
     const canvases = extractAndResizeCanvases(all);
     this.setState({ canvases });
     return canvases;
@@ -156,7 +156,8 @@ const App = keydown(class App extends Component {
         </p>
         <div>
           <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
-          <button className='initial' onClick={() => this.setWhitePixels()}>Set white pixels</button>
+          <button className='initial' onClick={() => this.setWhitePixels()}>Set white pixels
+          </button>
           <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors
           </button>
           <button className='initial' onClick={() => this.testUpload()}>Test upload!</button>
@@ -187,107 +188,122 @@ const App = keydown(class App extends Component {
           }
         </div>
         <div className='canvases'>
-          <div>
+          <div className='preCaptureCanvases'>
             <h2>Pre-capture frames</h2>
-            <div>
+            <div className='canvas'>
               <h3>Calibrated input colors</h3>
               <canvas/>
             </div>
-            <div>
+            <div className='canvas'>
               <h3>Baseline VideoFrame</h3>
               <canvas/>
             </div>
-            <div>
+            <div className='canvas'>
               <h3>White VideoFrame</h3>
               <canvas/>
             </div>
           </div>
-          <div>
-            <h3>VideoFrame</h3>
-            <canvas/>
+          <div className='processingCanvases'>
+            <h2>Processing</h2>
+            <div className='canvas'>
+              <h3>VideoFrame</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>White-corrected video frame</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>DetectedSheet</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>DetectedSheet, second try (rotated)</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Corrected sheet 1 (rotation)</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>CorrectedSheet 2 (scaling)</h3>
+              <canvas id='correctedScale'/>
+            </div>
+            <div className='canvas'>
+              <h3>CorrectedSheet 3 (flipping)</h3>
+              <canvas id='correctedFlip'/>
+            </div>
+            <div className='canvas'>
+              <h3>Bit code detection</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Edges</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Removed logo etc</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Filled, with border</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Filled, with border removed</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Mask (eroded)</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Extracted</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Cropped to prevent edges</h3>
+              <canvas/>
+            </div>
           </div>
-          <div>
-            <h3>White-corrected video frame</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>DetectedSheet</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>DetectedSheet, second try (rotated)</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Corrected sheet 1 (rotation)</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>CorrectedSheet 2 (scaling)</h3>
-            <canvas id='correctedScale'/>
-          </div>
-          <div>
-            <h3>CorrectedSheet 3 (flipping)</h3>
-            <canvas id='correctedFlip'/>
-          </div>
-          <div>
-            <h3>Bit code detection</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Edges</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Removed logo etc</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Filled, with border</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Filled, with border removed</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Mask (eroded)</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Extracted</h3>
-            <canvas/>
-          </div>
-          <div>
-            <h3>Cropped to prevent edges</h3>
-            <canvas/>
-          </div>
-          <div>
+          <div className='coloredCanvases'>
             <h2>Colored</h2>
-            <div>
+            <div className='canvas'>
               <h3>People</h3>
               <canvas/>
             </div>
-            <div>
+            <div className='canvas'>
               <h3>Manhattan</h3>
               <canvas/>
             </div>
-            <div>
+            <div className='canvas'>
               <h3>Kings Cross 1</h3>
               <canvas/>
             </div>
-            <div>
+            <div className='canvas'>
               <h3>Kings Cross 2</h3>
               <canvas/>
             </div>
             <br/>
           </div>
-          <div>
-            <h3>Uploadable</h3>
-            <canvas/>
-            <canvas/>
-            <canvas/>
-            <canvas/>
+          <div className='uploadableCanvases'>
+            <h2>Uploadable</h2>
+            <div className='canvas'>
+              <h3>People</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Manhattan</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Kings Cross 1</h3>
+              <canvas/>
+            </div>
+            <div className='canvas'>
+              <h3>Kings Cross 2</h3>
+              <canvas/>
+            </div>
           </div>
         </div>
       </div>

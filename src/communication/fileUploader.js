@@ -42,9 +42,8 @@ const uploadOne = async (url, formData) => {
     });
 };
 
-export const uploadFile = async (canvas, bitCode, variation) => {
-
-  const png = canvas.toDataURL("image/png");
+export const uploadFile = async (container, bitCode, variation) => {
+  const png = container.canvas.toDataURL("image/png");
   const block = png.split(";");
   const contentType = block[0].split(":")[1];
   const realData = block[1].split(",")[1];

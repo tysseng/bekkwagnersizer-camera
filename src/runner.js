@@ -41,7 +41,7 @@ const waitForHandInOut = async (sourceElement, canvases) => {
     await isOccludedDebounced(sourceElement, canvases);
 
     logger.info('waiting for hand to go away');
-    await isNotOccludedDebounced(sourceElement, canvases );
+    await isNotOccludedDebounced(sourceElement, canvases);
 
     logger.info('no hand, waiting to take photo');
     await timeout(1000);
@@ -64,7 +64,7 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   logger.info('Sheet is present, looking for corners');
 
   // TODO: This should be moved elsewhere, just here for testing.
-  removeShadows(canvases.videoFrame, canvases.whiteCorrectedVideoFrame, canvases.whitePixelsVideoFrame);
+  const whiteCorrectedVideoFrameContainer = removeShadows(canvases.videoFrame, canvases.whitePixelsVideoFrame, canvases);
 
   const sheetParams = await abortable(() => findSheet(canvases));
   if (sheetParams === null) {
@@ -89,14 +89,14 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   clearCanvases(canvases);
 
   status.processing();
-  const bitCode = await abortable(() => process(canvases, sheetParams, isCalibration));
+  const { bitCode, uploadable } = await abortable(() => process(canvases, sheetParams, isCalibration));
   if (bitCode === config.colorBitcode) {
     status.colorsCalibrated();
   } else if (config.uploadFile && uploadAfterCapture) {
-    await uploadFile(canvases.uploadable1.canvas, bitCode, sceneVariations.people);
-    await uploadFile(canvases.uploadable2.canvas, bitCode, sceneVariations.manhattan);
-    await uploadFile(canvases.uploadable3.canvas, bitCode, sceneVariations.kingscross1);
-    await uploadFile(canvases.uploadable4.canvas, bitCode, sceneVariations.kingscross2);
+    await uploadFile(uploadable[0], bitCode, sceneVariations.people);
+    await uploadFile(uploadable[1], bitCode, sceneVariations.manhattan);
+    await uploadFile(uploadable[2], bitCode, sceneVariations.kingscross1);
+    await uploadFile(uploadable[3], bitCode, sceneVariations.kingscross2);
     status.success();
   }
   await timeout(4000);

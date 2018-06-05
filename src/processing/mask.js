@@ -28,7 +28,8 @@ export const getMonocromeMask = (container) => {
 };
 
 
-export const erodeMask = (maskContainer, edgesContainer, monocromeMask) => {
+export const getErodedMask = (edgesContainer, monocromeMask, canvases) => {
+  const maskContainer = canvases.mask;
   const maskCtx = maskContainer.ctx;
   const edgesCtx = edgesContainer.ctx;
   const {width, height} = maskContainer.dimensions;
@@ -48,13 +49,16 @@ export const erodeMask = (maskContainer, edgesContainer, monocromeMask) => {
 
   mapToCanvasImageData(erodedMask, lineImageData);
   timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
+  return maskContainer;
 };
 
 // TODO: Faster to do this from a greyscale matrix, not a ctx?
-export const removeMask = (maskContainer, containerToFilter, filteredContainer) => {
+export const removeMask = (maskContainer, containerToFilter, canvases) => {
 
   const maskCtx = maskContainer.ctx;
   const ctxToFilter = containerToFilter.ctx;
+
+  const filteredContainer = canvases.extracted;
   const filteredCtx = filteredContainer.ctx;
   const { width, height } = maskContainer.dimensions;
 
@@ -70,6 +74,7 @@ export const removeMask = (maskContainer, containerToFilter, filteredContainer) 
   }
 
   filteredCtx.putImageData(image, 0, 0);
+  return filteredContainer;
 };
 
 export const erodeMaskWithEdgeDetection = (maskCtx, lineImageData, monocromeMask, width, height) => {

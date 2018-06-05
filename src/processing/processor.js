@@ -2,8 +2,7 @@ import 'floodfill';
 import config from "../config";
 import { detectEdges } from "./edgeDetection";
 import { timed } from "../utils/timer";
-import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
-import { erodeMask, getMonocromeMask, removeMask } from "./mask";
+import { getErodedMask, getMonocromeMask, removeMask } from "./mask";
 import { copyCanvas, copyCanvasCentered } from "../utils/gfx/context.utils";
 import { removeLogo } from "./logo";
 import { readBitCode, removeBitDots } from "./bitCode";
@@ -28,7 +27,8 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
   // copy to be able to debug.
   copyCanvas(detectedSheetCanvasContainer, canvases.correctedSheetRotation);
 
-  extractSheetUsingPerspectiveTransformation(
+  const extractedSheetContainer = extractSheetUsingPerspectiveTransformation(
+    canvases.videoFrame,
     sheetCorners,
     prerotation,
     canvases,
@@ -37,7 +37,7 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
   // Calibration used to be triggable using a bitCode, but errors while reading bit code
   // caused calibrations from non calibration sheets, so now it's purely manual.
   if (isCalibration) {
-    calibrateColors(canvases.correctedSheetFlipping, photoColors);
+    calibrateColors(extractedSheetContainer, photoColors);
     drawPhotoColors(photoColors, canvases.photoColors);
     updateColorsForAllImages();
     return config.colorBitcode;
@@ -45,20 +45,17 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
 
   // detect bit code to see what image this is
   logger.info('Looking for bitcode');
-  const bitCode = timed(() => readBitCode(canvases.correctedSheetFlipping, canvases), 'Reading bit code');
+  const bitCode = timed(() => readBitCode(extractedSheetContainer, canvases), 'Reading bit code');
   if (bitCode === 0) {
     throw new Error('No bitcode found, aborting');
   }
 
   // find lines to prepare for flood fill
-  // TODO: gray must be on correctedSheetFlipping?
-  const jsFeatImageWithDilutedLines = timed(() => detectEdges(canvases.correctedSheetScaling), 'detect lines');
-  drawJsFeatImageOnContext(jsFeatImageWithDilutedLines, canvases.edges);
-
-  // copy to be able to debug.
-  copyCanvas(canvases.edges, canvases.removedElements);
+  const edgesContainer = timed(() => detectEdges(extractedSheetContainer), 'detect lines');
 
   // remove logos and other stuff
+  // copy to be able to debug.
+  copyCanvas(edgesContainer, canvases.removedElements);
   if (config.removeLogo) timed(() => removeLogo(canvases.removedElements), 'removing logo');
   if (config.removeBitcode) timed(() => removeBitDots(canvases.removedElements), 'removing bit dots');
 
@@ -74,17 +71,17 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
 
   // erode mask, putting back the pixels that were added when the lines were diluted during edge
   // detection
-  timed(() => erodeMask(canvases.mask, canvases.edges, monocromeMask,), 'mask erosion');
-  timed(() => removeMask(canvases.mask, canvases.correctedSheetFlipping, canvases.extracted), 'remove mask');
+  const maskContainer = timed(() => getErodedMask(edgesContainer, monocromeMask, canvases), 'mask erosion');
+  const extractedContainer = timed(() => removeMask(maskContainer, extractedSheetContainer, canvases), 'remove mask');
 
   // crop away unwanted edges
-  copyCanvasCentered(canvases.extracted, canvases.cropped);
+  copyCanvasCentered(extractedContainer, canvases.cropped);
 
-  timed(() => correctColors(canvases, bitCode), 'Pushwagnerifying!');
-  resizeToUploadSize(canvases.colored1, canvases.uploadable1);
-  resizeToUploadSize(canvases.colored2, canvases.uploadable2);
-  resizeToUploadSize(canvases.colored3, canvases.uploadable3);
-  resizeToUploadSize(canvases.colored4, canvases.uploadable4);
+  const coloredContainers = timed(() => correctColors(canvases, bitCode), 'Pushwagnerifying!');
+  const uploadContainers = coloredContainers.map(coloredContainer => resizeToUploadSize(coloredContainer, canvases));
 
-  return bitCode;
+  return {
+    uploadable: uploadContainers,
+    bitCode
+  }
 };

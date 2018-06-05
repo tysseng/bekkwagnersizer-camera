@@ -36,16 +36,16 @@ const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorM
   targetCtx.putImageData(imageData, 0, 0);
 };
 
-export const correctColors = (containers, imageCode) => {
+export const correctColors = (sourceContainer, containers, imageCode) => {
   try {
 
-    const { width, height } = containers.cropped.dimensions;
-    const ctx = containers.cropped.ctx;
+    const { width, height } = sourceContainer.dimensions;
+    const ctx = sourceContainer.ctx;
 
-    copyCanvas(containers.cropped, containers.colored1);
-    copyCanvas(containers.cropped, containers.colored2);
-    copyCanvas(containers.cropped, containers.colored3);
-    copyCanvas(containers.cropped, containers.colored4);
+    copyCanvas(sourceContainer, containers.colored1);
+    copyCanvas(sourceContainer, containers.colored2);
+    copyCanvas(sourceContainer, containers.colored3);
+    copyCanvas(sourceContainer, containers.colored4);
 
     const imageData = ctx.getImageData(0, 0, width, height);
     const sourceData = imageData.data;
@@ -71,13 +71,19 @@ export const correctColors = (containers, imageCode) => {
     const kingscross1Colors = colorsForImage.variations[variations.kingscross1];
     const kingscross2Colors = colorsForImage.variations[variations.kingscross2];
 
-    console.log(kingscross2Colors);
-
     // replace with screen colors
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored1, peopleColors);
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored2, manhattanColors);
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored3, kingscross1Colors);
     writeColorReplaced(sourceData, dataLength, intermediate, containers.colored4, kingscross2Colors);
+
+    return [
+      containers.colored1,
+      containers.colored2,
+      containers.colored3,
+      containers.colored4,
+    ];
+
   } catch (err) {
     logger.error(err);
   }

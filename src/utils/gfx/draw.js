@@ -67,6 +67,7 @@ export const drawJsFeatImageOnContext = (jsFeatImage, container) => {
   const { width, height} = container.dimensions;
   const imageData = timed(() => ctx.getImageData(0, 0, width, height), 'get image data');
   mapToCanvasImageData(jsFeatImage, imageData);
+  container.gray = jsFeatImage;
   timed(() => ctx.putImageData(imageData, 0, 0), 'put image to ctx');
 };
 

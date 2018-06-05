@@ -7,36 +7,41 @@ const setSize = (container, { width, height }) => {
   container.dimensions = { width, height };
 };
 
+export const getCanvasAndHeading = entry => ({
+  canvas: entry.querySelector('canvas'),
+  heading: entry.querySelector('h3'),
+});
+
 export const extractAndResizeCanvases = (all) => {
 
   let curr = 0;
   const canvases = {
-    photoColors: { canvas: all[curr++] },
-    baselineVideoFrame: { canvas: all[curr++] },
-    whitePixelsVideoFrame: { canvas: all[curr++] },
-    videoFrame: { canvas: all[curr++] },
-    whiteCorrectedVideoFrame: { canvas: all[curr++] },
-    detectedSheet: { canvas: all[curr++] },
-    detectedSheetRotated: { canvas: all[curr++] },
-    correctedSheetRotation: { canvas: all[curr++] },
-    correctedSheetScaling: { canvas: all[curr++] },
-    correctedSheetFlipping: { canvas: all[curr++] },
-    bitCodeDetection: { canvas: all[curr++] },
-    edges: { canvas: all[curr++] },
-    removedElements: { canvas: all[curr++] },
-    filledExpanded: { canvas: all[curr++] },
-    filledContracted: { canvas: all[curr++] },
-    mask: { canvas: all[curr++] },
-    extracted: { canvas: all[curr++] },
-    cropped: { canvas: all[curr++] },
-    colored1: { canvas: all[curr++] },
-    colored2: { canvas: all[curr++] },
-    colored3: { canvas: all[curr++] },
-    colored4: { canvas: all[curr++] },
-    uploadable1: { canvas: all[curr++] },
-    uploadable2: { canvas: all[curr++] },
-    uploadable3: { canvas: all[curr++] },
-    uploadable4: { canvas: all[curr++] },
+    photoColors: getCanvasAndHeading(all[curr++]),
+    baselineVideoFrame: getCanvasAndHeading(all[curr++]),
+    whitePixelsVideoFrame: getCanvasAndHeading(all[curr++]),
+    videoFrame: getCanvasAndHeading(all[curr++]),
+    whiteCorrectedVideoFrame: getCanvasAndHeading(all[curr++]),
+    detectedSheet: getCanvasAndHeading(all[curr++]),
+    detectedSheetRotated: getCanvasAndHeading(all[curr++]),
+    correctedSheetRotation: getCanvasAndHeading(all[curr++]),
+    correctedSheetScaling: getCanvasAndHeading(all[curr++]),
+    correctedSheetFlipping: getCanvasAndHeading(all[curr++]),
+    bitCodeDetection: getCanvasAndHeading(all[curr++]),
+    edges: getCanvasAndHeading(all[curr++]),
+    removedElements: getCanvasAndHeading(all[curr++]),
+    filledExpanded: getCanvasAndHeading(all[curr++]),
+    filledContracted: getCanvasAndHeading(all[curr++]),
+    mask: getCanvasAndHeading(all[curr++]),
+    extracted: getCanvasAndHeading(all[curr++]),
+    cropped: getCanvasAndHeading(all[curr++]),
+    colored1: getCanvasAndHeading(all[curr++]),
+    colored2: getCanvasAndHeading(all[curr++]),
+    colored3: getCanvasAndHeading(all[curr++]),
+    colored4: getCanvasAndHeading(all[curr++]),
+    uploadable1: getCanvasAndHeading(all[curr++]),
+    uploadable2: getCanvasAndHeading(all[curr++]),
+    uploadable3: getCanvasAndHeading(all[curr++]),
+    uploadable4: getCanvasAndHeading(all[curr++]),
   };
 
   const sourceSize = config.sourceSize;
@@ -76,7 +81,6 @@ export const extractAndResizeCanvases = (all) => {
   setSize(canvases.uploadable2, uploadSize);
   setSize(canvases.uploadable3, uploadSize);
   setSize(canvases.uploadable4, uploadSize);
-
   Object.keys(canvases).forEach(key => {
     canvases[key].ctx = canvases[key].canvas.getContext('2d');
   });

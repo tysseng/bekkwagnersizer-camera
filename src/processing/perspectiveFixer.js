@@ -35,11 +35,12 @@ const copyPixel = (sourceImgData, targetImgData, from, to, width, height) => {
   targetImgData.data[destPos+3] = sourceImgData.data[sourcePos+3];
 };
 
-export const correctPerspective = (sourceContainer, correctedContainer, sheetCorners) => {
+export const correctPerspective = (sourceContainer, canvases, sheetCorners) => {
 
   const sourceCtx = sourceContainer.ctx;
   const {height, width} = sourceContainer.dimensions;
-  const correctedCtx = correctedContainer.ctx;
+
+  const correctedCtx = canvases.correctedSheetScaling.ctx;
 
   const transform = timed(() => getPerspectiveCorrectionTransform(
     sheetCorners, width, height

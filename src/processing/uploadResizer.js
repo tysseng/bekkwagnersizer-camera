@@ -3,8 +3,10 @@ import { timed } from "../utils/timer";
 
 const padding = 2;
 
-export const resizeToUploadSize = (extractedContainer, uploadableContainer) => {
+export const resizeToUploadSize = (extractedContainer, canvases) => {
 
+  // TODO: Need separate containers here!
+  const uploadableContainer = canvases.uploadable1;
   const extractedCanvas = extractedContainer.canvas;
   const uploadableCtx = uploadableContainer.ctx;
   const { height, width } = uploadableContainer.dimensions;
@@ -22,4 +24,5 @@ export const resizeToUploadSize = (extractedContainer, uploadableContainer) => {
     0 + padding, 0 + padding, unpaddedWidth, unpaddedHeight, // from
     targetXOffset, 0, targetWidth, targetHeight, // to
   ), 'Copying to upload canvas');
+  return uploadableContainer;
 };

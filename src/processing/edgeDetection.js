@@ -1,13 +1,18 @@
 import jsfeat from 'jsfeat';
+import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
 
 const dilutionWidth = 1;
 
 // Detect all lines in image. Lines are diluted to plug single pixel holes before flow filling
-export const detectEdges = (container) => {
+export const detectEdges = (container, canvases) => {
   const image = container.gray;
   const { height, width } = container.dimensions;
   jsfeat.imgproc.canny(image, image, 30, 60);
-  return diluteLines(image, width, height, 255, dilutionWidth);
+  const grayDilutedLines = diluteLines(image, width, height, 255, dilutionWidth);
+
+  const targetContainer = canvases.edges;
+  drawJsFeatImageOnContext(grayDilutedLines, targetContainer);
+  return targetContainer;
 };
 
 const diluteLines = (image, width, height, color, dilutionWidth) => {
