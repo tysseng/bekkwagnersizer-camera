@@ -1,8 +1,10 @@
+// @flow
 // lets us even out shadows by capturing a white sheet and setting a per-pixel white balance.
 import { timed } from "../utils/timer";
 import { getNextProcessingContainer } from "../canvases";
+import type { Container } from "../types";
 
-export const getCorrectedColorComponent = (colorComponent, whiteComponent) => {
+export const getCorrectedColorComponent = (colorComponent: number, whiteComponent: number) => {
   const whiteDiff = 255 - whiteComponent;
   const correctedComponent = colorComponent + whiteDiff;
   if (correctedComponent > 255) {
@@ -11,9 +13,9 @@ export const getCorrectedColorComponent = (colorComponent, whiteComponent) => {
   return 0;
 };
 
-export const removeShadows = (sourceContainer, whiteContainer) => {
+export const removeShadows = (sourceContainer: Container, whiteContainer: Container) => {
 
-  const {width, height} = sourceContainer;
+  const {width, height} = sourceContainer.dimensions;
   const sourceCtx = sourceContainer.ctx;
   const correctedImageData = sourceCtx.getImageData(0, 0, width, height);
   const correctedData = correctedImageData.data;
@@ -31,6 +33,6 @@ export const removeShadows = (sourceContainer, whiteContainer) => {
 
   const targetContainer = getNextProcessingContainer(sourceContainer.dimensions, 'Shadow removed');
   const targetCtx = targetContainer.ctx;
-  targetCtx.putImageData(correctedData, 0, 0);
+  targetCtx.putImageData(correctedImageData, 0, 0);
   return targetContainer;
 };

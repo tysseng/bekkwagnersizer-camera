@@ -1,3 +1,4 @@
+// @flow
 import jsfeat from 'jsfeat';
 import {
   drawAllPoints, drawBox, drawCorners, drawImageOnContext,
@@ -10,6 +11,19 @@ import { isApproximatelyPerpendicular, isInsideCircle } from "../utils/trigonome
 import { copyAndSortByY, isSamePoint, sortByX } from '../utils/points';
 import { mapToJsFeatImageData } from "../utils/gfx/jsfeat.utils";
 import { getNextProcessingContainer } from "../canvases";
+import type { Container, JsfeatImage, Point, SheetParams } from "../types";
+
+type SheetExtremes = {
+  left: Point,
+  right: Point,
+  top: Point,
+  bottom: Point,
+}
+
+type BoundingCorners = {
+  topLeft: Point,
+  bottomRight: Point
+}
 
 // for video
 /*
@@ -29,7 +43,7 @@ const drawingCircleCenter = {
   y: config.sourceSize.height / 2,
 };
 
-const findCornerCandidates = (image) => {
+const findCornerCandidates = (image: JsfeatImage): Array<Point> => { // TODO jsfeat.keypoint_t
   const { width, height } = config.sourceSize;
 
   // remove some dust and smooths surfaces. Without this it corner detection will trigger on
@@ -55,7 +69,7 @@ const findCornerCandidates = (image) => {
   }
 };
 
-const isProbablySheetCorner = (corner, image, width) => {
+const isProbablySheetCorner = (corner: Point, image: JsfeatImage, width: number): boolean => {
   const { x, y } = corner;
   const padding = 15;
   //const sheetColorThreshold = 180;
@@ -77,7 +91,8 @@ const isProbablySheetCorner = (corner, image, width) => {
   return false;
 };
 
-const validateCorners = ({ left, right, top, bottom }) => {
+
+const validateCorners = ({ left, right, top, bottom }: SheetExtremes): boolean => {
 
   // if any of the corners are on a line (or indeed the same corner), we cannot use them)
   const corners = [left, right, top, bottom];
@@ -95,19 +110,22 @@ const validateCorners = ({ left, right, top, bottom }) => {
   return true;
 };
 
-const findValidExtremePoints = (xSorted, ySorted, image, width) => {
+const findValidExtremePoints = (
+  xSorted: Array<Point>,
+  ySorted: Array<Point>,
+  image: JsfeatImage,
+  width: number) => {
   const left = xSorted.find(corner => isProbablySheetCorner(corner, image, width));
   const right = xSorted.reverse().find(corner => isProbablySheetCorner(corner, image, width));
   const top = ySorted.find(corner => isProbablySheetCorner(corner, image, width));
   const bottom = ySorted.reverse().find(corner => isProbablySheetCorner(corner, image, width));
-
-  const corners = { left, right, top, bottom };
 
   if (left == null || right == null || top == null || bottom == null) {
     logger.error('Could not find enough corners');
     return null;
   }
 
+  const corners =({ left, right, top, bottom });
   if (validateCorners(corners)) {
     return corners
   } else {
@@ -116,14 +134,14 @@ const findValidExtremePoints = (xSorted, ySorted, image, width) => {
   }
 };
 
-const getBoundingBox = (corners) => {
+const getBoundingBox = (corners: SheetExtremes): BoundingCorners => {
   return {
     topLeft: { x: corners.left.x, y: corners.top.y },
     bottomRight: { x: corners.right.x, y: corners.bottom.y }
   };
 };
 
-const calculateCorners = (points) => {
+const calculateCorners = (points: SheetExtremes) => {
 
   const { left, right, top, bottom } = points;
   let topLeft, topRight, bottomLeft, bottomRight;
@@ -157,7 +175,7 @@ const calculateCorners = (points) => {
   }
 };
 
-const detectCorners = (ctx, image, width) => {
+const detectCorners = (ctx: CanvasRenderingContext2D, image: JsfeatImage, width: number) => {
   const points = timed(() => findCornerCandidates(image), 'detect corners');
 
   if (debug.drawAllCorners) timed(() => drawAllPoints(ctx, points), 'draw All Corners');
@@ -184,7 +202,7 @@ const detectCorners = (ctx, image, width) => {
   return sheetCorners;
 };
 
-const drawImageOnCanvasAndDetectCorners = (sourceContainer, targetContainer, rotation = 0) => {
+const drawImageOnCanvasAndDetectCorners = (sourceContainer: Container, targetContainer: Container, rotation: number = 0) => {
 
   if (rotation !== 0) {
     timed(() => drawImageRotatedAroundCenter(sourceContainer, targetContainer, -rotation), 'rotate');
@@ -198,7 +216,7 @@ const drawImageOnCanvasAndDetectCorners = (sourceContainer, targetContainer, rot
   return detectCorners(targetCtx, grayscaledImage, width);
 };
 
-export const findSheet = (videoFrameContainer) => {
+export const findSheet = (videoFrameContainer: Container): ?SheetParams => {
   let sheetCorners;
   let prerotation = 0;
 
@@ -229,7 +247,10 @@ export const findSheet = (videoFrameContainer) => {
   }
 };
 
-export const sheetPositionHasChanged = (oldSheetParams, newSheetParams) => {
+export const sheetPositionHasChanged = (
+  oldSheetParams: SheetParams,
+  newSheetParams: SheetParams
+) => {
   const margin = 8;
 
   if (oldSheetParams === null) {

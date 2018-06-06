@@ -2,7 +2,7 @@
 import React from 'react';
 //import imageToProcess from '../assets/images/IMG_6304.jpg';
 
-class Image extends React.Component {
+class Image extends React.Component<*> {
 
   // TODO: Uncomment image import to be able to use static image.
   render() {

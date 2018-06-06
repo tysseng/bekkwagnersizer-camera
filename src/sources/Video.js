@@ -3,27 +3,27 @@ import React from 'react';
 import config from '../config';
 import logger from '../utils/logger';
 
-class Video extends React.Component {
+class Video extends React.Component<*> {
 
-  videoElement;
+  videoElement: HTMLVideoElement;
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.videoStreamLoaded = this.videoStreamLoaded.bind(this);
     this.videoStreamLoadFailed = this.videoStreamLoadFailed.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
   }
 
-  videoStreamLoaded(stream) {
+  videoStreamLoaded = function(stream: any) {
     window.stream = stream; // make stream available to browser console
     this.videoElement.srcObject = stream;
-  }
+  };
 
-  videoStreamLoadFailed(error) {
+  videoStreamLoadFailed = function(error: Error) {
     logger.error('Error loading video stream', error);
-  }
+  };
 
-  componentDidMount() {
+  componentDidMount = function() {
     this.videoElement = this.refs.video;
     const constraints = {
       audio: false,
@@ -41,8 +41,13 @@ class Video extends React.Component {
       }
     };
 
-    navigator.getUserMedia(constraints, this.videoStreamLoaded, this.videoStreamLoadFailed);
-  }
+    if(navigator){
+      // TODO: Flow error
+      navigator.getUserMedia(constraints, this.videoStreamLoaded, this.videoStreamLoadFailed);
+    } else {
+      logger.error('Could not get user media from navigator');
+    }
+  };
 
   render() {
     const { videoSize } = config;

@@ -1,3 +1,4 @@
+// @flow
 // try to figure out when something (like a hand) enters the circle
 import config from "../config";
 import { getPointFromAngle } from "../utils/trigonometry";
@@ -7,6 +8,7 @@ import logger from "../utils/logger";
 import { abortable } from "../utils/promises";
 import { captureImage } from "./capturing";
 import { isRunning } from "../runstatus";
+import type { Container, Point, SourceElement } from "../types";
 
 const sampleSize = 20; // how many samples to look at at once
 const stepsPerRevolution = 300;
@@ -20,14 +22,22 @@ const debounce = [];
 
 let sampleIndex = 0;
 
-const getColorAt = (ctx, data, angle, center, radius, width, drawPoints = false) => {
+const getColorAt = (
+  ctx: CanvasRenderingContext2D,
+  data: Uint8ClampedArray,
+  angle: number,
+  center: Point,
+  radius: number,
+  width: number,
+  drawPoints = false
+): number => {
   const point = getPointFromAngle(angle, center, radius);
   const color = getPointColorFromImageData(data, point, width);
   if(drawPoints) drawPoint(ctx, point, 'red');
   return color.r + color.g + color.b;
 };
 
-const changeIsAboveThreshold = (originalColor = 0, newColor) => {
+const changeIsAboveThreshold = (originalColor: number = 0, newColor: number): number => {
   const diff = newColor - originalColor;
   if(diff > differenceThreshold){
     return 1;
@@ -35,7 +45,7 @@ const changeIsAboveThreshold = (originalColor = 0, newColor) => {
   return 0;
 };
 
-export const captureOriginalCircle = (container) => {
+export const captureOriginalCircle = (container: Container) => {
   const ctx = container.ctx;
   const { width, height } = config.sourceSize;
   const data = ctx.getImageData(0, 0, width, height).data;
@@ -51,7 +61,7 @@ export const captureOriginalCircle = (container) => {
 };
 
 // summing could have been done smarter, but this works fine.
-const sum = (samples) => {
+const sum = (samples: Array<number>): number => {
   let sum = 0;
   for(let i = 0; i< samples.length; i++){
     sum += samples[i];
@@ -59,7 +69,7 @@ const sum = (samples) => {
   return sum;
 };
 
-export const isCircleOccluded = (videoFrameContainer) => {
+export const isCircleOccluded = (videoFrameContainer: Container): boolean => {
   const ctx = videoFrameContainer.ctx;
   const { width, height } = config.sourceSize;
   const data = ctx.getImageData(0, 0, width, height).data;
@@ -90,7 +100,7 @@ export const isCircleOccluded = (videoFrameContainer) => {
 };
 
 
-const debouncedOccluded = () => {
+const debouncedOccluded = (): boolean => {
   for(let i=0; i<debounceLength; i++){
     if(debounce[i] !== true){
       return false;
@@ -99,7 +109,7 @@ const debouncedOccluded = () => {
   return true;
 };
 
-const debouncedNotOccluded = () => {
+const debouncedNotOccluded = (): boolean => {
   for(let i=0; i<debounceLength; i++){
     if(debounce[i] !== false){
       return false;
@@ -108,7 +118,10 @@ const debouncedNotOccluded = () => {
   return true;
 };
 
-export const isOccludedDebounced = async (sourceElement, videoFrameContainer) => {
+export const waitUntilOccluded = async (
+  sourceElement: SourceElement,
+  videoFrameContainer: Container
+) => {
   for(let i=0; i<debounceLength; i++){
     debounce[i] = false;
   }
@@ -122,7 +135,10 @@ export const isOccludedDebounced = async (sourceElement, videoFrameContainer) =>
   logger.info('HAND detected');
 };
 
-export const isNotOccludedDebounced = async (sourceElement, videoFrameContainer) => {
+export const waitUntilNotOccluded = async (
+  sourceElement: SourceElement,
+  videoFrameContainer: Container
+) => {
   for(let i=0; i<debounceLength; i++){
     debounce[i] = true;
   }

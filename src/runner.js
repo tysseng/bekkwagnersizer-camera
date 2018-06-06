@@ -1,3 +1,4 @@
+// @flow
 import logger from "./utils/logger";
 import config, { getSceneConfig } from "./config";
 import status from './communication/statusIndicator';
@@ -8,9 +9,9 @@ import {
 import { captureImage } from "./detection/capturing";
 import { process } from "./processing/processor";
 import {
-  isNotOccludedDebounced,
-  isOccludedDebounced
-} from "./detection/outlineOcclusionDetection";
+  waitUntilNotOccluded,
+  waitUntilOccluded
+} from "./detection/occlusionDetection";
 import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
@@ -19,16 +20,17 @@ import { calibrate, drawPhotoColors, loadColors } from "./colorizing/colorCalibr
 import { initColorMaps } from "./colorizing/colorRepository";
 import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";
+import type { Container, Containers, SourceElement } from "./types";
 
 // STATE! OH NO!
 let oldSheetParams = null;
-let globalUploadAfterCapture = config.defaultUploadAfterCapture;
+let globalUploadAfterCapture: boolean = config.defaultUploadAfterCapture;
 
-export const setUploadAfterCapture = (value) => {
+export const setUploadAfterCapture = (value: boolean) => {
   globalUploadAfterCapture = value;
 };
 
-const waitForHandInOut = async (sourceElement, videoFrameContainer) => {
+const waitForHandInOut = async (sourceElement: SourceElement, videoFrameContainer: Container) => {
   if (config.detectHand) {
     // TODO: convert isCircleOccluded to grayscale?
 
@@ -36,10 +38,10 @@ const waitForHandInOut = async (sourceElement, videoFrameContainer) => {
 
     // wait for hand
     logger.info('waiting for hand');
-    await isOccludedDebounced(sourceElement, videoFrameContainer);
+    await waitUntilOccluded(sourceElement, videoFrameContainer);
 
     logger.info('waiting for hand to go away');
-    await isNotOccludedDebounced(sourceElement, videoFrameContainer);
+    await waitUntilNotOccluded(sourceElement, videoFrameContainer);
 
     logger.info('no hand, waiting to take photo');
     await timeout(1000);
@@ -49,7 +51,11 @@ const waitForHandInOut = async (sourceElement, videoFrameContainer) => {
 };
 
 
-const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
+const runSingleCycle = async (
+  canvases: Containers,
+  uploadAfterCapture: boolean,
+  isCalibration: boolean
+) => {
 
   // check for sheet (scan across image looking for changed pixels)
   if (config.source === 'video') {
@@ -84,7 +90,7 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   // If not clearing the source (filledExpanded), floodFill crashes the second time around (!)
   // If not clearing the target (filledContracted), the previous image will be visible through the
   // semi-transparent parts of the new one.
-  resetCanvases(canvases);
+  resetCanvases();
 
   status.processing();
   if(isCalibration){
@@ -112,7 +118,7 @@ export const stop = () => {
   logger.info('Image processing stopped');
 };
 
-const indicateFailure = async (error) => {
+const indicateFailure = async (error: Error) => {
   status.failure();
   logger.error('Something went wrong in cycle');
   logger.error(error);
@@ -120,7 +126,7 @@ const indicateFailure = async (error) => {
   status.normal();
 };
 
-export const run = async (sourceElement, canvases) => {
+export const run = async (sourceElement: SourceElement, canvases: Containers) => {
   startRunning();
   logger.info('Running image processing');
   try {
@@ -148,7 +154,7 @@ export const run = async (sourceElement, canvases) => {
   oldSheetParams = null;
 };
 
-export const runOnce = async (sourceElement, canvases) => {
+export const runOnce = async (sourceElement: SourceElement, canvases: Containers) => {
   try {
     startRunning();
     logger.info('Running image processing once');
@@ -168,7 +174,7 @@ export const runOnce = async (sourceElement, canvases) => {
   stopRunning();
 };
 
-export const calibrateColors = async (sourceElement, canvases) => {
+export const calibrateColors = async (sourceElement: SourceElement, canvases: Containers) => {
   try {
     startRunning();
     logger.info('Running color calibration');
@@ -188,7 +194,7 @@ export const calibrateColors = async (sourceElement, canvases) => {
   stopRunning();
 };
 
-export const init = (canvases) => {
+export const init = (canvases: Containers) => {
   const sceneConfig = getSceneConfig();
   initColorMaps(sceneConfig);
   loadColors();

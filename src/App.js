@@ -1,9 +1,10 @@
+// @flow
 import React, { Component } from 'react';
 import keydown from 'react-keydown';
 import logo from './logo.svg';
 import './App.css';
 import {
-  run, runOnce, setUploadAfterCapture, stop, init as initRunner,
+  run as runIndefinitely, runOnce, setUploadAfterCapture, stop as stopRunning, init as initRunner,
   calibrateColors
 } from './runner';
 import config from './config';
@@ -11,19 +12,34 @@ import Video from "./sources/Video";
 import logger from './utils/logger';
 import Image from "./sources/Image";
 import { captureBaselineVideoFrame, captureWhitePixelsVideoFrame } from "./detection/capturing";
-import { captureOriginalCircle } from "./detection/outlineOcclusionDetection";
+import { captureOriginalCircle } from "./detection/occlusionDetection";
 import { captureOriginalSheetPresenceLine } from "./detection/sheetPresence";
 import { uploadFile } from "./communication/fileUploader";
 import { extractAndResizeCanvases } from "./canvases";
+import type { Containers, SourceElement } from "./types";
 
-const App = keydown(class App extends Component {
 
-  constructor(props) {
+type AppState = {
+  canvases: Containers,
+  sourceImageHasLoaded: boolean,
+  uploadAfterCapture: boolean,
+};
+
+type Props = {
+  keydown: {
+    event: {
+      which: number,
+    }
+  }
+};
+
+const App = keydown(class App extends Component<Props, AppState> {
+
+  constructor(props: any) {
     super(props);
     this.state = {
-      canvases: null,
+      canvases: {},
       sourceImageHasLoaded: false,
-      sequenceNumber: 0,
       uploadAfterCapture: config.defaultUploadAfterCapture,
     };
     this.sourceHasLoaded = this.sourceHasLoaded.bind(this);
@@ -40,7 +56,7 @@ const App = keydown(class App extends Component {
     this.testUpload = this.testUpload.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps = function(nextProps: Props) {
     const { keydown: { event } } = nextProps;
     if (event) {
       logger.info('KEY', event.which);
@@ -48,74 +64,80 @@ const App = keydown(class App extends Component {
         this.runSingleCycle();
       }
     }
-  }
+  };
 
-  componentDidMount() {
+  componentDidMount = function() {
     const canvases = this.captureCanvases();
     initRunner(canvases);
-  }
+  };
 
-  sourceHasLoaded() {
+  sourceHasLoaded = function() {
     logger.info('image has loaded');
     this.setState({
       sourceImageHasLoaded: true
     })
-  }
+  };
 
-  getSourceElement() {
+  getSourceElement = function(): SourceElement {
     if (config.source === 'video') {
       return this.refs.videoSource.refs.video;
     } else {
       return this.refs.imageSource.refs.image;
     }
-  }
+  };
 
-  handleUploadAfterCaptureChange(event) {
+  handleUploadAfterCaptureChange = function(event: Event) {
     const target = event.target;
-    const value = target.checked;
-    logger.info('Toggled upload after capture to ' + value);
-    this.setState({
-      uploadAfterCapture: value,
-    });
-    setUploadAfterCapture(value);
-  }
+    if (target instanceof HTMLInputElement) {
+      const value = target.checked;
+      if(value){
+        logger.info('Turned on upload');
+      } else {
+        logger.info('Turned off upload');
+      }
+      this.setState({
+        uploadAfterCapture: value,
+      });
+      setUploadAfterCapture(value);
+    }
+  };
 
-  run() {
+  run = function() {
     try {
-      run(this.getSourceElement(), this.state.canvases);
+      runIndefinitely(this.getSourceElement(), this.state.canvases);
     } catch (error) {
       logger.error('Could not complete image processing');
       logger.error(error);
     }
-  }
+  };
 
-  runSingleCycle() {
+  runSingleCycle = function() {
     try {
       runOnce(this.getSourceElement(), this.state.canvases);
     } catch (error) {
       logger.error('Could not complete image processing');
       logger.error(error);
     }
-  }
+  };
 
-  runColorCalibration() {
+  runColorCalibration = function() {
     try {
       calibrateColors(this.getSourceElement(), this.state.canvases);
     } catch (error) {
       logger.error('Could not complete color calibration');
       logger.error(error);
     }
-  }
+  };
 
-  stop() {
-    stop();
-  }
+  stop = function() {
+    stopRunning();
+  };
 
-  testUpload() {
+  testUpload = function() {
     uploadFile(this.state.canvases.uploadable1.canvas, 1, 2);
-  }
+  };
 
-  setBaseline() {
+  setBaseline = function() {
     logger.info("Process baseline image");
 
     try {
@@ -126,24 +148,27 @@ const App = keydown(class App extends Component {
       logger.error('Could not set baseline');
       logger.error(error);
     }
-  }
+  };
 
-  setWhitePixels() {
+  setWhitePixels = function() {
     try {
       captureWhitePixelsVideoFrame(this.getSourceElement(), this.state.canvases.whitePixelsVideoFrame);
     } catch (error) {
       logger.error('Could not set white pixels');
       logger.error(error);
     }
-  }
+  };
 
-  captureCanvases() {
+  captureCanvases = function(): Containers {
     const canvasesDiv = document.querySelector('.canvases');
+    if(canvasesDiv === null){
+      throw Error('Could not find any canvases')
+    }
     const all = canvasesDiv.querySelectorAll('.canvas');
     const canvases = extractAndResizeCanvases(all);
     this.setState({ canvases });
     return canvases;
-  }
+  };
 
   render() {
     return (

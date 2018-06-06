@@ -1,11 +1,13 @@
+// @flow
 import config from '../config';
 import { drawCircle } from "../utils/gfx/draw";
+import type { Container, SourceElement } from "../types";
 
 const { videoCircle } = config;
 const videoOffsetX = videoCircle.x - videoCircle.diameter / 2;
 const videoOffsetY = videoCircle.y - videoCircle.diameter / 2;
 
-const captureVideoToCanvas = (videoElement, container) => {
+const captureVideoToCanvas = (videoElement: SourceElement, container: Container) => {
   const ctx = container.ctx;
   const { width, height } = container.dimensions;
 
@@ -20,22 +22,22 @@ const captureVideoToCanvas = (videoElement, container) => {
   drawCircle(ctx, { x: width / 2, y: width / 2, radius: width / 2 });
 };
 
-export const captureBaselineVideoFrame = (videoElement, container) => {
+export const captureBaselineVideoFrame = (videoElement: SourceElement, container: Container) => {
   captureVideoToCanvas(videoElement, container);
 };
 
-export const captureWhitePixelsVideoFrame = (videoElement, container) => {
+export const captureWhitePixelsVideoFrame = (videoElement: SourceElement, container: Container) => {
   captureVideoToCanvas(videoElement, container);
 };
 
-const captureImageAsVideoFrame = (img, container) => {
+const captureImageAsVideoFrame = (img: SourceElement, container: Container) => {
   const ctx = container.ctx;
   const { width, height } = container.dimensions;
   ctx.drawImage(img, 0, 0, width, height);
 };
 
-export const captureImage = (sourceElement, container) => {
-  if(config.source === 'video'){
+export const captureImage = (sourceElement: SourceElement, container: Container) => {
+  if (sourceElement instanceof HTMLVideoElement) {
     captureVideoToCanvas(sourceElement, container);
   } else {
     captureImageAsVideoFrame(sourceElement, container);

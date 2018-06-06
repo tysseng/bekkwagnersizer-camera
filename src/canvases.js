@@ -1,16 +1,18 @@
+// @flow
 import { clearCtx } from "./utils/gfx/context.utils";
 import config from "./config";
+import type { Container, Containers, Dimensions } from "./types";
 
-const detectionContainers = [];
-const processingContainers = [];
-const coloredContainers = [];
-const uploadContainers = [];
+const detectionContainers: Array<Container> = [];
+const processingContainers: Array<Container> = [];
+const coloredContainers: Array<Container> = [];
+const uploadContainers: Array<Container> = [];
 
 let currentProcessingContainer = 0;
 let currentColoredContainer = 0;
 let currentUploadingContainer = 0;
 
-const setSize = (container, { width, height }) => {
+const setSize = (container: Container, { width, height }: Dimensions) => {
   container.canvas.width = width;
   container.canvas.height = height;
   container.dimensions = { width, height };
@@ -23,79 +25,73 @@ export const resetCanvases = () => {
   clearCanvases();
 };
 
-export const getNextProcessingContainer = (dimensions, heading) => {
+export const getNextProcessingContainer = (dimensions: Dimensions, heading: string): Container => {
   const container = processingContainers[currentProcessingContainer++];
   setSize(container, dimensions);
   container.heading.innerHTML = heading;
   return container;
 };
 
-export const getNextColoredContainer = (dimensions, heading) => {
-  const container =  coloredContainers[currentColoredContainer++];
+export const getNextColoredContainer = (dimensions: Dimensions, heading: string): Container => {
+  const container = coloredContainers[currentColoredContainer++];
   setSize(container, dimensions);
   container.heading.innerHTML = heading;
   return container;
 };
 
-export const getNextUploadableContainer = (dimensions, heading) => {
-  const container =  uploadContainers[currentUploadingContainer++];
+export const getNextUploadableContainer = (dimensions: Dimensions, heading: string): Container => {
+  const container = uploadContainers[currentUploadingContainer++];
   setSize(container, dimensions);
   container.heading.innerHTML = heading;
   return container;
 };
 
-const getCanvasAndHeading = entry => ({
-  canvas: entry.querySelector('canvas'),
-  heading: entry.querySelector('h3'),
-});
-
-const setCtxs = (containers) => {
-  containers.forEach(container => {
-    container.ctx = container.canvas.getContext('2d');
-  })
+const getAsContainer = (entry: HTMLElement, dimensions: Dimensions): Container => {
+  const canvas = entry.querySelector('canvas');
+  if (canvas instanceof HTMLCanvasElement) {
+    canvas.height = dimensions.height;
+    canvas.width = dimensions.width;
+    const ctx = canvas.getContext('2d');
+    const heading = entry.querySelector('h3');
+    if(heading === null){
+      throw Error('All containers require a heading element.');
+    }
+    return {
+      canvas,
+      ctx,
+      heading,
+      dimensions
+    };
+  }
+  throw Error('trying to init a non existing container');
 };
 
-export const extractAndResizeCanvases = (all) => {
-
+export const extractAndResizeCanvases = (all: NodeList<HTMLElement>): Containers => {
   let curr = 0;
-  const canvases = {
-    photoColors: getCanvasAndHeading(all[curr++]),
-    baselineVideoFrame: getCanvasAndHeading(all[curr++]),
-    whitePixelsVideoFrame: getCanvasAndHeading(all[curr++]),
-    videoFrame: getCanvasAndHeading(all[curr++]),
-    whiteCorrectedVideoFrame: getCanvasAndHeading(all[curr++]),
-    detectedSheet: getCanvasAndHeading(all[curr++]),
-    detectedSheetRotated: getCanvasAndHeading(all[curr++]),
-  };
-
   const sourceSize = config.sourceSize;
   const sheetSize = config.sheetSize;
 
-  setSize(canvases.photoColors, sheetSize);
-  setSize(canvases.baselineVideoFrame, sourceSize);
-  setSize(canvases.whitePixelsVideoFrame, sourceSize);
-  setSize(canvases.videoFrame, sourceSize);
-  setSize(canvases.whiteCorrectedVideoFrame, sourceSize);
-  setSize(canvases.detectedSheet, sourceSize);
-  setSize(canvases.detectedSheetRotated, sourceSize);
-  Object.keys(canvases).forEach(key => {
-    canvases[key].ctx = canvases[key].canvas.getContext('2d');
-  });
+  const canvases = {
+    photoColors: getAsContainer(all[curr++], sheetSize),
+    baselineVideoFrame: getAsContainer(all[curr++], sourceSize),
+    whitePixelsVideoFrame: getAsContainer(all[curr++], sourceSize),
+    videoFrame: getAsContainer(all[curr++], sourceSize),
+    whiteCorrectedVideoFrame: getAsContainer(all[curr++], sourceSize),
+    detectedSheet: getAsContainer(all[curr++], sourceSize),
+    detectedSheetRotated: getAsContainer(all[curr++], sourceSize),
+  };
 
-  for(let i=0; i<11; i++){
-    processingContainers.push(getCanvasAndHeading(all[curr++]));
+  for (let i = 0; i < 11; i++) {
+    processingContainers.push(getAsContainer(all[curr++], sheetSize));
   }
-  setCtxs(processingContainers);
 
-  for(let i=0; i<4; i++){
-    coloredContainers.push(getCanvasAndHeading(all[curr++]));
+  for (let i = 0; i < 4; i++) {
+    coloredContainers.push(getAsContainer(all[curr++], sheetSize));
   }
-  setCtxs(coloredContainers);
 
-  for(let i=0; i<4; i++){
-    uploadContainers.push(getCanvasAndHeading(all[curr++]));
+  for (let i = 0; i < 4; i++) {
+    uploadContainers.push(getAsContainer(all[curr++], sheetSize));
   }
-  setCtxs(uploadContainers);
 
   detectionContainers.push(canvases.videoFrame);
   detectionContainers.push(canvases.whiteCorrectedVideoFrame);
