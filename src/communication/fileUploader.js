@@ -1,7 +1,6 @@
 import uuid from 'uuid/v1';
-import config from "../config";
+import config, { getSceneConfig } from "../config";
 import logger from "../utils/logger";
-import { bitCodeToProfileMap } from "../processing/imageCodes";
 
 const b64toBlob = (b64Data, contentType, sliceSize) => {
   // from https://ourcodeworld.com/articles/read/322/how-to-convert-a-base64-image-into-a-image-file-and-upload-it-with-an-asynchronous-form-using-jquery
@@ -50,7 +49,8 @@ export const uploadFile = async (container, bitCode, variation) => {
 
   const blob = b64toBlob(realData, contentType);
 
-  const profile = bitCodeToProfileMap[bitCode];
+  const sceneConfig = getSceneConfig();
+  const profile = sceneConfig.bitCodeToProfileMap[bitCode];
 
   //const filenameStem = filenames[bitCode] || 'fallback';
   const filename = `${variation}-${profile.gender}-${profile.id}-${uuid()}.png`;

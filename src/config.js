@@ -1,8 +1,14 @@
 // 'image', 'video'
 import { flipDetectionMethods } from "./processing/flipDetectionMethods";
+import pushwagnerSceneConfig from "./pushwagner/pushwagnerSceneConfig";
+
 
 const source = 'video';
 //const source = 'image';
+
+const availableScenes = {
+  PUSHWAGNER: 'pushwagner',
+};
 
 const videoFrameSize = {
   width: 1024,
@@ -90,7 +96,7 @@ const sheetSize = {
 // Final crop border size - how much to crop away to make sure we don't get a border
 const finalCrop = 10;
 
-export default {
+const config = {
   source,
 
   // while looping - require occlusion of outline before trying to capture new image
@@ -195,5 +201,18 @@ export default {
     drawBoundingBox: true,
     drawAllCorners: true,
   },
-}
+
+
+  // Color mappings and other stuff specific to a certain installation (e.g. pushwagner)
+  selectedScene: availableScenes.PUSHWAGNER,
+  scene: {
+    [availableScenes.PUSHWAGNER]: pushwagnerSceneConfig
+  }
+};
+
+export const getSceneConfig = () => {
+  return config.scene[config.selectedScene];
+};
+
+export default config;
 

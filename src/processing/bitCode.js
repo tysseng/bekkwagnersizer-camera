@@ -3,7 +3,7 @@ import config from "../config";
 import logger from "../utils/logger";
 import { copyCanvas } from "../utils/gfx/context.utils";
 import { drawBox } from "../utils/gfx/draw";
-import { photoColors } from "./pushwagnerColorMaps";
+import { photoColors } from "../pushwagner/pushwagnerColorMaps";
 import { getNextProcessingContainer } from "../canvases";
 
 const paddingAroundBitPosition = config.bitPositionPadding;

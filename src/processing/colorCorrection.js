@@ -1,24 +1,9 @@
 import nearest from 'nearest-color';
 import { copyCanvas } from "../utils/gfx/context.utils";
-import { getImageMappingsWithDefaults } from "./colorMapping";
-import { getDefaultMappings, getMappings } from "./pushwagnerColorMaps";
-import { imageCodes } from "./imageCodes";
-import variations from "./sceneVariations";
 import logger from "../utils/logger";
 import { getNextColoredContainer } from "../canvases";
-
-let colorsForAllImages;
-
-// Must be run after color calibration
-export const updateColorsForAllImages = () => {
-  colorsForAllImages = getImageMappingsWithDefaults(
-    getMappings(),
-    getDefaultMappings(),
-    Object.values(imageCodes),
-    Object.values(variations)
-  );
-  console.log('UPDATED COLORS FOR ALL IMAGES', colorsForAllImages);
-};
+import { getColorsForAllImages } from "./colorRepository";
+import { getSceneConfig } from "../config";
 
 const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorMap) => {
   const { width, height } = target.dimensions;
@@ -37,7 +22,17 @@ const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorM
   targetCtx.putImageData(imageData, 0, 0);
 };
 
-export const correctColors = (sourceContainer, imageCode, variations) => {
+const replaceColors = (
+  { key, colorsForImage, sourceContainer, sourceData, dataLength, intermediate }
+) => {
+  const coloredContainer = getNextColoredContainer(sourceContainer.dimensions);
+  copyCanvas(sourceContainer, coloredContainer);
+  const colors = colorsForImage.variations[key];
+  writeColorReplaced(sourceData, dataLength, intermediate, coloredContainer, colors);
+  return coloredContainer;
+};
+
+export const correctColors = (sourceContainer, imageCode) => {
   try {
 
     const { width, height } = sourceContainer.dimensions;
@@ -48,7 +43,7 @@ export const correctColors = (sourceContainer, imageCode, variations) => {
 
     const intermediate = [];
 
-    const colorsForImage = colorsForAllImages[imageCode];
+    const colorsForImage = getColorsForAllImages()[imageCode];
 
     const nearestPhotoColor = nearest.from(colorsForImage.photo);
 
@@ -57,18 +52,20 @@ export const correctColors = (sourceContainer, imageCode, variations) => {
       if (sourceData[i + 3] > 0) {
         const oldColor = { r: sourceData[i], g: sourceData[i + 1], b: sourceData[i + 2] };
         const newPhotoColor = nearestPhotoColor(oldColor);
-        intermediate[i / 4] = newPhotoColor.value;
+
+        // using name instead of value as this lets us change the color codes for the color in the
+        // photo without changing the mapping from photo color to variation color.
+        intermediate[i / 4] = newPhotoColor.name;
       }
     }
 
     // replace colors for all variations
     const coloredContainers = {};
-    Object.keys(variations).map(key => {
-      const coloredContainer = getNextColoredContainer(sourceContainer.dimensions);
-      copyCanvas(sourceContainer, coloredContainer);
-      const colors = colorsForImage.variations[key];
-      writeColorReplaced(sourceData, dataLength, intermediate, coloredContainer, colors);
-      coloredContainers[key] = coloredContainer;
+    const variations = getSceneConfig().variations;
+    Object.keys(variations).forEach(key => {
+      coloredContainers[key] = replaceColors({
+        key, colorsForImage, sourceContainer, sourceData, dataLength, intermediate
+      });
     });
 
     return coloredContainers;

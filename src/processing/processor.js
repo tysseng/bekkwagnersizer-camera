@@ -9,14 +9,18 @@ import { readBitCode, removeBitDots } from "./bitCode";
 import { extractSheet } from "./sheetExtractorExact";
 import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithPadding } from "./floodFiller";
-import { correctColors, updateColorsForAllImages } from "./pushwagnerify";
+import { correctColors } from "./colorCorrection";
 import logger from "../utils/logger";
-import { photoColors } from "./pushwagnerColorMaps";
 import { calibrateColors, drawPhotoColors } from "./colorCalibration";
 import { getNextProcessingContainer } from "../canvases";
-import variations from "./sceneVariations";
 
-export const calibrate = (videoFrameContainer, photoColorsContainer, sheetParams) => {
+export const calibrate = (
+  {
+    videoFrameContainer,
+    photoColorsContainer,
+    sheetParams,
+  }
+) => {
 
   if (sheetParams.sheetCorners === null) {
     throw Error('Could not detect sheet corners');
@@ -26,9 +30,8 @@ export const calibrate = (videoFrameContainer, photoColorsContainer, sheetParams
 
   // Calibration used to be triggable using a bitCode, but errors while reading bit code
   // caused calibrations from non calibration sheets, so now it's purely manual.
-  calibrateColors(extractedSheetContainer, photoColors);
-  drawPhotoColors(photoColors, photoColorsContainer);
-  updateColorsForAllImages();
+  calibrateColors(extractedSheetContainer);
+  drawPhotoColors(photoColorsContainer);
 };
 
 // Extract detected sheet, detect drawing type and isolate drawing.
@@ -74,7 +77,7 @@ export const process = (videoFrameContainer, sheetParams) => {
   copyCanvasCentered(extractedContainer, croppedContainer);
 
   // change colors to match variations
-  const coloredContainers = timed(() => correctColors(croppedContainer, bitCode, variations), 'Pushwagnerifying!');
+  const coloredContainers = timed(() => correctColors(croppedContainer, bitCode), 'Detecting and replacing colors!');
 
   // resize to uploadable size
   const uploadContainers = {};

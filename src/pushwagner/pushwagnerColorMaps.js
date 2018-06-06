@@ -1,20 +1,35 @@
-import { imageCodes } from './imageCodes';
-import variations from './sceneVariations';
-import { color } from './colorMapping';
+import { imageCodes } from './pushwagnerImageCodes';
+import variations from './pushwagnerSceneVariations';
+import { color } from '../processing/colorMapping';
 
-// all colors found in photos. Will be changed by calibration!
+// Name of all colors found in photos. Used as key in mappings
 export const photoColors = {
-  black: '#4C5556',
-  white: '#F4FEFF',
-  lightBlue: '#7CD8EF',
-  orange: '#FFB254',
-  green: '#8BD19F',
-  skin: '#FDC9DF',
-  yellow: '#FFEF56',
-  wine: '#CF4A6B',
-  purple: '#CD68B9',
-  darkBlue: '#4D8BDF',
-  pink: '#4D8BDF', // bit pattern stars.
+  black: 'black',
+  white: 'white',
+  lightBlue: 'lightBlue',
+  orange: 'orange',
+  green: 'green',
+  skin: 'skin',
+  yellow: 'yellow',
+  wine: 'wine',
+  purple: 'purple',
+  darkBlue: 'darkBlue',
+  pink: 'pink', // bit pattern stars.
+};
+
+// Default color codes for all colors found in photos. Will be changed by calibration!
+export const photoColorCodes = {
+  [photoColors.black]: '#4C5556',
+  [photoColors.white]: '#F4FEFF',
+  [photoColors.lightBlue]: '#7CD8EF',
+  [photoColors.orange]: '#FFB254',
+  [photoColors.green]: '#8BD19F',
+  [photoColors.skin]: '#FDC9DF',
+  [photoColors.yellow]: '#FFEF56',
+  [photoColors.wine]: '#CF4A6B',
+  [photoColors.purple]: '#CD68B9',
+  [photoColors.darkBlue]: '#4D8BDF',
+  [photoColors.pink]: '#4D8BDF', // bit pattern stars.
 };
 
 // All colors to use for replacing.
@@ -82,8 +97,8 @@ const screenColorsKingsCross2 = {
   orange: color('#fcbf20'),
 };
 
-// Default mappings to use for the variations, if no other mapping is found.
-
+// Default mappings to use for the variations, if no other mapping is found. Saves us from
+// having to redefine black, white and other often-used color mappings for every variation/image.
 export const getDefaultMappings = () => {
   const defaultMappings = [];
   defaultMappings[variations.people] = {
@@ -112,7 +127,13 @@ export const getDefaultMappings = () => {
 
 // mappings between photo colors and variations for each image. Comes in addition to default colors.
 // NB: photo colors must include ALL colors we expect to find in image, including black and white.
-// TODO: Make black, white and skin color default?
+
+// Syntax:
+// photo: keys of all colors used in a particular image. Keep the number of colors as low
+// as possible to reduce the chance of detecting the wrong color
+//
+// variations: The mapping from color name (in photo) to correct color variations. If no mapping is
+// found, the default mapping will be used (e.g. for black and white etc).
 export const getMappings = () => ({
   [imageCodes.kar1]: {
     photo: [

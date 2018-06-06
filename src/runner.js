@@ -1,5 +1,5 @@
 import logger from "./utils/logger";
-import config from "./config";
+import config, { getSceneConfig } from "./config";
 import status from './communication/statusIndicator';
 import {
   findSheet,
@@ -15,10 +15,8 @@ import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent } from "./detection/sheetPresence";
-import { photoColors } from "./processing/pushwagnerColorMaps";
 import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
-import { updateColorsForAllImages } from "./processing/pushwagnerify";
-import sceneVariations from "./processing/sceneVariations";
+import { initColorMaps } from "./processing/colorRepository";
 import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";
 
@@ -191,7 +189,8 @@ export const calibrateColors = async (sourceElement, canvases) => {
 };
 
 export const init = (canvases) => {
-  loadColors(photoColors);
-  updateColorsForAllImages();
-  drawPhotoColors(photoColors, canvases.photoColors);
+  const sceneConfig = getSceneConfig();
+  initColorMaps(sceneConfig);
+  loadColors();
+  drawPhotoColors(canvases.photoColors);
 };
