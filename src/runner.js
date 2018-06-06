@@ -6,7 +6,7 @@ import {
   sheetPositionHasChanged
 } from "./detection/sheetDetection";
 import { captureImage } from "./detection/capturing";
-import { calibrate, process } from "./processing/processor";
+import { process } from "./processing/processor";
 import {
   isNotOccludedDebounced,
   isOccludedDebounced
@@ -15,7 +15,7 @@ import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent } from "./detection/sheetPresence";
-import { drawPhotoColors, loadColors } from "./colorizing/colorCalibration";
+import { calibrate, drawPhotoColors, loadColors } from "./colorizing/colorCalibration";
 import { initColorMaps } from "./colorizing/colorRepository";
 import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";

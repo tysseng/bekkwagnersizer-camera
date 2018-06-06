@@ -11,28 +11,7 @@ import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithPadding } from "./floodFiller";
 import { correctColors } from "../colorizing/colorCorrection";
 import logger from "../utils/logger";
-import { calibrateColors, drawPhotoColors } from "../colorizing/colorCalibration";
 import { getNextProcessingContainer } from "../canvases";
-
-export const calibrate = (
-  {
-    videoFrameContainer,
-    photoColorsContainer,
-    sheetParams,
-  }
-) => {
-
-  if (sheetParams.sheetCorners === null) {
-    throw Error('Could not detect sheet corners');
-  }
-
-  const extractedSheetContainer = extractSheet(videoFrameContainer, sheetParams);
-
-  // Calibration used to be triggable using a bitCode, but errors while reading bit code
-  // caused calibrations from non calibration sheets, so now it's purely manual.
-  calibrateColors(extractedSheetContainer);
-  drawPhotoColors(photoColorsContainer);
-};
 
 // Extract detected sheet, detect drawing type and isolate drawing.
 export const process = (videoFrameContainer, sheetParams) => {

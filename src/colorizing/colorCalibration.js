@@ -2,6 +2,7 @@ import config from "../config";
 import logger from "../utils/logger";
 import { clearCtx } from "../utils/gfx/context.utils";
 import { getPhotoColors } from "./colorRepository";
+import { extractSheet } from "../processing/sheetExtractorExact";
 
 const LOCAL_STORAGE_KEY = 'colorCalibration';
 
@@ -74,7 +75,7 @@ export const drawPhotoColors = (canvasContainer) => {
   });
 };
 
-export const calibrateColors = (sourceContainer) => {
+const calibrateColors = (sourceContainer) => {
   const colorTarget = getPhotoColors();
   const padding = 2;
   const colorPositions = config.colorPositions;
@@ -87,3 +88,24 @@ export const calibrateColors = (sourceContainer) => {
   });
   persistColors(colorTarget);
 };
+
+
+export const calibrate = (
+  {
+    videoFrameContainer,
+    photoColorsContainer,
+    sheetParams,
+  }
+) => {
+  if (sheetParams.sheetCorners === null) {
+    throw Error('Could not detect sheet corners');
+  }
+
+  const extractedSheetContainer = extractSheet(videoFrameContainer, sheetParams);
+
+  // Calibration used to be triggerable using a bitCode, but errors while reading bit code
+  // caused calibrations from non calibration sheets, so now it's purely manual.
+  calibrateColors(extractedSheetContainer);
+  drawPhotoColors(photoColorsContainer);
+};
+
