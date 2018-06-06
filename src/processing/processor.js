@@ -9,9 +9,9 @@ import { readBitCode, removeBitDots } from "./bitCode";
 import { extractSheet } from "./sheetExtractorExact";
 import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithPadding } from "./floodFiller";
-import { correctColors } from "./colorCorrection";
+import { correctColors } from "../colorizing/colorCorrection";
 import logger from "../utils/logger";
-import { calibrateColors, drawPhotoColors } from "./colorCalibration";
+import { calibrateColors, drawPhotoColors } from "../colorizing/colorCalibration";
 import { getNextProcessingContainer } from "../canvases";
 
 export const calibrate = (

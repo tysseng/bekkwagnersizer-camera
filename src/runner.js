@@ -15,8 +15,8 @@ import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent } from "./detection/sheetPresence";
-import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
-import { initColorMaps } from "./processing/colorRepository";
+import { drawPhotoColors, loadColors } from "./colorizing/colorCalibration";
+import { initColorMaps } from "./colorizing/colorRepository";
 import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";
 

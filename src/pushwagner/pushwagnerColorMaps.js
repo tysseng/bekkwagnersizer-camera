@@ -1,6 +1,6 @@
 import { imageCodes } from './pushwagnerImageCodes';
 import variations from './pushwagnerSceneVariations';
-import { color } from '../processing/colorMapping';
+import { color } from '../colorizing/colorMapping';
 
 // Name of all colors found in photos. Used as key in mappings
 export const photoColors = {

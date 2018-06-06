@@ -3,24 +3,16 @@ import config from "../config";
 import logger from "../utils/logger";
 import { copyCanvas } from "../utils/gfx/context.utils";
 import { drawBox } from "../utils/gfx/draw";
-import { photoColors } from "../pushwagner/pushwagnerColorMaps";
 import { getNextProcessingContainer } from "../canvases";
+import { getPhotoColors } from "../colorizing/colorRepository";
 
 const paddingAroundBitPosition = config.bitPositionPadding;
 const pixelsNeededFor1 = 30;
 
-const bit = (sourceContainer, imageWidth, padding, x, y) => {
+const bit = (sourceContainer, imageWidth, padding, x, y, nearestPhotoColor, dotColor) => {
   const { width, height } = sourceContainer.dimensions;
   const imageData = sourceContainer.ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
-
-  const colorsInPhoto = {
-    white: photoColors.white,
-    dotColor: photoColors.pink,
-    black: photoColors.black,
-  };
-
-  const nearestPhotoColor = nearest.from(colorsInPhoto);
 
   let pixelCount = 0;
   for (let col = x - padding; col <= x + padding; col++) {
@@ -29,10 +21,8 @@ const bit = (sourceContainer, imageWidth, padding, x, y) => {
 
       // converts pixels to a predefined color to ignore black and only read dot color
       const oldColor = { r: data[i], g: data[i + 1], b: data[i + 2] };
-      const isDotColor = nearestPhotoColor(oldColor).value === colorsInPhoto.dotColor;
-      if(isDotColor){
-        //console.log(oldColor, nearestPhotoColor(oldColor).rgb);
-      }
+      const isDotColor = nearestPhotoColor(oldColor).value === dotColor;
+
       if (isDotColor) pixelCount++;
       if (pixelCount >= pixelsNeededFor1) {
         return '1';
@@ -54,8 +44,10 @@ export const removeBitDots = (container) => {
   config.bitPositions.forEach(pos => removeBitDot(ctx, pos, paddingAroundBitPosition + 4));
 };
 
-const readBit = (pos, sourceContainer, width) => {
-  return bit(sourceContainer, width, paddingAroundBitPosition, pos.x, pos.y);
+const readBit = (pos, sourceContainer, width, nearestPhotoColor, dotColor) => {
+  return bit(
+    sourceContainer, width, paddingAroundBitPosition, pos.x, pos.y, nearestPhotoColor, dotColor
+  );
 };
 
 const drawBitOutline = (pos, sourceContainer) => {
@@ -80,7 +72,19 @@ export const readBitCode = (
       }
     });
 
-  const bits = bitPositions.map(pos => readBit(pos, sourceContainer, width, draw));
+
+  const photoColors = getPhotoColors();
+  const colorsInPhoto = {
+    white: photoColors.white,
+    dotColor: photoColors.pink,
+    black: photoColors.black,
+  };
+
+  const nearestPhotoColor = nearest.from(colorsInPhoto);
+
+  const bits = bitPositions.map(
+    pos => readBit(pos, sourceContainer, width, draw, nearestPhotoColor, colorsInPhoto.dotColor)
+  );
   if(draw) bitPositions.forEach((pos, index) => {
     if(bits[index] === '1') drawBitOutline(pos, sourceContainer);
   });
