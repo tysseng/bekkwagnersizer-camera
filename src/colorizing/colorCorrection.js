@@ -2,7 +2,7 @@ import nearest from 'nearest-color';
 import { copyCanvas } from "../utils/gfx/context.utils";
 import logger from "../utils/logger";
 import { getNextColoredContainer } from "../canvases";
-import { getColorsForAllImages } from "./colorRepository";
+import { getColorsForAllImages, getPhotoColors } from "./colorRepository";
 import { getSceneConfig } from "../config";
 
 const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorMap) => {
@@ -45,7 +45,16 @@ export const correctColors = (sourceContainer, imageCode) => {
 
     const colorsForImage = getColorsForAllImages()[imageCode];
 
-    const nearestPhotoColor = nearest.from(colorsForImage.photo);
+    // TODO: Extract this
+    const photoColorKeys = colorsForImage.photo;
+    const allPhotoColorCodes = getPhotoColors();
+    const photoColorCodes = {};
+    Object.keys(photoColorKeys).forEach(key => {
+      photoColorCodes[key] = allPhotoColorCodes[key];
+    });
+
+    console.log(colorsForImage);
+    const nearestPhotoColor = nearest.from(photoColorCodes);
 
     // detect closest photo colors
     for (let i = 0; i < dataLength; i += 4) {

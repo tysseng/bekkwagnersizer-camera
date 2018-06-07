@@ -6,25 +6,27 @@ import type { Container } from "../types";
 
 const padding = 2;
 
-export const resizeToUploadSize = (extractedContainer: Container) => {
+export const resizeToUploadSize = (source: Container) => {
 
-  const uploadableContainer = getNextUploadableContainer(config.uploadSize, 'Uploadable');
-  const extractedCanvas = extractedContainer.canvas;
-  const uploadableCtx = uploadableContainer.ctx;
-  const { height, width } = uploadableContainer.dimensions;
+  const target = getNextUploadableContainer(config.uploadSize, 'Uploadable');
+  const targetCtx = target.ctx;
 
-  const unpaddedWidth = width - 2 * padding;
-  const unpaddedHeight = height - 2 * padding;
+  const sourceCanvas = source.canvas;
+  const { height: sourceHeight, width: sourceWidth } = source.dimensions;
+
+  const unpaddedWidth = sourceWidth - 2 * padding;
+  const unpaddedHeight = sourceHeight - 2 * padding;
+
   const targetHeight = config.uploadSize.height;
   const scale = targetHeight / unpaddedHeight;
   const targetWidth = unpaddedWidth * scale;
 
   const targetXOffset = Math.floor((config.uploadSize.width - targetWidth) / 2);
 
-  timed(() => uploadableCtx.drawImage(
-    extractedCanvas,
-    0 + padding, 0 + padding, unpaddedWidth, unpaddedHeight, // from
+  timed(() => targetCtx.drawImage(
+    sourceCanvas,
+    padding, padding, unpaddedWidth, unpaddedHeight, // from
     targetXOffset, 0, targetWidth, targetHeight, // to
   ), 'Copying to upload canvas');
-  return uploadableContainer;
+  return target;
 };
