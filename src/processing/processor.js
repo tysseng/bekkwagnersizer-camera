@@ -1,3 +1,4 @@
+// @flow
 import 'floodfill';
 import config from "../config";
 import { detectEdges } from "./edgeDetection";
@@ -12,9 +13,15 @@ import { floodFillWithPadding } from "./floodFiller";
 import { correctColors } from "../colorizing/colorCorrection";
 import logger from "../utils/logger";
 import { getNextProcessingContainer } from "../canvases";
+import type { Container, Containers, SheetParams } from "../types";
+
+type ProcessResult = {
+  uploadable: Containers,
+  bitCode: number,
+}
 
 // Extract detected sheet, detect drawing type and isolate drawing.
-export const process = (videoFrameContainer, sheetParams) => {
+export const process = (videoFrameContainer: Container, sheetParams: SheetParams): ProcessResult => {
 
   if (sheetParams.sheetCorners === null) {
     throw Error('Could not detect sheet corners');

@@ -1,8 +1,9 @@
+// @flow
 import uuid from 'uuid/v1';
 import config, { getSceneConfig } from "../config";
 import logger from "../utils/logger";
 
-const b64toBlob = (b64Data, contentType, sliceSize) => {
+const b64toBlob = (b64Data: string, contentType: string, sliceSize: number): Blob => {
   // from https://ourcodeworld.com/articles/read/322/how-to-convert-a-base64-image-into-a-image-file-and-upload-it-with-an-asynchronous-form-using-jquery
   contentType = contentType || '';
   sliceSize = sliceSize || 512;
@@ -25,7 +26,7 @@ const b64toBlob = (b64Data, contentType, sliceSize) => {
   return new Blob(byteArrays, { type: contentType });
 };
 
-const uploadOne = async (url, formData) => {
+const uploadOne = async (url: string, formData: FormData): Promise => {
   await fetch(url, {
     method: 'POST',
     body: formData
@@ -41,7 +42,9 @@ const uploadOne = async (url, formData) => {
     });
 };
 
-export const uploadFile = async (container, bitCode, variation) => {
+export const uploadFile = async (
+  container: Container, bitCode: number, variation: string
+): Promise => {
   const png = container.canvas.toDataURL("image/png");
   const block = png.split(";");
   const contentType = block[0].split(":")[1];

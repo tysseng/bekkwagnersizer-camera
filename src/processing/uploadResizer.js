@@ -1,10 +1,12 @@
+// @flow
 import config from "../config";
 import { timed } from "../utils/timer";
 import { getNextUploadableContainer } from "../canvases";
+import type { Container } from "../types";
 
 const padding = 2;
 
-export const resizeToUploadSize = (extractedContainer) => {
+export const resizeToUploadSize = (extractedContainer: Container) => {
 
   const uploadableContainer = getNextUploadableContainer(config.uploadSize, 'Uploadable');
   const extractedCanvas = extractedContainer.canvas;

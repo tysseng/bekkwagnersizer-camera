@@ -6,7 +6,7 @@ import { copyCanvas } from "../utils/gfx/context.utils";
 import { drawBox } from "../utils/gfx/draw";
 import { getNextProcessingContainer } from "../canvases";
 import { getPhotoColors } from "../colorizing/colorRepository";
-import type { Container, NearestColor, NearestColorMapper, Point } from "../types";
+import type { Container, NearestColorMapper, Point } from "../types";
 
 const paddingAroundBitPosition = config.bitPositionPadding;
 const pixelsNeededFor1 = 30;
@@ -92,6 +92,8 @@ export const readBitCode = (
     });
 
   const photoColors = getPhotoColors();
+
+  // TODO: MUST GET KEY INSTEAD!
   const colorsInPhoto = {
     white: photoColors.white,
     dotColor: photoColors.pink,
@@ -101,7 +103,7 @@ export const readBitCode = (
   const nearestPhotoColorMapper = (nearest.from(colorsInPhoto): NearestColorMapper); // todo - better way to type nearest?
 
   const bits = bitPositions.map(
-    pos => readBit(pos, source, nearestPhotoColorMapper, colorsInPhoto.dotColor)
+    pos => readBit(pos, source, nearestPhotoColorMapper, 'dotColor')
   );
   if (draw) bitPositions.forEach((pos, index) => {
     if (bits[index] === '1') drawBitOutline(pos, source);

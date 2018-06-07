@@ -12,7 +12,7 @@ export const initColorMaps = (
     defaultColorMappings,
     colorMappings,
     photoColorCodes
-  }) => {
+  }: ColorMapsInitProps) => {
   colorsForAllImages = getImageMappingsWithDefaults(
     colorMappings,
     defaultColorMappings,

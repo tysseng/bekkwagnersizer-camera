@@ -168,9 +168,9 @@ const config = {
   */
 
   videoCircle: { // relative to videoSize
-    x: 1440,
-    y: 980,
-    diameter: 870,
+    x: 1000,
+    y: 555,
+    diameter: 900,
   },
 
   sourceSize: source === 'video' ? videoFrameSize : imageSize,
