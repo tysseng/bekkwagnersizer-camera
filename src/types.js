@@ -14,6 +14,7 @@ export type Container = {
   ctx: CanvasRenderingContext2D,
   heading: HTMLElement,
   dimensions: Dimensions,
+  gray?: JsfeatImage,
 };
 
 export type SheetParams = {
@@ -32,6 +33,19 @@ export type JsfeatImage = {
   data: Array<number> // TODO
 };
 
-export type Containers = {[string]: Container};
+export type Containers = { [string]: Container };
 
 export type SourceElement = HTMLImageElement | HTMLVideoElement;
+
+export type RgbColor = {
+  r: number, g: number, b: number
+}
+
+export type NearestColor = {
+  name: string,
+  value: string,
+  rgb: RgbColor,
+  distance: number,
+};
+
+export type NearestColorMapper = (color: RgbColor) => NearestColor;

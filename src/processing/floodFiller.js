@@ -1,10 +1,12 @@
+// @flow
 import { floodFill } from "../utils/gfx/draw";
 import { copyCanvasCentered } from "../utils/gfx/context.utils";
 import { timed } from "../utils/timer";
 import { getNextProcessingContainer } from "../canvases";
 import config from "../config";
+import type { Container } from "../types";
 
-export const floodFillWithPadding = (source) => {
+export const floodFillWithPadding = (source: Container): Container => {
 
   // TODO: draw sheet colored square on target before copying
   // TODO: thinner border

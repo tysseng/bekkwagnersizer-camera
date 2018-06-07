@@ -11,7 +11,7 @@ import { isApproximatelyPerpendicular, isInsideCircle } from "../utils/trigonome
 import { copyAndSortByY, isSamePoint, sortByX } from '../utils/points';
 import { mapToJsFeatImageData } from "../utils/gfx/jsfeat.utils";
 import { getNextProcessingContainer } from "../canvases";
-import type { Container, JsfeatImage, Point, SheetParams } from "../types";
+import type { Container, JsfeatImage, Point, SheetCorners, SheetParams } from "../types";
 
 type SheetExtremes = {
   left: Point,
@@ -114,7 +114,8 @@ const findValidExtremePoints = (
   xSorted: Array<Point>,
   ySorted: Array<Point>,
   image: JsfeatImage,
-  width: number) => {
+  width: number
+): ?SheetExtremes => {
   const left = xSorted.find(corner => isProbablySheetCorner(corner, image, width));
   const right = xSorted.reverse().find(corner => isProbablySheetCorner(corner, image, width));
   const top = ySorted.find(corner => isProbablySheetCorner(corner, image, width));
@@ -141,7 +142,7 @@ const getBoundingBox = (corners: SheetExtremes): BoundingCorners => {
   };
 };
 
-const calculateCorners = (points: SheetExtremes) => {
+const calculateCorners = (points: SheetExtremes): ?SheetCorners => {
 
   const { left, right, top, bottom } = points;
   let topLeft, topRight, bottomLeft, bottomRight;
@@ -175,7 +176,11 @@ const calculateCorners = (points: SheetExtremes) => {
   }
 };
 
-const detectCorners = (ctx: CanvasRenderingContext2D, image: JsfeatImage, width: number) => {
+const detectCorners = (
+  ctx: CanvasRenderingContext2D,
+  image: JsfeatImage,
+  width: number
+): ?SheetCorners => {
   const points = timed(() => findCornerCandidates(image), 'detect corners');
 
   if (debug.drawAllCorners) timed(() => drawAllPoints(ctx, points), 'draw All Corners');
@@ -185,7 +190,7 @@ const detectCorners = (ctx: CanvasRenderingContext2D, image: JsfeatImage, width:
   const extremePoints = findValidExtremePoints(xSorted, ySorted, image, width);
 
   // TODO: debug render corners;
-  if (extremePoints === null) {
+  if (extremePoints == null) {
     logger.error('No extreme corners returned, aborting');
     return null;
   }
@@ -202,7 +207,11 @@ const detectCorners = (ctx: CanvasRenderingContext2D, image: JsfeatImage, width:
   return sheetCorners;
 };
 
-const drawImageOnCanvasAndDetectCorners = (sourceContainer: Container, targetContainer: Container, rotation: number = 0) => {
+const drawImageOnCanvasAndDetectCorners = (
+  sourceContainer: Container,
+  targetContainer: Container,
+  rotation: number = 0
+): ?SheetCorners => {
 
   if (rotation !== 0) {
     timed(() => drawImageRotatedAroundCenter(sourceContainer, targetContainer, -rotation), 'rotate');
@@ -226,7 +235,7 @@ export const findSheet = (videoFrameContainer: Container): ?SheetParams => {
     0
   );
 
-  if (sheetCorners === null) {
+  if (sheetCorners == null) {
     // rotate and try again. 0.10 seems like a good rotation,
     // TODO: This may not be necessary when doing centered-above photos.
     prerotation = 0.10;
@@ -237,7 +246,7 @@ export const findSheet = (videoFrameContainer: Container): ?SheetParams => {
     );
   }
 
-  if (sheetCorners === null) {
+  if (sheetCorners == null) {
     return null
   } else {
     return {
@@ -248,12 +257,12 @@ export const findSheet = (videoFrameContainer: Container): ?SheetParams => {
 };
 
 export const sheetPositionHasChanged = (
-  oldSheetParams: SheetParams,
+  oldSheetParams: ?SheetParams,
   newSheetParams: SheetParams
-) => {
+): boolean => {
   const margin = 8;
 
-  if (oldSheetParams === null) {
+  if (oldSheetParams == null) {
     return true;
   }
 

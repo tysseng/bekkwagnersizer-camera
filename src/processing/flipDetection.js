@@ -1,3 +1,4 @@
+// @flow
 // detect if sheet has been placed on the scanner upside down (rotated 180 degrees)
 
 import config from "../config";
@@ -8,44 +9,52 @@ import { timed } from "../utils/timer";
 import { isBitCodeInCorrectCorner, isBitCodeInWrongCorner } from "./bitCode";
 import { flipDetectionMethods } from "./flipDetectionMethods";
 import { getNextProcessingContainer } from "../canvases";
+import type { Container, JsfeatImage } from "../types";
 
-const rotate180 = (sourceCtx, targetContainer, grayImage, sheetWidth, sheetHeight) => {
-  const imageData = sourceCtx.getImageData(0, 0, sheetWidth, sheetHeight);
+const rotate180 = (
+  source: Container,
+  target: Container,
+  grayImage: JsfeatImage,
+) => {
+  const sourceCtx = source.ctx;
+  const { width, height } = source.dimensions;
+  const imageData = sourceCtx.getImageData(0, 0, width, height);
   // TODO: NON-DESTRUCTIVE rotation of gray image
   timed(() => rotateGrayscale180(grayImage), 'rotating image 180 degrees');
-  timed(() => rotateColor180(imageData.data, sheetHeight * sheetWidth * 4), 'rotating color image');
-  targetContainer.ctx.putImageData(imageData, 0, 0);
-  targetContainer.gray = grayImage;
+  timed(() => rotateColor180(imageData.data, width * height * 4), 'rotating color image');
+  target.ctx.putImageData(imageData, 0, 0);
+  target.gray = grayImage;
 };
 
-export const correctSheetOrientation = (sourceContainer) => {
+export const correctSheetOrientation = (source: Container): Container => {
 
-  const sourceCtx = sourceContainer.ctx;
-  const grayImage = sourceContainer.gray;
-  const {width: sheetWidth, height: sheetHeight} = sourceContainer.dimensions;
+  const grayImage = source.gray;
+  if(grayImage == null){
+    throw Error('Gray scale image is missing, it really shouldnt be you know.')
+  }
+  const {width: sheetWidth, height: sheetHeight} = source.dimensions;
 
-  const targetContainer = getNextProcessingContainer(config.sheetSize, 'Correct sheet orientation');
-  const targetCtx = targetContainer.ctx;
+  const target = getNextProcessingContainer(config.sheetSize, 'Correct sheet orientation');
 
   if (config.flipCorrection === flipDetectionMethods.LOGO) {
     if (!isLogoInCorrectCorner(grayImage, sheetWidth, sheetHeight)) {
-      rotate180(sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight);
+      rotate180(source, target, grayImage);
     } else {
-      copyCanvas(sourceContainer, targetContainer);
+      copyCanvas(source, target);
     }
   } else if (config.flipCorrection === flipDetectionMethods.BITCODE) {
     // as bitcode is more sensitive than logo detection, we want to be as sure as possible that
     // it has been placed wrong before rotating, so we check both positive and negative confirmation
     if (
-      !isBitCodeInCorrectCorner(sourceContainer) &&
-      isBitCodeInWrongCorner(sourceContainer)
+      !isBitCodeInCorrectCorner(source) &&
+      isBitCodeInWrongCorner(source)
     ) {
-      rotate180(sourceCtx, targetCtx, grayImage, sheetWidth, sheetHeight);
+      rotate180(source, target, grayImage);
     } else {
-      copyCanvas(sourceContainer, targetContainer);
+      copyCanvas(source, target);
     }
   } else {
-    copyCanvas(sourceContainer, targetContainer);
+    copyCanvas(source, target);
   }
-  return targetContainer;
+  return target;
 };

@@ -29,7 +29,7 @@ export const captureOriginalSheetPresenceLine = (container: Container) => {
   logger.info('original sheet presence line captured');
 };
 
-const changeIsAboveThreshold = (originalColor: number = 0, newColor: number) => {
+const changeIsAboveThreshold = (originalColor: number = 0, newColor: number): number => {
   const diff = newColor - originalColor; // new color must be lighter than previous one
   if(diff > sheetColorDifferenceThreshold){
     return 1;
@@ -39,7 +39,7 @@ const changeIsAboveThreshold = (originalColor: number = 0, newColor: number) => 
 
 // If sheet is present, some of the pixels along the center line should be non-black.
 // This is a fast check before trying to find the corners.
-export const isSheetPresent = (videoFrameContainer: Container) => {
+export const isSheetPresent = (videoFrameContainer: Container): boolean => {
   const ctx = videoFrameContainer.ctx;
   const { width, height } = videoFrameContainer.dimensions;
   const data = ctx.getImageData(0, 0, width, height).data; // TODO: Possible to extract only a single row?

@@ -1,9 +1,13 @@
+// @flow
 import fixperspective from 'fix-perspective';
 import { timed } from "../utils/timer";
 import config from "../config";
 import { getNextProcessingContainer } from "../canvases";
+import type { Container, Point, SheetCorners } from "../types";
 
-export const getPerspectiveCorrectionTransform = (sheetCorners, width, height) => {
+export const getPerspectiveCorrectionTransform = (
+  sheetCorners: SheetCorners, width: number, height: number
+) => {
   const from = [
     sheetCorners.topLeft,
     sheetCorners.topRight,
@@ -23,7 +27,9 @@ export const getPerspectiveCorrectionTransform = (sheetCorners, width, height) =
   return fixperspective(to, from);
 };
 
-const copyPixel = (sourceImgData, targetImgData, from, to, width, height) => {
+const copyPixel = (
+  source: ImageData, target: ImageData, from: Point, to: Point, width: number
+) => {
 
   // where to pick color from
   const sourcePos = (Math.floor(to.y) * width + Math.floor(to.x)) * 4;
@@ -31,18 +37,19 @@ const copyPixel = (sourceImgData, targetImgData, from, to, width, height) => {
   // where to put color
   const destPos = (from.y * width + from.x) * 4;
 
-  targetImgData.data[destPos] = sourceImgData.data[sourcePos];
-  targetImgData.data[destPos+1] = sourceImgData.data[sourcePos+1];
-  targetImgData.data[destPos+2] = sourceImgData.data[sourcePos+2];
-  targetImgData.data[destPos+3] = sourceImgData.data[sourcePos+3];
+  target.data[destPos] = source.data[sourcePos];
+  target.data[destPos+1] = source.data[sourcePos+1];
+  target.data[destPos+2] = source.data[sourcePos+2];
+  target.data[destPos+3] = source.data[sourcePos+3];
 };
 
-export const correctPerspective = (sourceContainer, sheetCorners) => {
+export const correctPerspective = (source: Container, sheetCorners: SheetCorners): Container => {
 
-  const sourceCtx = sourceContainer.ctx;
-  const {height, width} = sourceContainer.dimensions;
+  const sourceCtx = source.ctx;
+  const {height, width} = source.dimensions;
 
-  const correctedCtx = getNextProcessingContainer(config.sheetSize, 'Perspective corrected').ctx;
+  const corrected = getNextProcessingContainer(source.dimensions, 'Perspective corrected');
+  const correctedCtx = corrected.ctx;
 
   const transform = timed(() => getPerspectiveCorrectionTransform(
     sheetCorners, width, height
@@ -50,17 +57,18 @@ export const correctPerspective = (sourceContainer, sheetCorners) => {
 
   let x, y;
 
-  const imageData = sourceCtx.getImageData(x, y, width, height);
-  const correctedImageData = correctedCtx.getImageData(x, y, width, height);
+  const imageData = sourceCtx.getImageData(0, 0, width, height);
+  const correctedImageData = correctedCtx.getImageData(0, 0, width, height);
 
   timed(() => {
-    for (y = 0; y < height; y++) {
-      for (x = 0; x < width; x++) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
         const out = transform(x, y);
-        copyPixel(imageData, correctedImageData, { x, y }, out, width, height);
+        copyPixel(imageData, correctedImageData, { x, y }, out, width);
       }
     }
   }, 'pixel copying inside correct perspective');
 
   correctedCtx.putImageData(correctedImageData, 0, 0);
+  return corrected;
 };

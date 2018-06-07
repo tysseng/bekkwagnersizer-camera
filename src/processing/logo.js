@@ -1,11 +1,15 @@
+// @flow
 import logger from '../utils/logger';
 import config from '../config';
 import { getAverageColor } from "../utils/gfx/jsfeat.utils";
+import type { Container, JsfeatImage } from "../types";
 
 const logoCenter = config.logoDetectionPosition;
 const logoSamplePadding = 5;
 
-export const isLogoInCorrectCorner = (image, width, height) => {
+export const isLogoInCorrectCorner = (
+  image: JsfeatImage, width: number, height: number
+): boolean => {
   const topLeftColor = getAverageColor(image, width, logoSamplePadding, logoCenter.x, logoCenter.y);
   const bottomRightColor = getAverageColor(image, width, logoSamplePadding, width - logoCenter.x, height - logoCenter.y);
 
@@ -18,7 +22,7 @@ export const isLogoInCorrectCorner = (image, width, height) => {
   }
 };
 
-export const removeLogo = (container) => {
+export const removeLogo = (container: Container) => {
   const ctx = container.ctx;
   const {x, y, width, height} = config.logoBoundingBox;
   ctx.beginPath();
