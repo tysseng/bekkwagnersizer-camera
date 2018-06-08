@@ -33,7 +33,7 @@ export type JsfeatImage = {|
   data: Array<number> // TODO
 |};
 
-export type Containers = {| [string]: Container |};
+export type Containers = {[string]: Container};
 
 export type SourceElement = HTMLImageElement | HTMLVideoElement;
 
@@ -59,11 +59,8 @@ export type ColorCodeMap = {[string]: ColorCode}
 // key in the map of colors to search for in a photo
 export type PhotoColorKey = string;
 
-// maps from a custom key to a photo color key
-export type PhotoColorKeyMap = {|[string]: PhotoColorKey|}
-
 // maps from a photo color key to a color code
-export type PhotoColorCodesMap = {|[PhotoColorKey]: ColorCode|}
+export type PhotoColorCodesMap = {[PhotoColorKey]: ColorCode}
 
 // key for a scene ('kings cross', 'manhattan')
 export type SceneKey = string;
@@ -72,6 +69,11 @@ export type SceneKeys = {[string]: SceneKey}
 // BitCode, key for an image ('e.g. the various faceless profiles in the pushwagnesizer')
 export type BitCode = number;
 
+export type BitCodeColorMap = {
+  black: string,
+  dotColor: string,
+  white: string,
+}
 // Maps a bit code to a particular image. Image shape depends on artwork
 export type BitCodeToImageMap = {[BitCode]: Object}
 
@@ -79,15 +81,15 @@ export type BitCodeToImageMap = {[BitCode]: Object}
 export type ImageBitCodes = {[string]: BitCode}
 
 // maps from a variation key to a map of photo color keys to color codes.
-export type SceneToColorCodesMap = {|
-  [SceneKey]: {|
+export type SceneToColorCodesMap = {
+  [SceneKey]: {
 
     // maps a photo color to a variation color through the NAME of the color in the photo instead
     // of through the value, which makes it possible to change the value when calibration without
     // changing anything else.
     [PhotoColorKey]: ColorCode;
-  |}
-|}
+  }
+}
 
 // maps from an image key to the color codes for that image in all scene variations
 export type ImageToSceneColorsMap = {|
@@ -109,5 +111,5 @@ export type SceneConfig = {
   defaultColorMappings: SceneToColorCodesMap,
   colorMappings: ImageToSceneColorsMap,
   photoColorCodes: PhotoColorCodesMap, // TODO: Why is this needed? Startup before calibration?
-  bitCodeColors: PhotoColorKeyMap,
+  bitCodeColorMappings: BitCodeColorMap,
 }

@@ -66,7 +66,8 @@ const bitPositions = bitPositionsMM.map(
   pos => ({
     x: Math.floor(pos.x * sheetPPMM),
     y: Math.floor(pos.y * sheetPPMM)
-  }));
+  })
+);
 
 // color calibration pads position in millimeters
 const colorRowsMM = [40, 85, 135, 180, 230, 290];

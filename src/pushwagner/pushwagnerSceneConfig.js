@@ -16,7 +16,7 @@ const sceneConfig: SceneConfig = {
   defaultColorMappings: getDefaultMappings(),
   colorMappings: getMappings(),
   photoColorCodes: photoColorCodes,
-  bitCodeColors: getBitCodeMappings()
+  bitCodeColorMappings: getBitCodeMappings()
 };
 
 export default sceneConfig;

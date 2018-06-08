@@ -2,14 +2,16 @@
 import { imageBitCodes } from './pushwagnerImageCodes';
 import variations from './pushwagnerScenes';
 import { color } from '../colorizing/colorMapping';
-import { bitCodeColorKeys } from "../processing/bitCode";
 import type {
-  ColorCodeMap, ImageToSceneColorsMap, PhotoColorCodesMap, PhotoColorKey, PhotoColorKeyMap,
+  BitCodeColorMap,
+  ColorCodeMap,
+  ImageToSceneColorsMap,
+  PhotoColorCodesMap,
   SceneToColorCodesMap
 } from "../types";
 
-// Name of all colors found in photos. Used as key in mappings
-export const photoColors: PhotoColorKey = {
+// Photo color keys for all colors found in photos. Used as key in mappings
+const photoColors = {
   black: 'black',
   white: 'white',
   lightBlue: 'lightBlue',
@@ -39,10 +41,10 @@ export const photoColorCodes: PhotoColorCodesMap = {
 }  ;
 
 // colors used when detecting the bit code
-export const getBitCodeMappings = (): PhotoColorKeyMap => ({
-  [bitCodeColorKeys.white]: photoColors.white,
-  [bitCodeColorKeys.dotColor]: photoColors.pink,
-  [bitCodeColorKeys.black]: photoColors.black,
+export const getBitCodeMappings = (): BitCodeColorMap => ({
+  white: photoColors.white,
+  dotColor: photoColors.pink,
+  black: photoColors.black,
 });
 
 // All colors to use for replacing.

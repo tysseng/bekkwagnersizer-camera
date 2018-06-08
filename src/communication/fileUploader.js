@@ -2,11 +2,10 @@
 import uuid from 'uuid/v1';
 import config, { getSceneConfig } from "../config";
 import logger from "../utils/logger";
+import type { Container } from "../types";
 
-const b64toBlob = (b64Data: string, contentType: string, sliceSize: number): Blob => {
+const b64toBlob = (b64Data: string, contentType: string = '', sliceSize: number = 512): Blob => {
   // from https://ourcodeworld.com/articles/read/322/how-to-convert-a-base64-image-into-a-image-file-and-upload-it-with-an-asynchronous-form-using-jquery
-  contentType = contentType || '';
-  sliceSize = sliceSize || 512;
 
   const byteCharacters = atob(b64Data);
   const byteArrays = [];
@@ -26,7 +25,7 @@ const b64toBlob = (b64Data: string, contentType: string, sliceSize: number): Blo
   return new Blob(byteArrays, { type: contentType });
 };
 
-const uploadOne = async (url: string, formData: FormData): Promise => {
+const uploadOne = async (url: string, formData: FormData): Promise<*> => {
   await fetch(url, {
     method: 'POST',
     body: formData
@@ -34,8 +33,8 @@ const uploadOne = async (url: string, formData: FormData): Promise => {
     .then(response => {
       logger.info('Upload response:', response);
       if (response.status !== 200) {
-        throw new Error('Status code not OK', response.status);
-      };
+        throw new Error(`Status code not OK (${response.status})`);
+      }
     })
     .catch(err => {
       logger.info('Upload error:', err);
@@ -44,7 +43,7 @@ const uploadOne = async (url: string, formData: FormData): Promise => {
 
 export const uploadFile = async (
   container: Container, bitCode: number, variation: string
-): Promise => {
+): Promise<*> => {
   const png = container.canvas.toDataURL("image/png");
   const block = png.split(";");
   const contentType = block[0].split(":")[1];

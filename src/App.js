@@ -134,7 +134,7 @@ const App = keydown(class App extends Component<Props, AppState> {
   };
 
   testUpload = function() {
-    uploadFile(this.state.canvases.uploadable1.canvas, 1, 2);
+    uploadFile(this.state.canvases.uploadable1, 1, '2');
   };
 
   setBaseline = function() {

@@ -6,17 +6,16 @@ import { copyCanvas } from "../utils/gfx/context.utils";
 import { drawBox } from "../utils/gfx/draw";
 import { getNextProcessingContainer } from "../canvases";
 import {
-  getBitCodeColors, getPhotoColorCodesFromKeys,
+  getBitCodeColorMappings, getPhotoColorCodesFromKeys,
 } from "../colorizing/colorRepository";
-import type { Container, NearestColorMapper, Point } from "../types";
+import type {
+  BitCodeColorMap,
+  Container,
+  NearestColorMapper,
+  Point
+} from "../types";
 
 const pixelsNeededFor1 = 30;
-
-export const bitCodeColorKeys = {
-  white: 'white',
-  dotColor: 'dotColor',
-  black: 'black',
-};
 
 const bit = (
   sourceContainer: Container,
@@ -36,7 +35,7 @@ const bit = (
 
       // converts pixels to a predefined color to ignore black and only read dot color
       const oldColor = { r: data[i], g: data[i + 1], b: data[i + 2] };
-      const isDotColor = nearestPhotoColorMapper(oldColor).name === bitCodeColorKeys.dotColor;
+      const isDotColor = nearestPhotoColorMapper(oldColor).name === 'dotColor';
 
       if (isDotColor) pixelCount++;
       if (pixelCount >= pixelsNeededFor1) {
@@ -82,6 +81,14 @@ const drawBitOutline = (bitPos: Point, target: Container) => {
   );
 };
 
+const getBitCodePhotoColors = (map: BitCodeColorMap) => {
+  const photoColorCodes = {};
+  Object.keys(map).forEach(key => {
+    photoColorCodes[key] = photoColorCodes[key];
+  });
+  return photoColorCodes;
+};
+
 export const readBitCode = (
   source: Container, draw: boolean = true, rotate180: boolean = false
 ): number => {
@@ -95,8 +102,8 @@ export const readBitCode = (
         return pos;
       }
     });
-
-  const bitCodeColorCodes = getPhotoColorCodesFromKeys(getBitCodeColors());
+  const bitCodeColorMap = getBitCodeColorMappings();
+  const bitCodeColorCodes = getBitCodePhotoColors(getBitCodeColorMappings());
   const nearestPhotoColorMapper = (nearest.from(bitCodeColorCodes): NearestColorMapper); // todo - better way to type nearest?
 
   const bits = bitPositions.map(
