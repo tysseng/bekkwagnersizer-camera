@@ -5,18 +5,24 @@ import logger from "../utils/logger";
 import { copyCanvas } from "../utils/gfx/context.utils";
 import { drawBox } from "../utils/gfx/draw";
 import { getNextProcessingContainer } from "../canvases";
-import { getPhotoColors } from "../colorizing/colorRepository";
+import {
+  getBitCodeColors, getPhotoColorCodesFromKeys,
+} from "../colorizing/colorRepository";
 import type { Container, NearestColorMapper, Point } from "../types";
 
-const paddingAroundBitPosition = config.bitPositionPadding;
 const pixelsNeededFor1 = 30;
+
+export const bitCodeColorKeys = {
+  white: 'white',
+  dotColor: 'dotColor',
+  black: 'black',
+};
 
 const bit = (
   sourceContainer: Container,
   padding: number,
   pos: Point,
   nearestPhotoColorMapper: NearestColorMapper,
-  dotColorName: string,
 ): string => {
   const { x, y, } = pos;
   const { width, height } = sourceContainer.dimensions;
@@ -30,7 +36,7 @@ const bit = (
 
       // converts pixels to a predefined color to ignore black and only read dot color
       const oldColor = { r: data[i], g: data[i + 1], b: data[i + 2] };
-      const isDotColor = nearestPhotoColorMapper(oldColor).name === dotColorName;
+      const isDotColor = nearestPhotoColorMapper(oldColor).name === bitCodeColorKeys.dotColor;
 
       if (isDotColor) pixelCount++;
       if (pixelCount >= pixelsNeededFor1) {
@@ -54,22 +60,21 @@ const removeBitDot = (
 
 export const removeBitDots = (container: Container) => {
   const ctx = container.ctx;
-  config.bitPositions.forEach(pos => removeBitDot(ctx, pos, paddingAroundBitPosition + 4));
+  config.bitPositions.forEach(pos => removeBitDot(ctx, pos, config.bitPositionPadding + 4));
 };
 
 const readBit = (
   pos: Point,
   source: Container,
   nearestPhotoColorMapper: NearestColorMapper,
-  dotColor: string
 ): string => {
   return bit(
-    source, paddingAroundBitPosition, pos, nearestPhotoColorMapper, dotColor
+    source, config.bitPositionPadding, pos, nearestPhotoColorMapper
   );
 };
 
 const drawBitOutline = (bitPos: Point, target: Container) => {
-  const padding = paddingAroundBitPosition;
+  const padding = config.bitPositionPadding;
   drawBox(
     target.ctx,
     { x: bitPos.x - (padding + 1), y: bitPos.y - (padding + 1) },
@@ -91,19 +96,11 @@ export const readBitCode = (
       }
     });
 
-  const photoColors = getPhotoColors();
-
-  // TODO: MUST GET KEY INSTEAD!
-  const colorsInPhoto = {
-    white: photoColors.white,
-    dotColor: photoColors.pink,
-    black: photoColors.black,
-  };
-
-  const nearestPhotoColorMapper = (nearest.from(colorsInPhoto): NearestColorMapper); // todo - better way to type nearest?
+  const bitCodeColorCodes = getPhotoColorCodesFromKeys(getBitCodeColors());
+  const nearestPhotoColorMapper = (nearest.from(bitCodeColorCodes): NearestColorMapper); // todo - better way to type nearest?
 
   const bits = bitPositions.map(
-    pos => readBit(pos, source, nearestPhotoColorMapper, 'dotColor')
+    pos => readBit(pos, source, nearestPhotoColorMapper)
   );
   if (draw) bitPositions.forEach((pos, index) => {
     if (bits[index] === '1') drawBitOutline(pos, source);

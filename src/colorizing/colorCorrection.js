@@ -2,7 +2,9 @@ import nearest from 'nearest-color';
 import { copyCanvas } from "../utils/gfx/context.utils";
 import logger from "../utils/logger";
 import { getNextColoredContainer } from "../canvases";
-import { getColorsForAllImages, getPhotoColors } from "./colorRepository";
+import {
+  getColorsForAllImages, getPhotoColorCodesFromKeys,
+} from "./colorRepository";
 import { getSceneConfig } from "../config";
 
 const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorMap) => {
@@ -27,7 +29,7 @@ const replaceColors = (
 ) => {
   const coloredContainer = getNextColoredContainer(sourceContainer.dimensions);
   copyCanvas(sourceContainer, coloredContainer);
-  const colors = colorsForImage.variations[key];
+  const colors = colorsForImage.scenes[key];
   writeColorReplaced(sourceData, dataLength, intermediate, coloredContainer, colors);
   return coloredContainer;
 };
@@ -45,15 +47,7 @@ export const correctColors = (sourceContainer, imageCode) => {
 
     const colorsForImage = getColorsForAllImages()[imageCode];
 
-    // TODO: Extract this
-    const photoColorKeys = colorsForImage.photo;
-    const allPhotoColorCodes = getPhotoColors();
-    const photoColorCodes = {};
-    Object.keys(photoColorKeys).forEach(key => {
-      photoColorCodes[key] = allPhotoColorCodes[key];
-    });
-
-    console.log(colorsForImage);
+    const photoColorCodes = getPhotoColorCodesFromKeys(colorsForImage.photo);
     const nearestPhotoColor = nearest.from(photoColorCodes);
 
     // detect closest photo colors
@@ -68,12 +62,12 @@ export const correctColors = (sourceContainer, imageCode) => {
       }
     }
 
-    // replace colors for all variations
+    // replace colors for all scenes
     const coloredContainers = {};
-    const variations = getSceneConfig().variations;
-    Object.keys(variations).forEach(key => {
-      coloredContainers[key] = replaceColors({
-        key, colorsForImage, sourceContainer, sourceData, dataLength, intermediate
+    const scenes = getSceneConfig().scenes;
+    Object.keys(scenes).forEach(sceneKey => {
+      coloredContainers[sceneKey] = replaceColors({
+        key: sceneKey, colorsForImage, sourceContainer, sourceData, dataLength, intermediate
       });
     });
 

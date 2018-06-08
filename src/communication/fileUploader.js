@@ -53,10 +53,10 @@ export const uploadFile = async (
   const blob = b64toBlob(realData, contentType);
 
   const sceneConfig = getSceneConfig();
-  const profile = sceneConfig.bitCodeToProfileMap[bitCode];
+  const image = sceneConfig.bitCodeToImageMap[bitCode];
 
   //const filenameStem = filenames[bitCode] || 'fallback';
-  const filename = `${variation}-${profile.gender}-${profile.id}-${uuid()}.png`;
+  const filename = `${variation}-${image.gender}-${image.id}-${uuid()}.png`;
 
   const formData = new FormData();
   formData.append("image", blob, filename);

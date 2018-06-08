@@ -2,3 +2,5 @@
 - Lagre flere sett med kalibrering
 
 - Slutte å sende rundt height og width, send container istedenfor
+- Flytt bit position til scene
+- Fjerne direktereferanse til image props i uploader, ha filnavngenerator i config isteden

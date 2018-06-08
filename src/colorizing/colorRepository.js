@@ -1,8 +1,11 @@
+// @flow
 import { getImageMappingsWithDefaults } from "./colorMapping";
 import logger from "../utils/logger";
+import type { SceneConfig } from "../types";
 
 let colorsForAllImages;
-let photoColors;
+let photoColorCodes;
+let bitCodeColors;
 
 // Must be run after color calibration
 export const initColorMaps = (
@@ -11,18 +14,27 @@ export const initColorMaps = (
     imageCodes,
     defaultColorMappings,
     colorMappings,
-    photoColorCodes
-  }: ColorMapsInitProps) => {
+    photoColorCodes: inputPhotoColorCodes,
+  }: SceneConfig) => {
   colorsForAllImages = getImageMappingsWithDefaults(
     colorMappings,
     defaultColorMappings,
     Object.values(imageCodes),
     Object.values(variations)
   );
-  photoColors = photoColorCodes;
+  photoColorCodes = inputPhotoColorCodes;
   logger.info('SET COLORS FOR ALL IMAGES');
   logger.info(colorsForAllImages);
 };
 
 export const getColorsForAllImages = () => colorsForAllImages;
-export const getPhotoColors = () => photoColors;
+export const getBitCodeColors = () => bitCodeColors;
+export const getPhotoColorCodes = () => photoColorCodes;
+
+export const getPhotoColorCodesFromKeys = (photoColorKeys) => {
+  const photoColorCodes = {};
+  Object.keys(photoColorKeys).forEach(key => {
+    photoColorCodes[key] = photoColorCodes[key];
+  });
+  return photoColorCodes;
+};

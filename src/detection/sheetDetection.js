@@ -189,7 +189,6 @@ const detectCorners = (
   const ySorted = copyAndSortByY(points);
   const extremePoints = findValidExtremePoints(xSorted, ySorted, image, width);
 
-  // TODO: debug render corners;
   if (extremePoints == null) {
     logger.error('No extreme corners returned, aborting');
     return null;
@@ -237,7 +236,6 @@ export const findSheet = (videoFrameContainer: Container): ?SheetParams => {
 
   if (sheetCorners == null) {
     // rotate and try again. 0.10 seems like a good rotation,
-    // TODO: This may not be necessary when doing centered-above photos.
     prerotation = 0.10;
     sheetCorners = drawImageOnCanvasAndDetectCorners(
       videoFrameContainer,

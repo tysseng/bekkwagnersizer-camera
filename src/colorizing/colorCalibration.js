@@ -1,7 +1,7 @@
 import config from "../config";
 import logger from "../utils/logger";
 import { clearCtx } from "../utils/gfx/context.utils";
-import { getPhotoColors } from "./colorRepository";
+import { getPhotoColorCodes } from "./colorRepository";
 import { extractSheet } from "../processing/sheetExtractorExact";
 
 const LOCAL_STORAGE_KEY = 'colorCalibration';
@@ -12,7 +12,7 @@ const persistColors = (colors) => {
 };
 
 export const loadColors = () => {
-  const colorTarget = getPhotoColors();
+  const colorTarget = getPhotoColorCodes();
   const persistedColors = localStorage.getItem(LOCAL_STORAGE_KEY);
   if(persistedColors){
     const parsedColors = JSON.parse(persistedColors);
@@ -60,7 +60,7 @@ const averageColorAroundPoint = (sourceContainer, padding, point) => {
 };
 
 export const drawPhotoColors = (canvasContainer) => {
-  const photoColors = getPhotoColors();
+  const photoColors = getPhotoColorCodes();
   clearCtx(canvasContainer);
   const ctx = canvasContainer.ctx;
   const paddingX = 200;
@@ -76,7 +76,7 @@ export const drawPhotoColors = (canvasContainer) => {
 };
 
 const calibrateColors = (sourceContainer) => {
-  const colorTarget = getPhotoColors();
+  const colorTarget = getPhotoColorCodes();
   const padding = 2;
   const colorPositions = config.colorPositions;
 

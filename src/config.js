@@ -1,6 +1,8 @@
+// @flow
 // 'image', 'video'
 import { flipDetectionMethods } from "./processing/flipDetectionMethods";
 import pushwagnerSceneConfig from "./pushwagner/pushwagnerSceneConfig";
+import type { SceneConfig } from "./types";
 
 
 const source = 'video';
@@ -142,7 +144,6 @@ const config = {
 
   // where to find colors to use for calibration
   colorPositions,
-  colorBitcode: 30, // TODO - wrong code
 
   videoSize: {
     width: 1920,
@@ -210,7 +211,7 @@ const config = {
   }
 };
 
-export const getSceneConfig = () => {
+export const getSceneConfig = (): SceneConfig => {
   return config.scene[config.selectedScene];
 };
 

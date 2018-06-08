@@ -1,4 +1,6 @@
-const profiles = {
+import type { BitCodeToImageMap, ImageBitCodes } from "../types";
+
+const images = {
   kar1: {
     gender: 'm',
     bitCode: 1
@@ -102,15 +104,15 @@ const profiles = {
   },
 };
 
-// add id to all profiles.
-Object.keys(profiles).forEach(key => {
-  profiles[key].id = key;
+// add id to all images.
+Object.keys(images).forEach(key => {
+  images[key].id = key;
 });
 
-export const imageCodes = {};
-Object.keys(profiles).forEach(key => imageCodes[key] = profiles[key].bitCode);
+export const imageBitCodes: ImageBitCodes = {};
+Object.keys(images).forEach(key => imageBitCodes[key] = images[key].bitCode);
 
-export const bitCodeToProfileMap = {};
-Object.values(profiles).forEach(profile => {
-  bitCodeToProfileMap[profile.bitCode] = profile;
+export const bitCodeToImageMap: BitCodeToImageMap = {};
+Object.values(images).forEach(image => {
+  bitCodeToImageMap[image.bitCode] = image;
 });

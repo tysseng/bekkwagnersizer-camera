@@ -1,9 +1,15 @@
-import { imageCodes } from './pushwagnerImageCodes';
-import variations from './pushwagnerSceneVariations';
+// @flow
+import { imageBitCodes } from './pushwagnerImageCodes';
+import variations from './pushwagnerScenes';
 import { color } from '../colorizing/colorMapping';
+import { bitCodeColorKeys } from "../processing/bitCode";
+import type {
+  ColorCodeMap, ImageToSceneColorsMap, PhotoColorCodesMap, PhotoColorKey, PhotoColorKeyMap,
+  SceneToColorCodesMap
+} from "../types";
 
 // Name of all colors found in photos. Used as key in mappings
-export const photoColors = {
+export const photoColors: PhotoColorKey = {
   black: 'black',
   white: 'white',
   lightBlue: 'lightBlue',
@@ -18,7 +24,7 @@ export const photoColors = {
 };
 
 // Default color codes for all colors found in photos. Will be changed by calibration!
-export const photoColorCodes = {
+export const photoColorCodes: PhotoColorCodesMap = {
   [photoColors.black]: '#4C5556',
   [photoColors.white]: '#F4FEFF',
   [photoColors.lightBlue]: '#7CD8EF',
@@ -30,10 +36,17 @@ export const photoColorCodes = {
   [photoColors.purple]: '#CD68B9',
   [photoColors.darkBlue]: '#4D8BDF',
   [photoColors.pink]: '#4D8BDF', // bit pattern stars.
-};
+}  ;
+
+// colors used when detecting the bit code
+export const getBitCodeMappings = (): PhotoColorKeyMap => ({
+  [bitCodeColorKeys.white]: photoColors.white,
+  [bitCodeColorKeys.dotColor]: photoColors.pink,
+  [bitCodeColorKeys.black]: photoColors.black,
+});
 
 // All colors to use for replacing.
-const screenColorsPeople = {
+const screenColorsPeople: ColorCodeMap = {
   black: color('#000000'),
   white: color('#ffffff'),
   darkBlue: color('#483995'),
@@ -49,7 +62,7 @@ const screenColorsPeople = {
 };
 
 // All colors to use for replacing.
-const screenColorsManhattan = {
+const screenColorsManhattan: ColorCodeMap = {
   black: color('#000000'),
   white: color('#ffffff'),
   purple: color('#b8529e'),
@@ -68,7 +81,7 @@ const screenColorsManhattan = {
   skin: color('#f7b1c1'),
 };
 
-const screenColorsKingsCross1 = {
+const screenColorsKingsCross1: ColorCodeMap = {
   black: color('#000000'),
   white: color('#ffffff'),
   skin: color('#f7b1c1'),
@@ -84,7 +97,7 @@ const screenColorsKingsCross1 = {
   middleBlue: color('#778bc3'),
 };
 
-const screenColorsKingsCross2 = {
+const screenColorsKingsCross2: ColorCodeMap = {
   black: color('#000000'),
   white: color('#ffffff'),
   lightYellow: color('#f8f3a0'),
@@ -99,8 +112,8 @@ const screenColorsKingsCross2 = {
 
 // Default mappings to use for the variations, if no other mapping is found. Saves us from
 // having to redefine black, white and other often-used color mappings for every variation/image.
-export const getDefaultMappings = () => {
-  const defaultMappings = [];
+export const getDefaultMappings = (): SceneToColorCodesMap => {
+  const defaultMappings = {};
   defaultMappings[variations.people] = {
     [photoColors.black]: screenColorsPeople.black,
     [photoColors.white]: screenColorsPeople.white,
@@ -134,8 +147,8 @@ export const getDefaultMappings = () => {
 //
 // variations: The mapping from color name (in photo) to correct color variations. If no mapping is
 // found, the default mapping will be used (e.g. for black and white etc).
-export const getMappings = () => ({
-  [imageCodes.kar1]: {
+export const getMappings = (): ImageToSceneColorsMap => ({
+  [imageBitCodes.kar1]: {
     photo: [
       photoColors.black,
       photoColors.green,
@@ -169,7 +182,7 @@ export const getMappings = () => ({
       [photoColors.orange]: screenColorsKingsCross2.lightYellow,
     },
   },
-  [imageCodes.kar2]: {
+  [imageBitCodes.kar2]: {
     photo: [
       photoColors.black,
       photoColors.yellow,
@@ -203,7 +216,7 @@ export const getMappings = () => ({
       [photoColors.purple]: screenColorsKingsCross2.blue,
     },
   },
-  [imageCodes.kar3]: {
+  [imageBitCodes.kar3]: {
     photo: [
       photoColors.black,
       photoColors.wine,
@@ -232,7 +245,7 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsKingsCross2.white,
     }
   },
-  [imageCodes.kar4]: {
+  [imageBitCodes.kar4]: {
     photo: [
       photoColors.black,
       photoColors.orange,
@@ -266,7 +279,7 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsKingsCross2.blue,
     }
   },
-  [imageCodes.kar5]: {
+  [imageBitCodes.kar5]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -300,7 +313,7 @@ export const getMappings = () => ({
       [photoColors.green]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar6]: {
+  [imageBitCodes.kar6]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -334,7 +347,7 @@ export const getMappings = () => ({
       [photoColors.green]: screenColorsKingsCross2.blue,
     }
   },
-  [imageCodes.kar7]: {
+  [imageBitCodes.kar7]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -353,7 +366,7 @@ export const getMappings = () => ({
       [photoColors.yellow]: screenColorsKingsCross2.yellow,
     }
   },
-  [imageCodes.kar8]: {
+  [imageBitCodes.kar8]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -377,7 +390,7 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar9]: {
+  [imageBitCodes.kar9]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -401,7 +414,7 @@ export const getMappings = () => ({
       [photoColors.purple]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar10]: {
+  [imageBitCodes.kar10]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -425,7 +438,7 @@ export const getMappings = () => ({
       [photoColors.orange]: screenColorsKingsCross2.blue,
     }
   },
-  [imageCodes.kar11]: {
+  [imageBitCodes.kar11]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -449,7 +462,7 @@ export const getMappings = () => ({
       [photoColors.orange]: screenColorsKingsCross2.white,
     }
   },
-  [imageCodes.kar12]: {
+  [imageBitCodes.kar12]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -473,7 +486,7 @@ export const getMappings = () => ({
       [photoColors.green]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar13]: {
+  [imageBitCodes.kar13]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -507,7 +520,7 @@ export const getMappings = () => ({
       [photoColors.orange]: screenColorsKingsCross2.blue,
     }
   },
-  [imageCodes.kar14]: {
+  [imageBitCodes.kar14]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -531,7 +544,7 @@ export const getMappings = () => ({
       [photoColors.darkBlue]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar15]: {
+  [imageBitCodes.kar15]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -570,7 +583,7 @@ export const getMappings = () => ({
       [photoColors.wine]: screenColorsKingsCross2.blue,
     }
   },
-  [imageCodes.kar17]: {
+  [imageBitCodes.kar17]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -594,7 +607,7 @@ export const getMappings = () => ({
       [photoColors.darkBlue]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar18]: {
+  [imageBitCodes.kar18]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -618,7 +631,7 @@ export const getMappings = () => ({
       [photoColors.purple]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar19]: {
+  [imageBitCodes.kar19]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -642,7 +655,7 @@ export const getMappings = () => ({
       [photoColors.orange]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar20]: {
+  [imageBitCodes.kar20]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -676,7 +689,7 @@ export const getMappings = () => ({
       [photoColors.darkBlue]: screenColorsKingsCross2.blue,
     }
   },
-  [imageCodes.kar21]: {
+  [imageBitCodes.kar21]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -700,7 +713,7 @@ export const getMappings = () => ({
       [photoColors.wine]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar22]: {
+  [imageBitCodes.kar22]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -739,7 +752,7 @@ export const getMappings = () => ({
       [photoColors.orange]: screenColorsKingsCross2.black,
     }
   },
-  [imageCodes.kar23]: {
+  [imageBitCodes.kar23]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -778,7 +791,7 @@ export const getMappings = () => ({
       [photoColors.wine]: screenColorsKingsCross2.blue,
     }
   },
-  [imageCodes.kar24]: {
+  [imageBitCodes.kar24]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -812,7 +825,7 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsKingsCross2.blue,
     }
   },
-  [imageCodes.kar25]: {
+  [imageBitCodes.kar25]: {
     photo: [
       photoColors.black,
       photoColors.skin,
@@ -836,7 +849,7 @@ export const getMappings = () => ({
       [photoColors.lightBlue]: screenColorsKingsCross2.middleGreen,
     }
   },
-  [imageCodes.kar26]: {
+  [imageBitCodes.kar26]: {
     photo: [
       photoColors.black,
       photoColors.skin,

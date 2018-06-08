@@ -1,4 +1,7 @@
-const variations = {
+// @flow
+import type { SceneKeys } from "../types";
+
+const variations: SceneKeys = {
   manhattan: 'manhattan', // also used for telly
   people: 'people',
   kingscross1: 'kingscross1',
