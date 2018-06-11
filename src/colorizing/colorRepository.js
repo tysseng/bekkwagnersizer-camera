@@ -1,7 +1,7 @@
 // @flow
 import { getImageMappingsWithDefaults } from "./colorMapping";
 import logger from "../utils/logger";
-import type { ColorCode, PhotoColorKey, SceneConfig } from "../types";
+import type { HexColor, PhotoColorKey, SceneConfig } from "../types";
 
 let colorsForAllImages;
 let photoColorCodes;
@@ -35,7 +35,7 @@ export const getPhotoColorCodes = () => photoColorCodes;
 
 export const getPhotoColorCodesFromKeys = (
   photoColorKeys: Array<PhotoColorKey>
-): {[PhotoColorKey]: ColorCode} => {
+): {[PhotoColorKey]: HexColor} => {
   const photoColorCodes = {};
   photoColorKeys.forEach(key => {
     photoColorCodes[key] = photoColorCodes[key];

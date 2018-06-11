@@ -29,7 +29,7 @@ const replaceColors = (
 ) => {
   const coloredContainer = getNextColoredContainer(sourceContainer.dimensions);
   copyCanvas(sourceContainer, coloredContainer);
-  const colors = colorsForImage.scenes[key];
+  const colors = colorsForImage.sceneConfigs[key];
   writeColorReplaced(sourceData, dataLength, intermediate, coloredContainer, colors);
   return coloredContainer;
 };

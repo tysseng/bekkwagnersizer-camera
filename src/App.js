@@ -4,7 +4,11 @@ import keydown from 'react-keydown';
 import logo from './logo.svg';
 import './App.css';
 import {
-  run as runIndefinitely, runOnce, setUploadAfterCapture, stop as stopRunning, init as initRunner,
+  init as initRunner,
+  run as runIndefinitely,
+  stop as stopRunning,
+  runOnce,
+  setUploadAfterCapture,
   calibrateColors
 } from './runner';
 import config from './config';
@@ -17,7 +21,6 @@ import { captureOriginalSheetPresenceLine } from "./detection/sheetPresence";
 import { uploadFile } from "./communication/fileUploader";
 import { extractAndResizeCanvases } from "./canvases";
 import type { Containers, SourceElement } from "./types";
-
 
 type AppState = {
   canvases: Containers,

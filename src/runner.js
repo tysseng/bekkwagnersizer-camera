@@ -26,11 +26,11 @@ import type { Container, Containers, SourceElement } from "./types";
 let oldSheetParams = null;
 let globalUploadAfterCapture: boolean = config.defaultUploadAfterCapture;
 
-export const setUploadAfterCapture = (value: boolean) => {
-  globalUploadAfterCapture = value;
+export const setUploadAfterCapture = (uploadAfterCapture: boolean) => {
+  globalUploadAfterCapture = uploadAfterCapture;
 };
 
-const waitForHandInOut = async (sourceElement: SourceElement, videoFrameContainer: Container) => {
+const waitForHandInOut = async (sourceElement: SourceElement, videoFrame: Container) => {
   if (config.detectHand) {
     // TODO: convert isCircleOccluded to grayscale?
 
@@ -38,14 +38,14 @@ const waitForHandInOut = async (sourceElement: SourceElement, videoFrameContaine
 
     // wait for hand
     logger.info('waiting for hand');
-    await waitUntilOccluded(sourceElement, videoFrameContainer);
+    await waitUntilOccluded(sourceElement, videoFrame);
 
     logger.info('waiting for hand to go away');
-    await waitUntilNotOccluded(sourceElement, videoFrameContainer);
+    await waitUntilNotOccluded(sourceElement, videoFrame);
 
     logger.info('no hand, waiting to take photo');
     await timeout(1000);
-    captureImage(sourceElement, videoFrameContainer);
+    captureImage(sourceElement, videoFrame);
     logger.info('Lets go!')
   }
 };
@@ -122,7 +122,7 @@ const indicateFailure = async (error: Error) => {
   status.failure();
   logger.error('Something went wrong in cycle');
   logger.error(error);
-  await timeout('2000');
+  await timeout(2000);
   status.normal();
 };
 

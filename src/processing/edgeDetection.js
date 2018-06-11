@@ -1,7 +1,7 @@
 // @flow
 import jsfeat from 'jsfeat';
 import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
-import type { Container, Dimensions, JsfeatImage } from "../types";
+import type { Container, Dimensions, JsFeatImage } from "../types";
 import { getNextProcessingContainer } from "../canvases";
 import config from "../config";
 
@@ -22,11 +22,11 @@ export const detectEdges = (container: Container): Container => {
 };
 
 const diluteLines = (
-  image: JsfeatImage,
+  image: JsFeatImage,
   { width, height }: Dimensions,
   grayscaleColor: number,
   dilutionWidth: number
-): JsfeatImage => {
+): JsFeatImage => {
   const imageWithDilutedLines = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
   for (let x = dilutionWidth; x < width - dilutionWidth; x++) {
     for (let y = dilutionWidth; y < height - dilutionWidth; y++) {
@@ -40,8 +40,8 @@ const diluteLines = (
 
 // This only works with a 3x3 matrix but is slightly faster than the one above.
 const fillSubMatrix = (
-  image: JsfeatImage,
-  targetImage: JsfeatImage,
+  image: JsFeatImage,
+  targetImage: JsFeatImage,
   x: number,
   y: number,
   width: number,
@@ -62,7 +62,7 @@ const fillSubMatrix = (
 
 // This only works with a 3x3 matrix but is slightly faster than the one above
 export const subMatrixTouchesMask = (
-  image: JsfeatImage,
+  image: JsFeatImage,
   x: number,
   y: number,
   width: number,

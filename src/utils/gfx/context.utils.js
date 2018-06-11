@@ -1,6 +1,6 @@
 // @flow
 import { timed } from "../timer";
-import type { Container, Point } from "../../types";
+import type { Container, Point, RgbColor } from "../../types";
 
 export const rotateColor180 = (data: Uint8ClampedArray, length: number) => {
   for (let i = 0; i < length / 2; i += 4) {
@@ -19,22 +19,24 @@ export const rotateColor180 = (data: Uint8ClampedArray, length: number) => {
   }
 };
 
-export const copyCanvas = (sourceContainer: Container, targetContainer: Container) => {
-  timed(() => targetContainer.ctx.drawImage(sourceContainer.canvas, 0, 0), 'Copying canvas');
+export const copyCanvas = (source: Container, target: Container) => {
+  timed(() => target.ctx.drawImage(source.canvas, 0, 0), 'Copying canvas');
 };
 
-export const copyCanvasCentered = (sourceContainer: Container, targetContainer: Container) => {
+export const copyCanvasCentered = (source: Container, target: Container) => {
 
-  const {width: sourceWidth, height: sourceHeight} = sourceContainer.dimensions;
-  const {width: targetWidth, height: targetHeight} = targetContainer.dimensions;
+  const {width: sourceWidth, height: sourceHeight} = source.dimensions;
+  const {width: targetWidth, height: targetHeight} = target.dimensions;
 
   const offsetX = Math.floor((targetWidth - sourceWidth) / 2);
   const offsetY = Math.floor((targetHeight - sourceHeight) / 2);
 
-  timed(() => targetContainer.ctx.drawImage(sourceContainer.canvas, offsetX, offsetY), 'Copying canvas centered');
+  timed(() => target.ctx.drawImage(source.canvas, offsetX, offsetY), 'Copying canvas centered');
 };
 
-export const getPointColorFromImageData = (data: Uint8ClampedArray, point: Point, width: number) => {
+export const getPointColorFromImageData = (
+  data: Uint8ClampedArray, point: Point, width: number
+): RgbColor => {
   const i = (point.y * width + point.x) * 4;
   return {
     r: data[i],

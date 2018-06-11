@@ -1,6 +1,8 @@
+// @flow
 import logger from "./logger";
+import type { Point } from "../types";
 
-export const distance = (point1, point2) => {
+export const distance = (point1: Point, point2: Point) => {
   const x = point2.x - point1.x;
   const y = point2.y - point1.y;
   return Math.sqrt(x * x + y * y);
@@ -14,7 +16,9 @@ const targetAngle = Math.PI / 2;
 const lowerBound = targetAngle - offsetRadians;
 const upperBound = targetAngle + offsetRadians;
 
-export const isApproximatelyPerpendicular = (centerPoint, point2, point3) => {
+export const isApproximatelyPerpendicular = (
+  centerPoint: Point, point2: Point, point3: Point
+): boolean => {
 
   // https://stackoverflow.com/questions/1211212/how-to-calculate-an-angle-from-three-points?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
   const distCenter_2 = distance(centerPoint, point2);
@@ -31,14 +35,16 @@ export const isApproximatelyPerpendicular = (centerPoint, point2, point3) => {
   return angle >= lowerBound && angle <= upperBound;
 };
 
-export const getPointFromAngle = (angle, center, radius) => {
+export const getPointFromAngle = (angle: number, center: Point, radius: number): Point => {
   return {
     x: Math.floor(center.x + radius * Math.cos(angle)),
     y: Math.floor(center.y + radius * Math.sin(angle))
   }
 };
 
-export const rotatePointAroundCenter = (point, width, height, angle) => {
+export const rotatePointAroundCenter = (
+  point: Point, width: number, height: number, angle: number
+) => {
   const centerX = point.x - (width / 2);
   const centerY = point.y - (height / 2);
 
@@ -48,6 +54,6 @@ export const rotatePointAroundCenter = (point, width, height, angle) => {
   return { x: Math.round(newX + (width / 2)), y: Math.round(newY + (height / 2)) };
 };
 
-export const isInsideCircle = (point, center, radius) => {
+export const isInsideCircle = (point: Point, center: Point, radius: number) => {
   return distance(point, center) < radius;
 };

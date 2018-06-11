@@ -1,6 +1,7 @@
+// @flow
 let running = false;
 
-export const isRunning = () => running;
+export const isRunning = (): boolean => running;
 
 export const startRunning = () => {
   running = true;

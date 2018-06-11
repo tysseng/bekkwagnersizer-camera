@@ -2,44 +2,30 @@
 // 'image', 'video'
 import { flipDetectionMethods } from "./processing/flipDetectionMethods";
 import pushwagnerSceneConfig from "./pushwagner/pushwagnerSceneConfig";
-import type { SceneConfig } from "./types";
-
+import type { Dimensions, Point, SceneConfig } from "./types";
 
 const source = 'video';
-//const source = 'image';
 
 const availableScenes = {
   PUSHWAGNER: 'pushwagner',
 };
 
-const videoFrameSize = {
+const videoFrameSize: Dimensions = {
   width: 1024,
   height: 1024,
 };
 
 // size of image used as input if source = image
-const imageSize = {
+const imageSize: Dimensions = {
   width: 1024,
   height: 1365,
 };
 
-const sheetSizeA4 = {
-  width: 210,
-  height: 297,
-};
-
-const sheetSizeA3 = {
-  width: 297,
-  height: 410,
-};
-
-const sheetSizeMM = sheetSizeA3;
-
 const sheetWidthPixels = 1024;
-const sheetPPMM = sheetWidthPixels / sheetSizeMM.width;
+const sheetPPMM = getPPMM(sheetWidthPixels, sheetSizeMM.width);
 
 // center of EDawards star
-const logoDetectionPositionMM = {
+const logoDetectionPositionMM: Point = {
   x: 21.4,
   y: 23.95,
 };
@@ -52,30 +38,18 @@ const logoBoundingBoxMM = {
   height: 24
 };
 
-// where to find bit dots (to indicate what image this is)
-const bitPositionYMM = sheetSizeMM.height - 18;
-const bitPositionsMM = [
-  { x: sheetSizeMM.width - 88, y: bitPositionYMM },
-  { x: sheetSizeMM.width - 70, y: bitPositionYMM },
-  { x: sheetSizeMM.width - 54, y: bitPositionYMM },
-  { x: sheetSizeMM.width - 36, y: bitPositionYMM },
-  { x: sheetSizeMM.width - 19, y: bitPositionYMM },
-];
-
-const bitPositions = bitPositionsMM.map(
-  pos => ({
-    x: Math.floor(pos.x * sheetPPMM),
-    y: Math.floor(pos.y * sheetPPMM)
-  })
+const bitPositions: Array<Point> = bitPositionsMM.map(
+  point => getPointInPixels(point, sheetPPMM)
 );
 
 // color calibration pads position in millimeters
 const colorRowsMM = [40, 85, 135, 180, 230, 290];
 const colorColsMM = [80, 210];
 
-const colorRows = colorRowsMM.map(pos => Math.floor(pos * sheetPPMM));
-const colorCols = colorColsMM.map(pos => Math.floor(pos * sheetPPMM));
+const colorRows = getArrayInPixels(colorRowsMM, sheetPPMM);
+const colorCols = getArrayInPixels(colorColsMM, sheetPPMM);
 
+//TODO: Move to pushwagnerScenes config
 const colorPositions = {
   lightBlue: { x: colorCols[0], y: colorRows[0] },
   green: { x: colorCols[0], y: colorRows[1] },
@@ -90,10 +64,9 @@ const colorPositions = {
   black: { x: colorCols[1], y: colorRows[4] },
 };
 
-
-const sheetSize = {
+const sheetSize: Dimensions = {
   width: sheetWidthPixels,
-  height: Math.floor(sheetSizeMM.height * sheetPPMM),
+  height: getInPixels(sheetSizeMM.height, sheetPPMM),
 };
 
 // Final crop border size - how much to crop away to make sure we don't get a border
@@ -125,15 +98,11 @@ const config = {
 
   // center of logo to use when removing logo
   removeLogo: false,
-  logoDetectionPosition: {
-    x: Math.floor(logoDetectionPositionMM.x * sheetPPMM),
-    y: Math.floor(logoDetectionPositionMM.y * sheetPPMM),
-  },
+  logoDetectionPosition: getPointInPixels(logoDetectionPositionMM, sheetPPMM),
 
   // bounding box for removing logo
   logoBoundingBox: {
-    x: Math.floor(logoBoundingBoxMM.x * sheetPPMM),
-    y: Math.floor(logoBoundingBoxMM.y * sheetPPMM),
+    ...getPointInPixels(logoBoundingBoxMM, sheetPPMM),
     width: Math.floor(logoBoundingBoxMM.width * sheetPPMM),
     height: Math.floor(logoBoundingBoxMM.height * sheetPPMM),
   },
@@ -207,13 +176,13 @@ const config = {
 
   // Color mappings and other stuff specific to a certain installation (e.g. pushwagner)
   selectedScene: availableScenes.PUSHWAGNER,
-  scene: {
+  sceneConfigs: {
     [availableScenes.PUSHWAGNER]: pushwagnerSceneConfig
   }
 };
 
 export const getSceneConfig = (): SceneConfig => {
-  return config.scene[config.selectedScene];
+  return config.sceneConfigs[config.selectedScene];
 };
 
 export default config;

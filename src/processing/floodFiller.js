@@ -4,7 +4,7 @@ import { copyCanvasCentered } from "../utils/gfx/context.utils";
 import { timed } from "../utils/timer";
 import { getNextProcessingContainer } from "../canvases";
 import config from "../config";
-import type { Container } from "../types";
+import type { Container, RgbaColor } from "../types";
 
 export const floodFillWithPadding = (source: Container): Container => {
 
@@ -23,7 +23,9 @@ export const floodFillWithPadding = (source: Container): Container => {
   copyCanvasCentered(source, filledExpandedContainer);
 
   // flood fill outside (e.g. the part that will be our mask)
-  timed(() => floodFill(sourceCtx, 2, 255, 0, 0, 0.5), 'flood fill mask');
+  const fillStartingPoint = {x: 2, y: 2};
+  const fillColor: RgbaColor = {r: 255, g: 0, b: 0, a: 0.5};
+  timed(() => floodFill(sourceCtx, fillStartingPoint, fillColor), 'flood fill mask');
 
   // remove expansion
   const filledContractedContainer = getNextProcessingContainer(config.sheetSize, 'Flood fill contracted');

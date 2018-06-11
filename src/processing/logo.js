@@ -2,13 +2,13 @@
 import logger from '../utils/logger';
 import config from '../config';
 import { getAverageColor } from "../utils/gfx/jsfeat.utils";
-import type { Container, JsfeatImage } from "../types";
+import type { Container, JsFeatImage } from "../types";
 
 const logoCenter = config.logoDetectionPosition;
 const logoSamplePadding = 5;
 
 export const isLogoInCorrectCorner = (
-  image: JsfeatImage, width: number, height: number
+  image: JsFeatImage, width: number, height: number
 ): boolean => {
   const topLeftColor = getAverageColor(image, width, logoSamplePadding, logoCenter.x, logoCenter.y);
   const bottomRightColor = getAverageColor(image, width, logoSamplePadding, width - logoCenter.x, height - logoCenter.y);

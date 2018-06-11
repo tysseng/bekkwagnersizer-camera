@@ -11,7 +11,7 @@ import { isApproximatelyPerpendicular, isInsideCircle } from "../utils/trigonome
 import { copyAndSortByY, isSamePoint, sortByX } from '../utils/points';
 import { mapToJsFeatImageData } from "../utils/gfx/jsfeat.utils";
 import { getNextProcessingContainer } from "../canvases";
-import type { Container, JsfeatImage, Point, SheetCorners, SheetParams } from "../types";
+import type { Container, JsFeatImage, Point, SheetCorners, SheetParams } from "../types";
 
 type SheetExtremes = {
   left: Point,
@@ -43,7 +43,7 @@ const drawingCircleCenter = {
   y: config.sourceSize.height / 2,
 };
 
-const findCornerCandidates = (image: JsfeatImage): Array<Point> => { // TODO jsfeat.keypoint_t
+const findCornerCandidates = (image: JsFeatImage): Array<Point> => { // TODO jsfeat.keypoint_t
   const { width, height } = config.sourceSize;
 
   // remove some dust and smooths surfaces. Without this it corner detection will trigger on
@@ -69,7 +69,7 @@ const findCornerCandidates = (image: JsfeatImage): Array<Point> => { // TODO jsf
   }
 };
 
-const isProbablySheetCorner = (corner: Point, image: JsfeatImage, width: number): boolean => {
+const isProbablySheetCorner = (corner: Point, image: JsFeatImage, width: number): boolean => {
   const { x, y } = corner;
   const padding = 15;
   //const sheetColorThreshold = 180;
@@ -113,7 +113,7 @@ const validateCorners = ({ left, right, top, bottom }: SheetExtremes): boolean =
 const findValidExtremePoints = (
   xSorted: Array<Point>,
   ySorted: Array<Point>,
-  image: JsfeatImage,
+  image: JsFeatImage,
   width: number
 ): ?SheetExtremes => {
   const left = xSorted.find(corner => isProbablySheetCorner(corner, image, width));
@@ -178,7 +178,7 @@ const calculateCorners = (points: SheetExtremes): ?SheetCorners => {
 
 const detectCorners = (
   ctx: CanvasRenderingContext2D,
-  image: JsfeatImage,
+  image: JsFeatImage,
   width: number
 ): ?SheetCorners => {
   const points = timed(() => findCornerCandidates(image), 'detect corners');

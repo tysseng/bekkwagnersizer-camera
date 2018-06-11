@@ -14,7 +14,7 @@ export type Container = {|
   ctx: CanvasRenderingContext2D,
   heading: HTMLElement,
   dimensions: Dimensions,
-  gray?: JsfeatImage,
+  gray?: JsFeatImage,
 |};
 
 export type SheetParams = {|
@@ -29,16 +29,22 @@ export type SheetCorners = {|
   bottomRight: Point,
 |}
 
-export type JsfeatImage = {|
-  data: Array<number> // TODO
+export type JsFeatImage = {|
+  data: Array<number>, // TODO
+  rows: number,
+  cols: number
 |};
 
-export type Containers = {[string]: Container};
+export type Containers = { [string]: Container };
 
 export type SourceElement = HTMLImageElement | HTMLVideoElement;
 
 export type RgbColor = {|
   r: number, g: number, b: number
+|}
+
+export type RgbaColor = {|
+  r: number, g: number, b: number, a: number
 |}
 
 export type NearestColor = {|
@@ -51,20 +57,20 @@ export type NearestColor = {|
 export type NearestColorMapper = (color: RgbColor) => NearestColor;
 
 // a hex rgb color code
-export type ColorCode = string;
+export type HexColor = string;
 
 // maps from a key to a hex rgb color code
-export type ColorCodeMap = {[string]: ColorCode}
+export type ColorCodeMap = { [string]: HexColor }
 
 // key in the map of colors to search for in a photo
 export type PhotoColorKey = string;
 
 // maps from a photo color key to a color code
-export type PhotoColorCodesMap = {[PhotoColorKey]: ColorCode}
+export type PhotoColorCodesMap = { [PhotoColorKey]: HexColor }
 
 // key for a scene ('kings cross', 'manhattan')
 export type SceneKey = string;
-export type SceneKeys = {[string]: SceneKey}
+export type SceneKeys = { [string]: SceneKey }
 
 // BitCode, key for an image ('e.g. the various faceless profiles in the pushwagnesizer')
 export type BitCode = number;
@@ -75,10 +81,10 @@ export type BitCodeColorMap = {
   white: string,
 }
 // Maps a bit code to a particular image. Image shape depends on artwork
-export type BitCodeToImageMap = {[BitCode]: Object}
+export type BitCodeToImageMap = { [BitCode]: Object }
 
 // Gives a name to each bit code.
-export type ImageBitCodes = {[string]: BitCode}
+export type ImageBitCodes = { [string]: BitCode }
 
 // maps from a variation key to a map of photo color keys to color codes.
 export type SceneToColorCodesMap = {
@@ -87,7 +93,7 @@ export type SceneToColorCodesMap = {
     // maps a photo color to a variation color through the NAME of the color in the photo instead
     // of through the value, which makes it possible to change the value when calibration without
     // changing anything else.
-    [PhotoColorKey]: ColorCode;
+    [PhotoColorKey]: HexColor;
   }
 }
 
@@ -99,7 +105,7 @@ export type ImageToSceneColorsMap = {|
 
     // the mappings from those colors to a per-variation color.
     [SceneKey]: {|
-      [photoColorKey: PhotoColorKey]: ColorCode;
+      [photoColorKey: PhotoColorKey]: HexColor;
     |}
   |}
 |}
@@ -112,4 +118,11 @@ export type SceneConfig = {
   colorMappings: ImageToSceneColorsMap,
   photoColorCodes: PhotoColorCodesMap, // TODO: Why is this needed? Startup before calibration?
   bitCodeColorMappings: BitCodeColorMap,
+}
+
+export type Logger = {
+  info: (any) => void,
+  warn: (any) => void,
+  error: (any) => void,
+
 }

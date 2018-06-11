@@ -1,4 +1,4 @@
-export default  {
+const logger: Logger = {
   info: (msg) => {
     console.log('INFO', msg);
   },
@@ -8,4 +8,6 @@ export default  {
   error: (msg) => {
     console.log('ERROR', msg);
   },
-}
+};
+
+export default logger;

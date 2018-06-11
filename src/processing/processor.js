@@ -1,5 +1,4 @@
 // @flow
-import 'floodfill';
 import config from "../config";
 import { detectEdges } from "./edgeDetection";
 import { timed } from "../utils/timer";

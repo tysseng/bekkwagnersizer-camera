@@ -19,7 +19,7 @@ const captureVideoToCanvas = (videoElement: SourceElement, container: Container)
   );
 
   // Draw crop circle (...)
-  drawCircle(ctx, { x: width / 2, y: width / 2, radius: width / 2 });
+  drawCircle(ctx, { x: width / 2, y: width / 2}, width / 2 );
 };
 
 export const captureBaselineVideoFrame = (videoElement: SourceElement, container: Container) => {

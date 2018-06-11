@@ -5,10 +5,10 @@ import { subMatrixTouchesMask } from "./edgeDetection";
 import { mapToCanvasImageData } from "../utils/gfx/jsfeat.utils";
 import { getNextProcessingContainer } from "../canvases";
 import config from "../config";
-import type { Container, JsfeatImage } from "../types";
+import type { Container, JsFeatImage } from "../types";
 
 // TODO: Must be possible to do this faster, directly in a monocrome image
-export const getMonocromeMask = (container: Container): JsfeatImage => {
+export const getMonocromeMask = (container: Container): JsFeatImage => {
   const ctx = container.ctx;
   const { width, height } = container.dimensions;
   const maskImage = ctx.getImageData(0, 0, width, height);
@@ -31,13 +31,12 @@ export const getMonocromeMask = (container: Container): JsfeatImage => {
 };
 
 
-export const getErodedMask = (edgesContainer: Container, monocromeMask: JsfeatImage): Container => {
+export const getErodedMask = (edgesContainer: Container, monocromeMask: JsFeatImage): Container => {
   const maskContainer = getNextProcessingContainer(config.sheetSize, 'Mask');
   const maskCtx = maskContainer.ctx;
-  const edgesCtx = edgesContainer.ctx;
   const {width, height} = maskContainer.dimensions;
 
-  const lineImageData = edgesCtx.getImageData(0, 0, width, height);
+
   const erosionWidth = 1; // must be same as dilution width;
   const maskColor = 255;
   const erodedMask = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);
@@ -50,6 +49,8 @@ export const getErodedMask = (edgesContainer: Container, monocromeMask: JsfeatIm
     }
   }
 
+  const edgesCtx = edgesContainer.ctx;
+  const lineImageData = edgesCtx.getImageData(0, 0, width, height);
   mapToCanvasImageData(erodedMask, lineImageData);
   timed(() => maskCtx.putImageData(lineImageData, 0, 0), 'put eroded line image to mask ctx');
   return maskContainer;

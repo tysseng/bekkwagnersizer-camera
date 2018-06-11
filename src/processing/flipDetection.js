@@ -9,12 +9,12 @@ import { timed } from "../utils/timer";
 import { isBitCodeInCorrectCorner, isBitCodeInWrongCorner } from "./bitCode";
 import { flipDetectionMethods } from "./flipDetectionMethods";
 import { getNextProcessingContainer } from "../canvases";
-import type { Container, JsfeatImage } from "../types";
+import type { Container, JsFeatImage } from "../types";
 
 const rotate180 = (
   source: Container,
   target: Container,
-  grayImage: JsfeatImage,
+  grayImage: JsFeatImage,
 ) => {
   const sourceCtx = source.ctx;
   const { width, height } = source.dimensions;

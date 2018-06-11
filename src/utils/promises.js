@@ -1,11 +1,12 @@
+// @flow
 import { isRunning } from "../runstatus";
 import logger from "./logger";
 
-export const timeout = (ms) => {
+export const timeout = (ms: number): Promise<*> => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-export const abortable = (funcToAsync) => {
+export const abortable = (funcToAsync: () => (<T>() => T)): Promise<T> => {
   return new Promise((resolve, reject) => setTimeout(() => {
     try{
       const result = funcToAsync();

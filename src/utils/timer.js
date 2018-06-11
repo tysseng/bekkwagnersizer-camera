@@ -1,6 +1,6 @@
 import config from "../config";
 
-export const timed = (toCall, msg) => {
+export const timed = (toCall: () => T, msg: string): T => {
   const before = new Date().getTime();
   const result = toCall();
   const after = new Date().getTime();
