@@ -6,7 +6,7 @@ export const timeout = (ms: number): Promise<*> => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-export const abortable = (funcToAsync: () => (<T>() => T)): Promise<T> => {
+export const abortable = <T>(funcToAsync: () => T): Promise<T> => {
   return new Promise((resolve, reject) => setTimeout(() => {
     try{
       const result = funcToAsync();

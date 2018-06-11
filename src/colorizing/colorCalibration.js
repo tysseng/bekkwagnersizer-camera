@@ -68,7 +68,7 @@ export const drawPhotoColors = (canvasContainer) => {
   logger.info('Drawing calibrated colors');
   Object.keys(photoColors).forEach(key => {
     const color = photoColors[key];
-    const position = config.colorPositions[key];
+    const position = config.calibrationColorPositions[key];
     const {x, y} = position;
     ctx.fillStyle=color;
     ctx.fillRect(x - paddingX, y - paddingY, 2 * paddingX, 2 * paddingY);
@@ -78,7 +78,7 @@ export const drawPhotoColors = (canvasContainer) => {
 const calibrateColors = (sourceContainer) => {
   const colorTarget = getPhotoColorCodes();
   const padding = 2;
-  const colorPositions = config.colorPositions;
+  const colorPositions = config.calibrationColorPositions;
 
   logger.info('Calibrating colors');
   Object.keys(colorPositions).forEach(key => {

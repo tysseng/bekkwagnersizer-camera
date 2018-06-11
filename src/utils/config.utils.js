@@ -1,12 +1,19 @@
 // @flow
-const getPPMM = (pixels, width) => pixels / width;
+import type { Dimensions, Point } from "../types";
 
-const getInPixels = (mm: number, pixelsPerMM: number): number => Math.floor(mm * pixelsPerMM);
+export const getPPMM = (pixels: number, width: number): number => pixels / width;
 
-const getArrayInPixels = (mmArray: Array<number>, pixelsPerMM: number): Array<number> =>
+export const getInPixels = (mm: number, pixelsPerMM: number): number => Math.floor(mm * pixelsPerMM);
+
+export const getArrayInPixels = (mmArray: Array<number>, pixelsPerMM: number): Array<number> =>
   mmArray.map(mm => getInPixels(mm, pixelsPerMM));
 
-const getPointInPixels = ({x, y}: Point, pixelsPerMM: number): Point => ({
+export const getPointInPixels = ({x, y}: Point, pixelsPerMM: number): Point => ({
   x: getInPixels(x, pixelsPerMM),
   y: getInPixels(y, pixelsPerMM),
+});
+
+export const getSizeInPixels = ({width, height}: Dimensions, pixelsPerMM: number): Dimensions => ({
+  width: getInPixels(width, pixelsPerMM),
+  height: getInPixels(height, pixelsPerMM),
 });

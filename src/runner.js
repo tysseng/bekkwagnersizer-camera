@@ -1,6 +1,6 @@
 // @flow
 import logger from "./utils/logger";
-import config, { getSceneConfig } from "./config";
+import config from "./config";
 import status from './communication/statusIndicator';
 import {
   findSheet,
@@ -20,7 +20,7 @@ import { calibrate, drawPhotoColors, loadColors } from "./colorizing/colorCalibr
 import { initColorMaps } from "./colorizing/colorRepository";
 import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";
-import type { Container, Containers, SourceElement } from "./types";
+import type { Container, Containers, SheetParams, SourceElement } from "./types";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -71,7 +71,7 @@ const runSingleCycle = async (
   const whiteCorrectedVideoFrameContainer = removeShadows(canvases.videoFrame, canvases.whitePixelsVideoFrame);
 
   const sheetParams = await abortable(() => findSheet(canvases.videoFrame));
-  if (sheetParams === null) {
+  if (sheetParams == null) {
     logger.error('Sheet should be present but I couldnt find it');
     throw new Error('Sheet should be present but I couldnt find it')
   }
@@ -195,8 +195,7 @@ export const calibrateColors = async (sourceElement: SourceElement, canvases: Co
 };
 
 export const init = (canvases: Containers) => {
-  const sceneConfig = getSceneConfig();
-  initColorMaps(sceneConfig);
+  initColorMaps(config.sceneConfig);
   loadColors();
   drawPhotoColors(canvases.photoColors);
 };

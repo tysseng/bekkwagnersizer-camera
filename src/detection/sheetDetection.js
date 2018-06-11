@@ -185,7 +185,8 @@ const detectCorners = (
 
   if (debug.drawAllCorners) timed(() => drawAllPoints(ctx, points), 'draw All Corners');
 
-  const xSorted = sortByX(points);
+  sortByX(points);
+  const xSorted = points;
   const ySorted = copyAndSortByY(points);
   const extremePoints = findValidExtremePoints(xSorted, ySorted, image, width);
 

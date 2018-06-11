@@ -7,7 +7,7 @@ import {
   getMappings,
   photoColorCodes
 } from "./pushwagnerColorMaps";
-import type { SceneConfig } from "../types";
+import type { Dimensions, Point, SceneConfig } from "../types";
 
 
 const sheetSizeA4: Dimensions = {
@@ -22,6 +22,24 @@ const sheetSizeA3: Dimensions = {
 
 const sheetSizeMM = sheetSizeA3;
 
+// center of logo to use for orientation detection star
+const logoDetectionPositionMM: Point = {
+  x: 21.4,
+  y: 23.95,
+};
+
+// bounding box for removing logo, x,y is top left corner
+const logoBoundingBoxMM = {
+  upperLeft: {
+    x: 9,
+    y: 11,
+  },
+  size: {
+    width: 92,
+    height: 24
+  }
+};
+
 // where to find bit dots (to indicate what image this is)
 const bitPositionYMM = sheetSizeMM.height - 18;
 const bitPositionsMM: Array<Point> = [
@@ -32,16 +50,45 @@ const bitPositionsMM: Array<Point> = [
   { x: sheetSizeMM.width - 19, y: bitPositionYMM },
 ];
 
+// color calibration pads position in millimeters
+const colorRowsMM = [40, 85, 135, 180, 230, 290];
+const colorColsMM = [80, 210];
+
+const calibrationColorPositionsMM = {
+  lightBlue: { x: colorColsMM[0], y: colorRowsMM[0] },
+  green: { x: colorColsMM[0], y: colorRowsMM[1] },
+  yellow: { x: colorColsMM[0], y: colorRowsMM[2] },
+  purple: { x: colorColsMM[0], y: colorRowsMM[3] },
+  pink: { x: colorColsMM[0], y: colorRowsMM[4] },
+  white: { x: colorColsMM[0], y: colorRowsMM[5] },
+  orange: { x: colorColsMM[1], y: colorRowsMM[0] },
+  skin: { x: colorColsMM[1], y: colorRowsMM[1] },
+  wine: { x: colorColsMM[1], y: colorRowsMM[2] },
+  darkBlue: { x: colorColsMM[1], y: colorRowsMM[3] },
+  black: { x: colorColsMM[1], y: colorRowsMM[4] },
+};
+
 const sceneConfig: SceneConfig = {
+  // Identifiers for the various artworks
   scenes: scenes,
+
+  // bit codes - codes that tell us what version of an input sheet we've photographed
   imageBitCodes: imageBitCodes,
   bitCodeToImageMap: bitCodeToImageMap,
+  bitCodeColorMappings: getBitCodeMappings(),
+  bitPositionsMM,
+
+  // mapping of colors, from colors found in a photo to the colors to use for each input scene in
+  // each scene,
   defaultColorMappings: getDefaultMappings(),
   colorMappings: getMappings(),
   photoColorCodes: photoColorCodes,
-  bitCodeColorMappings: getBitCodeMappings(),
-  bitPositionsMM,
+
+  // positions and sizes related to sheet that is photographed
   sheetSizeMM,
+  logoDetectionPositionMM,
+  logoBoundingBoxMM,
+  calibrationColorPositionsMM,
 };
 
 export default sceneConfig;

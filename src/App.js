@@ -38,7 +38,7 @@ type Props = {
 
 const App = keydown(class App extends Component<Props, AppState> {
 
-  constructor(props: any) {
+  constructor(props: *) {
     super(props);
     this.state = {
       canvases: {},

@@ -44,7 +44,7 @@ export const process = (videoFrameContainer: Container, sheetParams: SheetParams
   copyCanvas(edgesContainer, removedElementsContainer);
 
   if (config.removeLogo) timed(() => removeLogo(removedElementsContainer), 'removing logo');
-  if (config.removeBitcode) timed(() => removeBitDots(removedElementsContainer), 'removing bit dots');
+  timed(() => removeBitDots(removedElementsContainer), 'removing bit dots');
 
   // expand outline to be able to flood fill safely
   const filledContractedContainer = floodFillWithPadding(removedElementsContainer);

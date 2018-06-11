@@ -111,18 +111,30 @@ export type ImageToSceneColorsMap = {|
 |}
 
 export type SceneConfig = {
+  // Identifiers for the various artworks
   scenes: SceneKeys,
+
+  // bit codes - codes that tell us what version of an input sheet we've photographed
   imageBitCodes: ImageBitCodes,
   bitCodeToImageMap: BitCodeToImageMap,
+  bitCodeColorMappings: BitCodeColorMap,
+  bitPositionsMM: Array<Point>,
+
+  // mapping of colors, from colors found in a photo to the colors to use for each input scene in
+  // each scene,
   defaultColorMappings: SceneToColorCodesMap,
   colorMappings: ImageToSceneColorsMap,
   photoColorCodes: PhotoColorCodesMap, // TODO: Why is this needed? Startup before calibration?
-  bitCodeColorMappings: BitCodeColorMap,
+
+  // positions and sizes related to sheet that is photographed
+  sheetSizeMM: Dimensions,
+  logoDetectionPositionMM: Point,
+  logoBoundingBoxMM: {upperLeft: Point, size: Dimensions},
+  calibrationColorPositionsMM: {[string]: Point},
 }
 
 export type Logger = {
-  info: (any) => void,
-  warn: (any) => void,
-  error: (any) => void,
-
+  info: (*) => void,
+  warn: (*) => void,
+  error: (*) => void,
 }

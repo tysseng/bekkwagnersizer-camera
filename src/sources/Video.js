@@ -7,14 +7,14 @@ class Video extends React.Component<*> {
 
   videoElement: HTMLVideoElement;
 
-  constructor(props: any) {
+  constructor(props: *) {
     super(props);
     this.videoStreamLoaded = this.videoStreamLoaded.bind(this);
     this.videoStreamLoadFailed = this.videoStreamLoadFailed.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
   }
 
-  videoStreamLoaded = function(stream: any) {
+  videoStreamLoaded = function(stream: *) {
     window.stream = stream; // make stream available to browser console
     this.videoElement.srcObject = stream;
   };
@@ -42,7 +42,8 @@ class Video extends React.Component<*> {
     };
 
     if(navigator){
-      // TODO: Flow error
+      // For some reason, we get a flow error here.
+      // $FlowFixMe
       navigator.getUserMedia(constraints, this.videoStreamLoaded, this.videoStreamLoadFailed);
     } else {
       logger.error('Could not get user media from navigator');

@@ -81,6 +81,7 @@ export const floodFill = (
 ) => {
   ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
 
-  // TODO: Add flow exception. fillFlood is added by floodfill lib
+  // fillFlood is added by 'floodfill' import
+  // $FlowFixMe
   ctx.fillFlood(startPos.x, startPos.y, 32);
 };

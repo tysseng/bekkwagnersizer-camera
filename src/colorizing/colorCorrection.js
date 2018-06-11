@@ -5,7 +5,7 @@ import { getNextColoredContainer } from "../canvases";
 import {
   getColorsForAllImages, getPhotoColorCodesFromKeys,
 } from "./colorRepository";
-import { getSceneConfig } from "../config";
+import config from "../config";
 
 const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorMap) => {
   const { width, height } = target.dimensions;
@@ -64,7 +64,7 @@ export const correctColors = (sourceContainer, imageCode) => {
 
     // replace colors for all scenes
     const coloredContainers = {};
-    const scenes = getSceneConfig().scenes;
+    const scenes = config.sceneConfig.scenes;
     Object.keys(scenes).forEach(sceneKey => {
       coloredContainers[sceneKey] = replaceColors({
         key: sceneKey, colorsForImage, sourceContainer, sourceData, dataLength, intermediate

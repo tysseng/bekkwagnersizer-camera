@@ -1,6 +1,6 @@
 // @flow
 import uuid from 'uuid/v1';
-import config, { getSceneConfig } from "../config";
+import config from "../config";
 import logger from "../utils/logger";
 import type { Container } from "../types";
 
@@ -51,8 +51,7 @@ export const uploadFile = async (
 
   const blob = b64toBlob(realData, contentType);
 
-  const sceneConfig = getSceneConfig();
-  const image = sceneConfig.bitCodeToImageMap[bitCode];
+  const image = config.sceneConfig.bitCodeToImageMap[bitCode];
 
   //const filenameStem = filenames[bitCode] || 'fallback';
   const filename = `${variation}-${image.gender}-${image.id}-${uuid()}.png`;

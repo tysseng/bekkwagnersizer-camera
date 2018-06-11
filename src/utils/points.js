@@ -1,10 +1,11 @@
 // @flow
 import type { Point } from "../types";
 
-export const sortByX = (points: Array<Point>) =>
+export const sortByX = (points: Array<Point>) => {
   points.sort(
     (point1, point2) => point1.x - point2.x
   );
+};
 
 export const copyAndSortByY = (points: Array<Point>): Array<Point> => {
   let i = points.length;

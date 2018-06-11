@@ -3,12 +3,37 @@
 import { flipDetectionMethods } from "./processing/flipDetectionMethods";
 import pushwagnerSceneConfig from "./pushwagner/pushwagnerSceneConfig";
 import type { Dimensions, Point, SceneConfig } from "./types";
+import objMapper from "./utils/objectKeyMapper";
+import { getInPixels, getPointInPixels, getPPMM, getSizeInPixels } from "./utils/config.utils";
 
-const source = 'video';
+// Color mappings and other stuff specific to a certain installation (e.g. pushwagner)
+const availableScenes = { PUSHWAGNER: 'pushwagner' };
+const sceneConfigs = { [availableScenes.PUSHWAGNER]: pushwagnerSceneConfig };
+const sceneConfig = sceneConfigs[availableScenes.PUSHWAGNER]; // change key to switch scene
 
-const availableScenes = {
-  PUSHWAGNER: 'pushwagner',
+const sheetWidthPixels = 1024;
+const sheetPPMM = getPPMM(sheetWidthPixels, sceneConfig.sheetSizeMM.width);
+const sheetSize: Dimensions = {
+  width: sheetWidthPixels,
+  height: getInPixels(sceneConfig.sheetSizeMM.height, sheetPPMM),
 };
+
+const logoDetectionPosition = getPointInPixels(
+  sceneConfig.logoDetectionPositionMM,
+  sheetPPMM
+);
+
+const bitPositions: Array<Point> = sceneConfig.bitPositionsMM.map(
+  point => getPointInPixels(point, sheetPPMM)
+);
+
+const calibrationColorPositions = objMapper(
+  sceneConfig.calibrationColorPositionsMM,
+  (entry: Point) => ({
+    x: getInPixels(entry.x, sheetPPMM),
+    y: getInPixels(entry.y, sheetPPMM)
+  })
+);
 
 const videoFrameSize: Dimensions = {
   width: 1024,
@@ -21,56 +46,10 @@ const imageSize: Dimensions = {
   height: 1365,
 };
 
-const sheetWidthPixels = 1024;
-const sheetPPMM = getPPMM(sheetWidthPixels, sheetSizeMM.width);
-
-// center of EDawards star
-const logoDetectionPositionMM: Point = {
-  x: 21.4,
-  y: 23.95,
-};
-
-// bounding box for removing logo, x,y is top left corner
-const logoBoundingBoxMM = {
-  x: 9,
-  y: 11,
-  width: 92,
-  height: 24
-};
-
-const bitPositions: Array<Point> = bitPositionsMM.map(
-  point => getPointInPixels(point, sheetPPMM)
-);
-
-// color calibration pads position in millimeters
-const colorRowsMM = [40, 85, 135, 180, 230, 290];
-const colorColsMM = [80, 210];
-
-const colorRows = getArrayInPixels(colorRowsMM, sheetPPMM);
-const colorCols = getArrayInPixels(colorColsMM, sheetPPMM);
-
-//TODO: Move to pushwagnerScenes config
-const colorPositions = {
-  lightBlue: { x: colorCols[0], y: colorRows[0] },
-  green: { x: colorCols[0], y: colorRows[1] },
-  yellow: { x: colorCols[0], y: colorRows[2] },
-  purple: { x: colorCols[0], y: colorRows[3] },
-  pink: { x: colorCols[0], y: colorRows[4] },
-  white: { x: colorCols[0], y: colorRows[5] },
-  orange: { x: colorCols[1], y: colorRows[0] },
-  skin: { x: colorCols[1], y: colorRows[1] },
-  wine: { x: colorCols[1], y: colorRows[2] },
-  darkBlue: { x: colorCols[1], y: colorRows[3] },
-  black: { x: colorCols[1], y: colorRows[4] },
-};
-
-const sheetSize: Dimensions = {
-  width: sheetWidthPixels,
-  height: getInPixels(sheetSizeMM.height, sheetPPMM),
-};
-
 // Final crop border size - how much to crop away to make sure we don't get a border
 const finalCrop = 10;
+
+const source = 'video';
 
 const config = {
   source,
@@ -98,51 +77,24 @@ const config = {
 
   // center of logo to use when removing logo
   removeLogo: false,
-  logoDetectionPosition: getPointInPixels(logoDetectionPositionMM, sheetPPMM),
+
+  logoDetectionPosition,
 
   // bounding box for removing logo
   logoBoundingBox: {
-    ...getPointInPixels(logoBoundingBoxMM, sheetPPMM),
-    width: Math.floor(logoBoundingBoxMM.width * sheetPPMM),
-    height: Math.floor(logoBoundingBoxMM.height * sheetPPMM),
+    ...getPointInPixels(sceneConfig.logoBoundingBoxMM.upperLeft, sheetPPMM),
+    ...getSizeInPixels(sceneConfig.logoBoundingBoxMM.size, sheetPPMM),
   },
 
-  // where to find bit dots (to indicate what image this is)
-  removeBitcode: true,
   bitPositions,
   bitPositionPadding: 25,
 
   // where to find colors to use for calibration
-  colorPositions,
+  calibrationColorPositions,
 
-  videoSize: {
-    width: 1920,
-    height: 1080,
-  },
+  videoSize: { width: 1920, height: 1080 },
 
-  /*
-  //4K cam
-  videoCircle: { // relative to videoSize
-    x: 2950,
-    y: 2010,
-    radius: 1840,
-  },
-*/
-  //HD cam
-  /*
-  // Full circle
-  videoCircle: { // relative to videoSize
-    x: 1470,
-    y: 1010,
-    radius: 920,
-  },
-  */
-
-  videoCircle: { // relative to videoSize
-    x: 1000,
-    y: 555,
-    diameter: 900,
-  },
+  videoCircle: { x: 1000, y: 555, diameter: 900 },
 
   sourceSize: source === 'video' ? videoFrameSize : imageSize,
 
@@ -162,6 +114,7 @@ const config = {
     width: 512,
     height: 512,
   },
+
   uploadFile: true,
   uploadUrls: [
     'http://169.254.43.21:3000/image',
@@ -173,17 +126,10 @@ const config = {
     drawAllCorners: true,
   },
 
-
   // Color mappings and other stuff specific to a certain installation (e.g. pushwagner)
-  selectedScene: availableScenes.PUSHWAGNER,
-  sceneConfigs: {
-    [availableScenes.PUSHWAGNER]: pushwagnerSceneConfig
-  }
+  sceneConfig,
 };
 
-export const getSceneConfig = (): SceneConfig => {
-  return config.sceneConfigs[config.selectedScene];
-};
 
 export default config;
 
