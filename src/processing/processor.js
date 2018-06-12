@@ -40,7 +40,7 @@ export const process = (videoFrameContainer: Container, sheetParams: SheetParams
 
   // remove logos and other stuff
   // copy to be able to debug.
-  const removedElementsContainer = getNextProcessingContainer(config.sheetSize, 'Removed design elements');
+  const removedElementsContainer = getNextProcessingContainer(edgesContainer.size, 'Removed design elements');
   copyCanvas(edgesContainer, removedElementsContainer);
 
   if (config.removeLogo) timed(() => removeLogo(removedElementsContainer), 'removing logo');

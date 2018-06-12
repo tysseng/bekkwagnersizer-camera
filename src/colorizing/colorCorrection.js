@@ -8,7 +8,7 @@ import {
 import config from "../config";
 
 const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorMap) => {
-  const { width, height } = target.dimensions;
+  const { width, height } = target.size;
   const targetCtx = target.ctx;
   const imageData = targetCtx.getImageData(0, 0, width, height);
   const targetData = imageData.data;
@@ -27,7 +27,7 @@ const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorM
 const replaceColors = (
   { key, colorsForImage, sourceContainer, sourceData, dataLength, intermediate }
 ) => {
-  const coloredContainer = getNextColoredContainer(sourceContainer.dimensions);
+  const coloredContainer = getNextColoredContainer(sourceContainer.size);
   copyCanvas(sourceContainer, coloredContainer);
   const colors = colorsForImage.sceneConfigs[key];
   writeColorReplaced(sourceData, dataLength, intermediate, coloredContainer, colors);
@@ -37,7 +37,7 @@ const replaceColors = (
 export const correctColors = (sourceContainer, imageCode) => {
   try {
 
-    const { width, height } = sourceContainer.dimensions;
+    const { width, height } = sourceContainer.size;
     const ctx = sourceContainer.ctx;
     const imageData = ctx.getImageData(0, 0, width, height);
     const sourceData = imageData.data;

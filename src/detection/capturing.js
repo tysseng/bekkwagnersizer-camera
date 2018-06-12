@@ -9,7 +9,7 @@ const videoOffsetY = videoCircle.y - videoCircle.diameter / 2;
 
 const captureVideoToCanvas = (videoElement: SourceElement, container: Container) => {
   const ctx = container.ctx;
-  const { width, height } = container.dimensions;
+  const { width, height } = container.size;
 
   // capture, crop and scale video, making sure we only get the part of the video frame that
   // contains our circular drawing area.
@@ -32,7 +32,7 @@ export const captureWhitePixelsVideoFrame = (videoElement: SourceElement, contai
 
 const captureImageAsVideoFrame = (img: SourceElement, container: Container) => {
   const ctx = container.ctx;
-  const { width, height } = container.dimensions;
+  const { width, height } = container.size;
   ctx.drawImage(img, 0, 0, width, height);
 };
 

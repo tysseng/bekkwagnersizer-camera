@@ -24,7 +24,7 @@ const bit = (
   nearestPhotoColorMapper: NearestColorMapper,
 ): string => {
   const { x, y, } = pos;
-  const { width, height } = sourceContainer.dimensions;
+  const { width, height } = sourceContainer.size;
   const imageData = sourceContainer.ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
@@ -92,7 +92,7 @@ const getBitCodePhotoColors = (map: BitCodeColorMap) => {
 export const readBitCode = (
   source: Container, draw: boolean = true, rotate180: boolean = false
 ): number => {
-  const { width, height } = source.dimensions;
+  const { width, height } = source.size;
   const bitPositions = config
     .bitPositions
     .map(pos => {
@@ -102,7 +102,6 @@ export const readBitCode = (
         return pos;
       }
     });
-  const bitCodeColorMap = getBitCodeColorMappings();
   const bitCodeColorCodes = getBitCodePhotoColors(getBitCodeColorMappings());
   const nearestPhotoColorMapper = (nearest.from(bitCodeColorCodes): NearestColorMapper); // todo - better way to type nearest?
 
@@ -114,7 +113,7 @@ export const readBitCode = (
   });
 
   const number = parseInt(bits.join(''), 2);
-  if (draw) copyCanvas(source, getNextProcessingContainer(config.sheetSize, 'Bit code'));
+  if (draw) copyCanvas(source, getNextProcessingContainer(source.size, 'Bit code'));
   logger.info('Detected bits');
   logger.info(bits);
   logger.info('Sheet number: ' + number);

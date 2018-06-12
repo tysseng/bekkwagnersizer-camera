@@ -7,15 +7,15 @@ import {
   getMappings,
   photoColorCodes
 } from "./pushwagnerColorMaps";
-import type { Dimensions, Point, SceneConfig } from "../types";
+import type { Size, Point, SceneConfig } from "../types";
 
 
-const sheetSizeA4: Dimensions = {
+const sheetSizeA4: Size = {
   width: 210,
   height: 297,
 };
 
-const sheetSizeA3: Dimensions = {
+const sheetSizeA3: Size = {
   width: 297,
   height: 410,
 };

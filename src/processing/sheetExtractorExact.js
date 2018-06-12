@@ -44,8 +44,8 @@ const rotateSheetCorners = (
 
 export const extractSheet = (source: Container, sheetParams: SheetParams) => {
   const { sheetCorners, prerotation } = sheetParams;
-  const frameWidth = source.dimensions.width;
-  const frameHeight = source.dimensions.height;
+  const frameWidth = source.size.width;
+  const frameHeight = source.size.height;
 
   // TODO: this should probably be done in sheetDetection.
   // remove prerotation to get points that match the original image

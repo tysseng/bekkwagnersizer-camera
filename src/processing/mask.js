@@ -10,7 +10,7 @@ import type { Container, JsFeatImage } from "../types";
 // TODO: Must be possible to do this faster, directly in a monocrome image
 export const getMonocromeMask = (container: Container): JsFeatImage => {
   const ctx = container.ctx;
-  const { width, height } = container.dimensions;
+  const { width, height } = container.size;
   const maskImage = ctx.getImageData(0, 0, width, height);
   const data = maskImage.data;
 
@@ -34,7 +34,7 @@ export const getMonocromeMask = (container: Container): JsFeatImage => {
 export const getErodedMask = (edgesContainer: Container, monocromeMask: JsFeatImage): Container => {
   const maskContainer = getNextProcessingContainer(config.sheetSize, 'Mask');
   const maskCtx = maskContainer.ctx;
-  const {width, height} = maskContainer.dimensions;
+  const {width, height} = maskContainer.size;
 
 
   const erosionWidth = 1; // must be same as dilution width;
@@ -62,9 +62,9 @@ export const removeMask = (maskContainer: Container, containerToFilter: Containe
   const maskCtx = maskContainer.ctx;
   const ctxToFilter = containerToFilter.ctx;
 
-  const filteredContainer = getNextProcessingContainer(config.sheetSize, 'Filtered image');
+  const filteredContainer = getNextProcessingContainer(containerToFilter.size, 'Filtered image');
   const filteredCtx = filteredContainer.ctx;
-  const { width, height } = maskContainer.dimensions;
+  const { width, height } = maskContainer.size;
 
   const mask = maskCtx.getImageData(0, 0, width, height);
   const image = ctxToFilter.getImageData(0, 0, width, height);

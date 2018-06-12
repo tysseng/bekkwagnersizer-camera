@@ -1,7 +1,7 @@
 // @flow
 import jsfeat from 'jsfeat';
 import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
-import type { Container, Dimensions, JsFeatImage } from "../types";
+import type { Container, Size, JsFeatImage } from "../types";
 import { getNextProcessingContainer } from "../canvases";
 import config from "../config";
 
@@ -14,16 +14,16 @@ export const detectEdges = (container: Container): Container => {
     throw Error('Gray scale image is missing for some reason. It shouldnt be.');
   }
   jsfeat.imgproc.canny(image, image, 30, 60);
-  const grayDilutedLines = diluteLines(image, container.dimensions, 255, dilutionWidth);
+  const grayDilutedLines = diluteLines(image, container.size, 255, dilutionWidth);
 
-  const targetContainer = getNextProcessingContainer(config.sheetSize, 'Edge detection');
+  const targetContainer = getNextProcessingContainer(container.size, 'Edge detection');
   drawJsFeatImageOnContext(grayDilutedLines, targetContainer);
   return targetContainer;
 };
 
 const diluteLines = (
   image: JsFeatImage,
-  { width, height }: Dimensions,
+  { width, height }: Size,
   grayscaleColor: number,
   dilutionWidth: number
 ): JsFeatImage => {

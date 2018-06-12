@@ -25,7 +25,7 @@ export const loadColors = () => {
 
 const averageColorAroundPoint = (sourceContainer, padding, point) => {
   const { x, y } = point;
-  const { width, height } = sourceContainer.dimensions;
+  const { width, height } = sourceContainer.size;
   const imageData = sourceContainer.ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 

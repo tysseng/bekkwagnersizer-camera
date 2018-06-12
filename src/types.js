@@ -1,5 +1,5 @@
 // @flow
-export type Dimensions = {|
+export type Size = {|
   height: number,
   width: number,
 |}
@@ -13,7 +13,7 @@ export type Container = {|
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   heading: HTMLElement,
-  dimensions: Dimensions,
+  size: Size,
   gray?: JsFeatImage,
 |};
 
@@ -127,9 +127,9 @@ export type SceneConfig = {
   photoColorCodes: PhotoColorCodesMap, // TODO: Why is this needed? Startup before calibration?
 
   // positions and sizes related to sheet that is photographed
-  sheetSizeMM: Dimensions,
+  sheetSizeMM: Size,
   logoDetectionPositionMM: Point,
-  logoBoundingBoxMM: {upperLeft: Point, size: Dimensions},
+  logoBoundingBoxMM: {upperLeft: Point, size: Size},
   calibrationColorPositionsMM: {[string]: Point},
 }
 

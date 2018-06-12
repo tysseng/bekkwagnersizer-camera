@@ -17,7 +17,7 @@ const rotate180 = (
   grayImage: JsFeatImage,
 ) => {
   const sourceCtx = source.ctx;
-  const { width, height } = source.dimensions;
+  const { width, height } = source.size;
   const imageData = sourceCtx.getImageData(0, 0, width, height);
   // TODO: NON-DESTRUCTIVE rotation of gray image
   timed(() => rotateGrayscale180(grayImage), 'rotating image 180 degrees');
@@ -32,9 +32,9 @@ export const correctSheetOrientation = (source: Container): Container => {
   if(grayImage == null){
     throw Error('Gray scale image is missing, it really shouldnt be you know.')
   }
-  const {width: sheetWidth, height: sheetHeight} = source.dimensions;
+  const {width: sheetWidth, height: sheetHeight} = source.size;
 
-  const target = getNextProcessingContainer(config.sheetSize, 'Correct sheet orientation');
+  const target = getNextProcessingContainer(source.size, 'Correct sheet orientation');
 
   if (config.flipCorrection === flipDetectionMethods.LOGO) {
     if (!isLogoInCorrectCorner(grayImage, sheetWidth, sheetHeight)) {

@@ -2,7 +2,7 @@
 // 'image', 'video'
 import { flipDetectionMethods } from "./processing/flipDetectionMethods";
 import pushwagnerSceneConfig from "./pushwagner/pushwagnerSceneConfig";
-import type { Dimensions, Point, SceneConfig } from "./types";
+import type { Size, Point, SceneConfig } from "./types";
 import objMapper from "./utils/objectKeyMapper";
 import { getInPixels, getPointInPixels, getPPMM, getSizeInPixels } from "./utils/config.utils";
 
@@ -13,7 +13,7 @@ const sceneConfig = sceneConfigs[availableScenes.PUSHWAGNER]; // change key to s
 
 const sheetWidthPixels = 1024;
 const sheetPPMM = getPPMM(sheetWidthPixels, sceneConfig.sheetSizeMM.width);
-const sheetSize: Dimensions = {
+const sheetSize: Size = {
   width: sheetWidthPixels,
   height: getInPixels(sceneConfig.sheetSizeMM.height, sheetPPMM),
 };
@@ -35,13 +35,13 @@ const calibrationColorPositions = objMapper(
   })
 );
 
-const videoFrameSize: Dimensions = {
+const videoFrameSize: Size = {
   width: 1024,
   height: 1024,
 };
 
 // size of image used as input if source = image
-const imageSize: Dimensions = {
+const imageSize: Size = {
   width: 1024,
   height: 1365,
 };

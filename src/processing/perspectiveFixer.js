@@ -46,10 +46,10 @@ const copyPixel = (
 export const correctPerspective = (source: Container, sheetCorners: SheetCorners): Container => {
 
   const sourceCtx = source.ctx;
-  const {height, width} = source.dimensions;
+  const {height, width} = source.size;
 
   const corrected = getNextProcessingContainer(config.sheetSize, 'Perspective corrected');
-  const {width: correctedWidth, height: correctedHeight } = corrected.dimensions;
+  const {width: correctedWidth, height: correctedHeight } = corrected.size;
   const correctedCtx = corrected.ctx;
 
   const transform = timed(() => getPerspectiveCorrectionTransform(

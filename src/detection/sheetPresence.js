@@ -18,7 +18,7 @@ const getColorAt = (data: Uint8ClampedArray, point: Point, width: number): numbe
 
 export const captureOriginalSheetPresenceLine = (container: Container) => {
   const ctx = container.ctx;
-  const { width, height } = container.dimensions;
+  const { width, height } = container.size;
   const data = ctx.getImageData(0, 0, width, height).data; // TODO: Possible to extract only a single row?
 
   let row = Math.floor(height / 2);
@@ -41,7 +41,7 @@ const changeIsAboveThreshold = (originalColor: number = 0, newColor: number): nu
 // This is a fast check before trying to find the corners.
 export const isSheetPresent = (videoFrameContainer: Container): boolean => {
   const ctx = videoFrameContainer.ctx;
-  const { width, height } = videoFrameContainer.dimensions;
+  const { width, height } = videoFrameContainer.size;
   const data = ctx.getImageData(0, 0, width, height).data; // TODO: Possible to extract only a single row?
 
   let pixelCount = 0;

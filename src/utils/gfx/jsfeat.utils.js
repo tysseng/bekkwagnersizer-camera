@@ -29,7 +29,7 @@ export const mapToCanvasImageData = (jsFeatImage: JsFeatImage , canvasImageData:
 
 export const mapToJsFeatImageData = (source: Container): JsFeatImage => {
   const ctx = source.ctx;
-  const { height, width } = source.dimensions;
+  const { height, width } = source.size;
   return timed(() => {
     const contextImageData = ctx.getImageData(0, 0, width, height);
     const jsFeatImageData = new jsfeat.matrix_t(width, height, jsfeat.U8_t | jsfeat.C1_t);

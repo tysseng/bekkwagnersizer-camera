@@ -25,8 +25,8 @@ export const copyCanvas = (source: Container, target: Container) => {
 
 export const copyCanvasCentered = (source: Container, target: Container) => {
 
-  const {width: sourceWidth, height: sourceHeight} = source.dimensions;
-  const {width: targetWidth, height: targetHeight} = target.dimensions;
+  const {width: sourceWidth, height: sourceHeight} = source.size;
+  const {width: targetWidth, height: targetHeight} = target.size;
 
   const offsetX = Math.floor((targetWidth - sourceWidth) / 2);
   const offsetY = Math.floor((targetHeight - sourceHeight) / 2);
@@ -47,6 +47,6 @@ export const getPointColorFromImageData = (
 
 export const clearCtx = (container: Container) => {
   const ctx = container.ctx;
-  const { width, height } = container.dimensions;
+  const { width, height } = container.size;
   ctx.clearRect(0, 0, width, height);
 };

@@ -59,7 +59,7 @@ export const drawImageRotatedAroundCenter = (
 ) => {
   const targetCtx = target.ctx;
 
-  const { width, height } = target.dimensions;
+  const { width, height } = target.size;
   targetCtx.translate(width / 2, height / 2);
   targetCtx.rotate(angle);
   targetCtx.translate(-width / 2, -height / 2);
@@ -69,7 +69,7 @@ export const drawImageRotatedAroundCenter = (
 
 export const drawJsFeatImageOnContext = (jsFeatImage: JsFeatImage, container: Container) => {
   const ctx = container.ctx;
-  const { width, height} = container.dimensions;
+  const { width, height} = container.size;
   const imageData = timed(() => ctx.getImageData(0, 0, width, height), 'get image data');
   mapToCanvasImageData(jsFeatImage, imageData);
   container.gray = jsFeatImage;

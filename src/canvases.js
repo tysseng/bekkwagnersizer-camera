@@ -1,7 +1,7 @@
 // @flow
 import { clearCtx } from "./utils/gfx/context.utils";
 import config from "./config";
-import type { Container, Containers, Dimensions } from "./types";
+import type { Container, Containers, Size } from "./types";
 
 const detectionContainers: Array<Container> = [];
 const processingContainers: Array<Container> = [];
@@ -12,10 +12,10 @@ let currentProcessingContainer = 0;
 let currentColoredContainer = 0;
 let currentUploadingContainer = 0;
 
-const setSize = (container: Container, { width, height }: Dimensions) => {
+const setSize = (container: Container, { width, height }: Size) => {
   container.canvas.width = width;
   container.canvas.height = height;
-  container.dimensions = { width, height };
+  container.size = { width, height };
 };
 
 export const resetCanvases = () => {
@@ -25,32 +25,32 @@ export const resetCanvases = () => {
   clearCanvases();
 };
 
-export const getNextProcessingContainer = (dimensions: Dimensions, heading: string): Container => {
+export const getNextProcessingContainer = (size: Size, heading: string): Container => {
   const container = processingContainers[currentProcessingContainer++];
-  setSize(container, dimensions);
+  setSize(container, size);
   container.heading.innerHTML = heading;
   return container;
 };
 
-export const getNextColoredContainer = (dimensions: Dimensions, heading: string): Container => {
+export const getNextColoredContainer = (size: Size, heading: string): Container => {
   const container = coloredContainers[currentColoredContainer++];
-  setSize(container, dimensions);
+  setSize(container, size);
   container.heading.innerHTML = heading;
   return container;
 };
 
-export const getNextUploadableContainer = (dimensions: Dimensions, heading: string): Container => {
+export const getNextUploadableContainer = (size: Size, heading: string): Container => {
   const container = uploadContainers[currentUploadingContainer++];
-  setSize(container, dimensions);
+  setSize(container, size);
   container.heading.innerHTML = heading;
   return container;
 };
 
-const getAsContainer = (entry: HTMLElement, dimensions: Dimensions): Container => {
+const getAsContainer = (entry: HTMLElement, size: Size): Container => {
   const canvas = entry.querySelector('canvas');
   if (canvas instanceof HTMLCanvasElement) {
-    canvas.height = dimensions.height;
-    canvas.width = dimensions.width;
+    canvas.height = size.height;
+    canvas.width = size.width;
     const ctx = canvas.getContext('2d');
     const heading = entry.querySelector('h3');
     if(heading === null){
@@ -60,7 +60,7 @@ const getAsContainer = (entry: HTMLElement, dimensions: Dimensions): Container =
       canvas,
       ctx,
       heading,
-      dimensions
+      size
     };
   }
   throw Error('trying to init a non existing container');

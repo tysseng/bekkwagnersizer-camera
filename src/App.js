@@ -203,13 +203,11 @@ const App = keydown(class App extends Component<Props, AppState> {
         <div>
           {config.source === 'video' ?
             <Video
-              dimensions={config.sourceSize}
               canvases={this.state.canvases}
               ref='videoSource'
             />
             :
             <Image
-              dimensions={config.sourceSize}
               canvases={this.state.canvases}
               ref='imageSource'
             />

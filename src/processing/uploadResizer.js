@@ -12,7 +12,7 @@ export const resizeToUploadSize = (source: Container) => {
   const targetCtx = target.ctx;
 
   const sourceCanvas = source.canvas;
-  const { height: sourceHeight, width: sourceWidth } = source.dimensions;
+  const { height: sourceHeight, width: sourceWidth } = source.size;
 
   const unpaddedWidth = sourceWidth - 2 * padding;
   const unpaddedHeight = sourceHeight - 2 * padding;

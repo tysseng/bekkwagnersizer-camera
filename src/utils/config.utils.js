@@ -1,5 +1,5 @@
 // @flow
-import type { Dimensions, Point } from "../types";
+import type { Size, Point } from "../types";
 
 export const getPPMM = (pixels: number, width: number): number => pixels / width;
 
@@ -13,7 +13,7 @@ export const getPointInPixels = ({x, y}: Point, pixelsPerMM: number): Point => (
   y: getInPixels(y, pixelsPerMM),
 });
 
-export const getSizeInPixels = ({width, height}: Dimensions, pixelsPerMM: number): Dimensions => ({
+export const getSizeInPixels = ({width, height}: Size, pixelsPerMM: number): Size => ({
   width: getInPixels(width, pixelsPerMM),
   height: getInPixels(height, pixelsPerMM),
 });

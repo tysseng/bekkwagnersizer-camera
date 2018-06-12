@@ -221,7 +221,7 @@ const drawImageOnCanvasAndDetectCorners = (
 
   const targetCtx = targetContainer.ctx;
   const grayscaledImage = mapToJsFeatImageData(targetContainer);
-  const { width, } = targetContainer.dimensions;
+  const { width, } = targetContainer.size;
   return detectCorners(targetCtx, grayscaledImage, width);
 };
 
@@ -231,7 +231,7 @@ export const findSheet = (videoFrameContainer: Container): ?SheetParams => {
 
   sheetCorners = drawImageOnCanvasAndDetectCorners(
     videoFrameContainer,
-    getNextProcessingContainer(videoFrameContainer.dimensions, 'Detected sheet'),
+    getNextProcessingContainer(videoFrameContainer.size, 'Detected sheet'),
     0
   );
 
@@ -240,7 +240,7 @@ export const findSheet = (videoFrameContainer: Container): ?SheetParams => {
     prerotation = 0.10;
     sheetCorners = drawImageOnCanvasAndDetectCorners(
       videoFrameContainer,
-      getNextProcessingContainer(videoFrameContainer.dimensions, 'Detected sheet second try (rotated)'),
+      getNextProcessingContainer(videoFrameContainer.size, 'Detected sheet second try (rotated)'),
       prerotation
     );
   }

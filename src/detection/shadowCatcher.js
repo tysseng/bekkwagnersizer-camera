@@ -15,7 +15,7 @@ export const getCorrectedColorComponent = (colorComponent: number, whiteComponen
 
 export const removeShadows = (sourceContainer: Container, whiteContainer: Container) => {
 
-  const {width, height} = sourceContainer.dimensions;
+  const {width, height} = sourceContainer.size;
   const sourceCtx = sourceContainer.ctx;
   const correctedImageData = sourceCtx.getImageData(0, 0, width, height);
   const correctedData = correctedImageData.data;
@@ -31,7 +31,7 @@ export const removeShadows = (sourceContainer: Container, whiteContainer: Contai
     }
   }, 'Removing whitepoint from all pixels');
 
-  const targetContainer = getNextProcessingContainer(sourceContainer.dimensions, 'Shadow removed');
+  const targetContainer = getNextProcessingContainer(sourceContainer.size, 'Shadow removed');
   const targetCtx = targetContainer.ctx;
   targetCtx.putImageData(correctedImageData, 0, 0);
   return targetContainer;
