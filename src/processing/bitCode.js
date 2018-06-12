@@ -6,7 +6,7 @@ import { copyCanvas } from "../utils/gfx/context.utils";
 import { drawBox } from "../utils/gfx/draw";
 import { getNextProcessingContainer } from "../canvases";
 import {
-  getBitCodeColorMappings, getPhotoColorCodesFromKeys,
+  getBitCodeColorMappings,
 } from "../colorizing/colorRepository";
 import type {
   BitCodeColorMap,

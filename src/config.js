@@ -2,7 +2,7 @@
 // 'image', 'video'
 import { flipDetectionMethods } from "./processing/flipDetectionMethods";
 import pushwagnerSceneConfig from "./pushwagner/pushwagnerSceneConfig";
-import type { Size, Point, SceneConfig } from "./types";
+import type { Size, Point } from "./types";
 import objMapper from "./utils/objectKeyMapper";
 import { getInPixels, getPointInPixels, getPPMM, getSizeInPixels } from "./utils/config.utils";
 

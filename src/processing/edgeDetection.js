@@ -3,7 +3,6 @@ import jsfeat from 'jsfeat';
 import { drawJsFeatImageOnContext } from "../utils/gfx/draw";
 import type { Container, Size, JsFeatImage } from "../types";
 import { getNextProcessingContainer } from "../canvases";
-import config from "../config";
 
 const dilutionWidth = 1;
 

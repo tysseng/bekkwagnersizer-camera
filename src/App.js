@@ -163,12 +163,18 @@ const App = keydown(class App extends Component<Props, AppState> {
   };
 
   captureCanvases = function(): Containers {
+
     const canvasesDiv = document.querySelector('.canvases');
     if(canvasesDiv === null){
       throw Error('Could not find any canvases')
     }
     const all = canvasesDiv.querySelectorAll('.canvas');
-    const canvases = extractAndResizeCanvases(all);
+    const canvases = extractAndResizeCanvases(
+      all,
+      document.querySelector('.processingCanvases'),
+      document.querySelector('.coloredCanvases'),
+      document.querySelector('.uploadableCanvases'),
+    );
     this.setState({ canvases });
     return canvases;
   };
@@ -228,108 +234,22 @@ const App = keydown(class App extends Component<Props, AppState> {
               <h3>White VideoFrame</h3>
               <canvas/>
             </div>
-          </div>
-          <div className='processingCanvases'>
-            <h2>Processing</h2>
             <div className='canvas'>
               <h3>VideoFrame</h3>
               <canvas/>
             </div>
-            <div className='canvas'>
-              <h3>White-corrected video frame</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>DetectedSheet</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>DetectedSheet, second try (rotated)</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Corrected sheet 1 (rotation)</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>CorrectedSheet 2 (scaling)</h3>
-              <canvas id='correctedScale'/>
-            </div>
-            <div className='canvas'>
-              <h3>CorrectedSheet 3 (flipping)</h3>
-              <canvas id='correctedFlip'/>
-            </div>
-            <div className='canvas'>
-              <h3>Bit code detection</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Edges</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Removed logo etc</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Filled, with border</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Filled, with border removed</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Mask (eroded)</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Extracted</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Cropped to prevent edges</h3>
-              <canvas/>
-            </div>
+          </div>
+          <div className='processingCanvases'>
+            <h2>Processing</h2>
+
           </div>
           <div className='coloredCanvases'>
             <h2>Colored</h2>
-            <div className='canvas'>
-              <h3>People</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Manhattan</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Kings Cross 1</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Kings Cross 2</h3>
-              <canvas/>
-            </div>
-            <br/>
+
           </div>
           <div className='uploadableCanvases'>
             <h2>Uploadable</h2>
-            <div className='canvas'>
-              <h3>People</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Manhattan</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Kings Cross 1</h3>
-              <canvas/>
-            </div>
-            <div className='canvas'>
-              <h3>Kings Cross 2</h3>
-              <canvas/>
-            </div>
+
           </div>
         </div>
       </div>

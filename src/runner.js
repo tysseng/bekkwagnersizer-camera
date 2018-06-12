@@ -67,6 +67,12 @@ const runSingleCycle = async (
 
   logger.info('Sheet is present, looking for corners');
 
+  // clear all to prepare!
+  // If not clearing the source (filledExpanded), floodFill crashes the second time around (!)
+  // If not clearing the target (filledContracted), the previous image will be visible through the
+  // semi-transparent parts of the new one.
+  resetCanvases();
+
   // TODO: This should be moved elsewhere, just here for testing.
   const whiteCorrectedVideoFrameContainer = removeShadows(canvases.videoFrame, canvases.whitePixelsVideoFrame);
 
@@ -85,12 +91,6 @@ const runSingleCycle = async (
   }
   logger.info('Position has changed, this is a new image. Processing');
 
-
-  // clear all to prepare!
-  // If not clearing the source (filledExpanded), floodFill crashes the second time around (!)
-  // If not clearing the target (filledContracted), the previous image will be visible through the
-  // semi-transparent parts of the new one.
-  resetCanvases();
 
   status.processing();
   if(isCalibration){
