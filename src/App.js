@@ -21,6 +21,7 @@ import { captureOriginalSheetPresenceLine } from "./detection/sheetPresence";
 import { uploadFile } from "./communication/fileUploader";
 import { extractAndResizeCanvases } from "./canvases";
 import type { Containers, SourceElement } from "./types";
+import CalibrationProfiles from "./CalibrationProfiles";
 
 type AppState = {
   canvases: Containers,
@@ -189,15 +190,18 @@ const App = keydown(class App extends Component<Props, AppState> {
         <p className="App-intro">
         </p>
         <div>
-          <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
-          <button className='initial' onClick={() => this.setWhitePixels()}>Set white pixels
-          </button>
-          <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors
-          </button>
-          <button className='initial' onClick={() => this.testUpload()}>Test upload!</button>
           <button onClick={() => this.runSingleCycle()}>Run single</button>
           <button className='primary' onClick={() => this.run()}>Run forever</button>
           <button className='initial' onClick={() => this.stop()}>Stop!</button>
+        </div>
+        <div>
+          <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
+          <button className='initial' onClick={() => this.setWhitePixels()}>Set white pixels
+          </button>
+          <button className='initial' onClick={() => this.testUpload()}>Test upload!</button>
+          <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors
+          </button>
+          <CalibrationProfiles/>
           <label>
             <input
               type='checkbox'

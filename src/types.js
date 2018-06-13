@@ -86,31 +86,43 @@ export type BitCodeToImageMap = { [BitCode]: Object }
 // Gives a name to each bit code.
 export type ImageBitCodes = { [string]: BitCode }
 
-// maps from a variation key to a map of photo color keys to color codes.
-export type SceneToColorCodesMap = {
-  [SceneKey]: {
+// maps a photo color to a variation color through the NAME of the color in the photo instead
+// of through the value, which makes it possible to change the value when calibration without
+// changing anything else.
+export type SceneColorCodes = {| [PhotoColorKey]: HexColor |}
 
-    // maps a photo color to a variation color through the NAME of the color in the photo instead
-    // of through the value, which makes it possible to change the value when calibration without
-    // changing anything else.
-    [PhotoColorKey]: HexColor;
-  }
+export type SceneColorsMap = {
+  // names of all colors to search for in an image
+  photo: Array<PhotoColorKey>,
+
+  //TODO: Put this into a scenes element and replace type with ColorsForAllScenes?
+  // the mappings from the photo colors to the colors to replace them with for a particular scene.
+  // NB: Does not include the default mappings.
+  [SceneKey]: SceneColorCodes,
 }
 
-// maps from an image key to the color codes for that image in all scene variations
-export type ImageToSceneColorsMap = {|
-  [BitCode]: {|
-    // colors found in this particular image
-    photo: Array<PhotoColorKey>,
+// maps from an image bit code key to the color codes for that image in all scene variations
+export type ImageToSceneColorsMap = {| [BitCode]: SceneColorsMap |}
 
-    // the mappings from those colors to a per-variation color.
-    [SceneKey]: {|
-      [photoColorKey: PhotoColorKey]: HexColor;
-    |}
-  |}
-|}
+// maps from a scene variation key to a map of photo color keys to color codes.
+export type SceneToColorCodesMap = {| [SceneKey]: SceneColorCodes |}
+
+export type ColorsForAllScenes = {
+  // Colors used in image, these are the colors to look for. Use as few colors as possible to
+  // make it less likely that colors are detected wrong.
+  photo: Array<PhotoColorKey>,
+
+  // Maps from photo color name to the color code (hex) to use for that color in each scene.
+  scenes: SceneToColorCodesMap
+}
+
+export type ColorsForAllImages = {
+  [BitCode]: ColorsForAllScenes
+}
 
 export type SceneConfig = {
+  id: string,
+
   // Identifiers for the various artworks
   scenes: SceneKeys,
 
@@ -129,8 +141,8 @@ export type SceneConfig = {
   // positions and sizes related to sheet that is photographed
   sheetSizeMM: Size,
   logoDetectionPositionMM: Point,
-  logoBoundingBoxMM: {upperLeft: Point, size: Size},
-  calibrationColorPositionsMM: {[string]: Point},
+  logoBoundingBoxMM: { upperLeft: Point, size: Size },
+  calibrationColorPositionsMM: { [string]: Point },
 }
 
 export type Logger = {

@@ -1,5 +1,3 @@
 - Lagre kalibrering, baseline og white image til miraserver for deling mellom maskiner
 - Lagre flere sett med kalibrering
-
-- Flytt bit position til scene
 - Fjerne direktereferanse til image props i uploader, ha filnavngenerator i config isteden

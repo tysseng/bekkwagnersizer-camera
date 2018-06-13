@@ -69,6 +69,8 @@ const calibrationColorPositionsMM = {
 };
 
 const sceneConfig: SceneConfig = {
+  id: 'pushwagnesizer',
+
   // Identifiers for the various artworks
   scenes: scenes,
 

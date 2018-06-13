@@ -16,7 +16,7 @@ import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent } from "./detection/sheetPresence";
-import { calibrate, drawPhotoColors, loadColors } from "./colorizing/colorCalibration";
+import { calibrate, drawPhotoColors, loadPersistedColors } from "./colorizing/colorCalibration";
 import { initColorMaps } from "./colorizing/colorRepository";
 import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";
@@ -196,6 +196,6 @@ export const calibrateColors = async (sourceElement: SourceElement, canvases: Co
 
 export const init = (canvases: Containers) => {
   initColorMaps(config.sceneConfig);
-  loadColors();
+  loadPersistedColors();
   drawPhotoColors(canvases.photoColors);
 };

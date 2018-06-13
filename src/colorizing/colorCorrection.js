@@ -1,3 +1,4 @@
+// @flow
 import nearest from 'nearest-color';
 import { copyCanvas } from "../utils/gfx/context.utils";
 import logger from "../utils/logger";
@@ -6,8 +7,18 @@ import {
   getColorsForAllImages, getPhotoColorCodesFromKeys,
 } from "./colorRepository";
 import config from "../config";
+import type {
+  BitCode, ColorsForAllScenes, Container, PhotoColorKey, SceneColorCodes,
+  SceneKey
+} from "../types";
 
-const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorMap) => {
+const writeColorReplaced = (
+  sourceData: Array<number>,
+  dataLength: number,
+  intermediate: Array<PhotoColorKey>,
+  target:  Container,
+  colorMap: SceneColorCodes
+) => {
   const { width, height } = target.size;
   const targetCtx = target.ctx;
   const imageData = targetCtx.getImageData(0, 0, width, height);
@@ -25,30 +36,35 @@ const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorM
 };
 
 const replaceColors = (
-  { key, colorsForImage, sourceContainer, sourceData, dataLength, intermediate }
+  key: SceneKey,
+  colorsForImage: ColorsForAllScenes,
+  sourceContainer: Container,
+  sourceData: Array<number>,
+  dataLength: number,
+  intermediate: Array<PhotoColorKey>
 ) => {
   const coloredContainer = getNextColoredContainer(sourceContainer.size);
   copyCanvas(sourceContainer, coloredContainer);
-  const colors = colorsForImage.sceneConfigs[key];
+  const colors = colorsForImage.scenes[key];
   writeColorReplaced(sourceData, dataLength, intermediate, coloredContainer, colors);
   return coloredContainer;
 };
 
-export const correctColors = (sourceContainer, imageCode) => {
+export const correctColors = (source: Container, imageCode: BitCode): { [SceneKey]: Container } => {
   try {
 
-    const { width, height } = sourceContainer.size;
-    const ctx = sourceContainer.ctx;
+    const { width, height } = source.size;
+    const ctx = source.ctx;
     const imageData = ctx.getImageData(0, 0, width, height);
     const sourceData = imageData.data;
     const dataLength = height * width * 4;
 
-    const intermediate = [];
+    const intermediate: Array<PhotoColorKey> = [];
 
     const colorsForImage = getColorsForAllImages()[imageCode];
+    const photoColorCodesToSearchFor = getPhotoColorCodesFromKeys(colorsForImage.photo);
 
-    const photoColorCodes = getPhotoColorCodesFromKeys(colorsForImage.photo);
-    const nearestPhotoColor = nearest.from(photoColorCodes);
+    const nearestPhotoColor = nearest.from(photoColorCodesToSearchFor);
 
     // detect closest photo colors
     for (let i = 0; i < dataLength; i += 4) {
@@ -66,9 +82,9 @@ export const correctColors = (sourceContainer, imageCode) => {
     const coloredContainers = {};
     const scenes = config.sceneConfig.scenes;
     Object.keys(scenes).forEach(sceneKey => {
-      coloredContainers[sceneKey] = replaceColors({
-        key: sceneKey, colorsForImage, sourceContainer, sourceData, dataLength, intermediate
-      });
+      coloredContainers[sceneKey] = replaceColors(
+        sceneKey, colorsForImage, source, sourceData, dataLength, intermediate
+      );
     });
 
     return coloredContainers;

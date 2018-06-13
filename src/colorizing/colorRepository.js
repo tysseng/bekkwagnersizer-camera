@@ -1,11 +1,14 @@
 // @flow
 import { getImageMappingsWithDefaults } from "./colorMapping";
 import logger from "../utils/logger";
-import type { HexColor, PhotoColorKey, SceneConfig } from "../types";
+import type {
+  BitCodeColorMap, ColorsForAllImages, HexColor, PhotoColorCodesMap, PhotoColorKey,
+  SceneConfig
+} from "../types";
 
 let colorsForAllImages;
-let photoColorCodes;
-let bitCodeColorMappings;
+let photoColorCodes: PhotoColorCodesMap;
+let bitCodeColorMappings: BitCodeColorMap;
 
 // Must be run after color calibration
 export const initColorMaps = (
@@ -29,9 +32,9 @@ export const initColorMaps = (
   logger.info(colorsForAllImages);
 };
 
-export const getColorsForAllImages = () => colorsForAllImages;
-export const getBitCodeColorMappings = () => bitCodeColorMappings;
-export const getPhotoColorCodes = () => photoColorCodes;
+export const getColorsForAllImages = (): ColorsForAllImages => colorsForAllImages;
+export const getBitCodeColorMappings = (): BitCodeColorMap => bitCodeColorMappings;
+export const getPhotoColorCodes = (): PhotoColorCodesMap => photoColorCodes;
 
 export const getPhotoColorCodesFromKeys = (
   photoColorKeys: Array<PhotoColorKey>

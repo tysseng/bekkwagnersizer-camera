@@ -1,4 +1,11 @@
-export const color = (hexString) => {
+//flow
+import type {
+  BitCode, ColorsForAllImages, ColorsForAllScenes,
+  ImageToSceneColorsMap, PhotoColorKey, RgbColor, SceneColorCodes, SceneKey,
+  SceneToColorCodesMap
+} from "../types";
+
+export const color = (hexString: string): RgbColor => {
   return {
     r: parseInt(hexString.substring(1, 3), 16),
     g: parseInt(hexString.substring(3, 5), 16),
@@ -6,8 +13,12 @@ export const color = (hexString) => {
   }
 };
 
-// get color mapping for a specific variation
-const getScreenColors = (photoColors, variationColors, defaultVariationColors) => {
+// Gets a mapping from detected color (by name) in the photo to color hex code in a scene.
+const getSceneColorsFromPhotoColorKeys = (
+  photoColors: Array<PhotoColorKey>,
+  variationColors: SceneColorCodes,
+  defaultVariationColors: SceneColorCodes,
+): SceneColorCodes => {
   const screenColors = {};
   if (variationColors == null) {
     photoColors.forEach(color => {
@@ -25,36 +36,46 @@ const getScreenColors = (photoColors, variationColors, defaultVariationColors) =
   return screenColors;
 };
 
-const getMappingWithDefaults = (mappings, defaultMappings, imageCode, variation) => {
+const getSceneColorsForImage = (
+  mappings: ImageToSceneColorsMap,
+  defaultMappings: SceneToColorCodesMap,
+  imageCode: BitCode,
+  sceneKey: SceneKey,
+): SceneColorCodes => {
   const photoColors = mappings[imageCode].photo;
-
-  const variationColors = mappings[imageCode][variation];
-  const defaultVariationColors = defaultMappings[variation];
-  return getScreenColors(photoColors, variationColors, defaultVariationColors);
+  const sceneColors = mappings[imageCode][sceneKey];
+  const defaultSceneColors = defaultMappings[sceneKey];
+  return getSceneColorsFromPhotoColorKeys(photoColors, sceneColors, defaultSceneColors);
 };
 
-const getVariationMappingsWithDefaults = (mappings, defaultMappings, imageCode, variations) => {
+const getVariationMappingsWithDefaults = (
+  mappings: ImageToSceneColorsMap,
+  defaultMappings: SceneToColorCodesMap,
+  imageCode: BitCode,
+  sceneKeys: Array<SceneKey>
+): ColorsForAllScenes => {
 
-  const variationsMapped = {};
-  variations.forEach(variationId => {
-    variationsMapped[variationId] = getMappingWithDefaults(mappings, defaultMappings, imageCode, variationId)
+  const scenesMapped = {};
+  sceneKeys.forEach(sceneKey => {
+    scenesMapped[sceneKey] = getSceneColorsForImage(mappings, defaultMappings, imageCode, sceneKey)
   });
 
-  const photoColors = {};
-  mappings[imageCode].photo.forEach(photoColor => {
-    photoColors[photoColor] = photoColor;
-  });
   return {
-    photo: photoColors,
-    variations: variationsMapped
+    photo: mappings[imageCode].photo,
+    scenes: scenesMapped
   }
 };
 
-export const getImageMappingsWithDefaults = (mappings, defaultMappings, imageCodes, variations) => {
+export const getImageMappingsWithDefaults = (
+  mappings: ImageToSceneColorsMap,
+  defaultMappings: SceneToColorCodesMap,
+  imageCodes: Array<BitCode>,
+  sceneKeys: Array<SceneKey>
+): ColorsForAllImages => {
 
   const images = {};
   imageCodes.forEach(imageCode => {
-    images[imageCode] = getVariationMappingsWithDefaults(mappings, defaultMappings, imageCode, variations)
+    images[imageCode] = getVariationMappingsWithDefaults(mappings, defaultMappings, imageCode, sceneKeys)
   });
   return images;
 };
