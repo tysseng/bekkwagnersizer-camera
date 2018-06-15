@@ -39,9 +39,10 @@ export const getPhotoColorCodes = (): PhotoColorCodesMap => photoColorCodes;
 export const getPhotoColorCodesFromKeys = (
   photoColorKeys: Array<PhotoColorKey>
 ): {[PhotoColorKey]: HexColor} => {
+  const photoColorCodesMap = getPhotoColorCodes();
   const photoColorCodes = {};
   photoColorKeys.forEach(key => {
-    photoColorCodes[key] = photoColorCodes[key];
+    photoColorCodes[key] = photoColorCodesMap[key];
   });
   return photoColorCodes;
 };

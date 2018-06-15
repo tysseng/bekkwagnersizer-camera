@@ -7,6 +7,7 @@ import { drawBox } from "../utils/gfx/draw";
 import { getNextProcessingContainer } from "../canvases";
 import {
   getBitCodeColorMappings,
+  getPhotoColorCodes
 } from "../colorizing/colorRepository";
 import type {
   BitCodeColorMap,
@@ -82,9 +83,10 @@ const drawBitOutline = (bitPos: Point, target: Container) => {
 };
 
 const getBitCodePhotoColors = (map: BitCodeColorMap) => {
+  const photoColorCodesMap = getPhotoColorCodes();
   const photoColorCodes = {};
   Object.keys(map).forEach(key => {
-    photoColorCodes[key] = photoColorCodes[key];
+    photoColorCodes[key] = photoColorCodesMap[map[key]];
   });
   return photoColorCodes;
 };
@@ -102,7 +104,7 @@ export const readBitCode = (
         return pos;
       }
     });
-  const bitCodeColorCodes = getBitCodePhotoColors(getBitCodeColorMappings());
+  const bitCodeColorCodes = getBitCodePhotoColors(getBitCodeColorMappings()));
   const nearestPhotoColorMapper = (nearest.from(bitCodeColorCodes): NearestColorMapper); // todo - better way to type nearest?
 
   const bits = bitPositions.map(
