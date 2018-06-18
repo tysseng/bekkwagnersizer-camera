@@ -2,7 +2,7 @@
 // If sheet is present, some of the pixels along the center line should be non-black.
 // This is a fast check before trying to find the corners.
 // TODO: Sheet presence og occlusionDetection er veldig like!
-import { getPointColorFromImageData } from "../utils/gfx/context.utils";
+import { getPointColorFromImageData } from "../utils/gfx/canvas.utils";
 import logger from "../utils/logger";
 import type { Container, Point } from "../types";
 

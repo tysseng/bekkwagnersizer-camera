@@ -110,7 +110,7 @@ Object.keys(images).forEach(key => {
 });
 
 export const imageBitCodes: ImageBitCodes = {};
-Object.keys(images).forEach(key => imageBitCodes[key] = images[key].bitCode);
+Object.entries(images).forEach(([key, image]) => imageBitCodes[key] = image.bitCode);
 
 export const bitCodeToImageMap: BitCodeToImageMap = {};
 Object.values(images).forEach(image => {

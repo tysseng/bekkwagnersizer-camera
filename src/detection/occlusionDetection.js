@@ -2,7 +2,7 @@
 // try to figure out when something (like a hand) enters the circle
 import config from "../config";
 import { getPointFromAngle } from "../utils/trigonometry";
-import { getPointColorFromImageData } from "../utils/gfx/context.utils";
+import { getPointColorFromImageData } from "../utils/gfx/canvas.utils";
 import { drawPoint } from "../utils/gfx/draw";
 import logger from "../utils/logger";
 import { abortable } from "../utils/promises";

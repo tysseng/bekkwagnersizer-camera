@@ -4,7 +4,7 @@
 import config from "../config";
 import { isLogoInCorrectCorner } from "./logo";
 import { rotateGrayscale180 } from "../utils/gfx/jsfeat.utils";
-import { copyCanvas, rotateColor180 } from "../utils/gfx/context.utils";
+import { copyCanvas, rotateColor180 } from "../utils/gfx/canvas.utils";
 import { timed } from "../utils/timer";
 import { isBitCodeInCorrectCorner, isBitCodeInWrongCorner } from "./bitCode";
 import { flipDetectionMethods } from "./flipDetectionMethods";

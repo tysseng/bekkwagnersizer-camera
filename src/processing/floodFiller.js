@@ -1,6 +1,6 @@
 // @flow
 import { floodFill } from "../utils/gfx/draw";
-import { copyCanvasCentered } from "../utils/gfx/context.utils";
+import { copyCanvasCentered } from "../utils/gfx/canvas.utils";
 import { timed } from "../utils/timer";
 import { getNextProcessingContainer } from "../canvases";
 import config from "../config";

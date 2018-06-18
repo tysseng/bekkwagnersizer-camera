@@ -21,6 +21,7 @@ import { initColorMaps } from "./colorizing/colorRepository";
 import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";
 import type { Container, Containers, SourceElement } from "./types";
+import { loadBaselineFromLocalStorage } from "./detection/baseline";
 
 // STATE! OH NO!
 let oldSheetParams = null;
@@ -103,8 +104,8 @@ const runSingleCycle = async (
     if (config.uploadFile && uploadAfterCapture) {
 
       // upload all variations
-      await Promise.all(Object.keys(uploadable).map(key => {
-        return uploadFile(uploadable[key], bitCode, key);
+      await Promise.all(Object.entries(uploadable).map(([key, value]) => {
+        return uploadFile(value, bitCode, key);
       }));
       status.success();
     }
@@ -196,6 +197,7 @@ export const calibrateColors = async (sourceElement: SourceElement, canvases: Co
 
 export const init = (canvases: Containers) => {
   initColorMaps(config.sceneConfig);
+  loadBaselineFromLocalStorage(canvases.baselineVideoFrame);
   loadPersistedColors();
   drawPhotoColors(canvases.photoColors);
 };

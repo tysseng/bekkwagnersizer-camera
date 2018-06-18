@@ -1,3 +1,2 @@
-- Lagre kalibrering, baseline og white image til miraserver for deling mellom maskiner
-- Lagre flere sett med kalibrering
+
 - Fjerne direktereferanse til image props i uploader, ha filnavngenerator i config isteden

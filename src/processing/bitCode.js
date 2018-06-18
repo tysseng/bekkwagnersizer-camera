@@ -2,7 +2,7 @@
 import nearest from 'nearest-color';
 import config from "../config";
 import logger from "../utils/logger";
-import { copyCanvas } from "../utils/gfx/context.utils";
+import { copyCanvas } from "../utils/gfx/canvas.utils";
 import { drawBox } from "../utils/gfx/draw";
 import { getNextProcessingContainer } from "../canvases";
 import {
@@ -85,8 +85,8 @@ const drawBitOutline = (bitPos: Point, target: Container) => {
 const getBitCodePhotoColors = (map: BitCodeColorMap) => {
   const photoColorCodesMap = getPhotoColorCodes();
   const photoColorCodes = {};
-  Object.keys(map).forEach(key => {
-    photoColorCodes[key] = photoColorCodesMap[map[key]];
+  Object.entries(map).forEach(([key, photoColorName]) => {
+    photoColorCodes[key] = photoColorCodesMap[photoColorName];
   });
   return photoColorCodes;
 };

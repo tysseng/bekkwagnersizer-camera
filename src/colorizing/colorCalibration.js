@@ -1,7 +1,7 @@
 //flow
 import config from "../config";
 import logger from "../utils/logger";
-import { clearCtx } from "../utils/gfx/context.utils";
+import { clearCtx } from "../utils/gfx/canvas.utils";
 import { getPhotoColorCodes } from "./colorRepository";
 import { extractSheet } from "../processing/sheetExtractorExact";
 import type { Container, PhotoColorCodesMap, RgbaColor, SheetParams } from "../types";
@@ -23,8 +23,8 @@ export const loadColors = (colors: PhotoColorCodesMap) => {
   const colorTarget = getPhotoColorCodes();
   if (colors) {
     const parsedColors = JSON.parse(colors);
-    Object.keys(parsedColors).forEach(key => {
-      colorTarget[key] = parsedColors[key];
+    Object.entries(parsedColors).forEach(([key, color]) => {
+      colorTarget[key] = color;
     })
   }
   logger.info('Loaded calibrated colors');
@@ -73,8 +73,7 @@ export const drawPhotoColors = (target: Container) => {
   const paddingX = 200;
   const paddingY = 60;
   logger.info('Drawing calibrated colors');
-  Object.keys(photoColors).forEach(key => {
-    const color = photoColors[key];
+  Object.entries(photoColors).forEach(([key, color]) => {
     const position = config.calibrationColorPositions[key];
     const { x, y } = position;
     ctx.fillStyle = color;
@@ -88,8 +87,8 @@ const calibrateColors = (source: Container) => {
   const colorPositions = config.calibrationColorPositions;
 
   logger.info('Calibrating colors');
-  Object.keys(colorPositions).forEach(key => {
-    const color = averageColorAroundPoint(source, padding, colorPositions[key]);
+  Object.entries(colorPositions).forEach(([key, point]) => {
+    const color = averageColorAroundPoint(source, padding, point);
     logger.info(`color ${key} = ${color.r}-${color.g}-${color.b} / ${color.hex}`);
     colorTarget[key] = color.hex;
   });

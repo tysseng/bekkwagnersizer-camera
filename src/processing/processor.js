@@ -3,7 +3,7 @@ import config from "../config";
 import { detectEdges } from "./edgeDetection";
 import { timed } from "../utils/timer";
 import { getErodedMask, getMonocromeMask, removeMask } from "./mask";
-import { copyCanvas, copyCanvasCentered } from "../utils/gfx/context.utils";
+import { copyCanvas, copyCanvasCentered } from "../utils/gfx/canvas.utils";
 import { removeLogo } from "./logo";
 import { readBitCode, removeBitDots } from "./bitCode";
 import { extractSheet } from "./sheetExtractorExact";
@@ -66,8 +66,8 @@ export const process = (videoFrameContainer: Container, sheetParams: SheetParams
 
   // resize to uploadable size
   const uploadContainers = {};
-  Object.keys(coloredContainers).forEach(key => {
-    uploadContainers[key] = resizeToUploadSize(coloredContainers[key]);
+  Object.entries(coloredContainers).forEach(([key, container]) => {
+    uploadContainers[key] = resizeToUploadSize(container);
   });
 
   return {

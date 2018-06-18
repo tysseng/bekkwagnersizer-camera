@@ -50,3 +50,18 @@ export const clearCtx = (container: Container) => {
   const { width, height } = container.size;
   ctx.clearRect(0, 0, width, height);
 };
+
+export const convertCanvasToBase64Png = (canvas: HTMLCanvasElement) => {
+  const dataURL = canvas.toDataURL("image/png");
+  return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+};
+
+export const drawBase64PngToContext = (pngString: string, ctx: CanvasRenderingContext2D) => {
+  if(pngString) {
+    const image = new Image();
+    image.onload = function () {
+      ctx.drawImage(image, 0, 0);
+    };
+    image.src = "data:image/png;base64," + pngString;
+  }
+};

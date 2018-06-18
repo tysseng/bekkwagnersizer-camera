@@ -15,12 +15,11 @@ import config from './config';
 import Video from "./sources/Video";
 import logger from './utils/logger';
 import Image from "./sources/Image";
-import { captureBaselineVideoFrame, captureWhitePixelsVideoFrame } from "./detection/capturing";
-import { captureOriginalCircle } from "./detection/occlusionDetection";
-import { captureOriginalSheetPresenceLine } from "./detection/sheetPresence";
+import { captureWhitePixelsVideoFrame } from "./detection/capturing";
 import { extractAndResizeCanvases } from "./canvases";
 import type { Containers, SourceElement } from "./types";
 import CalibrationProfiles from "./CalibrationProfiles";
+import { updateBaselineFromVideo } from "./detection/baseline";
 
 type AppState = {
   canvases: Containers,
@@ -139,9 +138,8 @@ const App = keydown(class App extends Component<Props, AppState> {
     logger.info("Process baseline image");
 
     try {
-      captureBaselineVideoFrame(this.getSourceElement(), this.state.canvases.baselineVideoFrame);
-      captureOriginalCircle(this.state.canvases.baselineVideoFrame);
-      captureOriginalSheetPresenceLine(this.state.canvases.baselineVideoFrame);
+      const baselineContainer = this.state.canvases.baselineVideoFrame;
+      updateBaselineFromVideo(this.getSourceElement(), baselineContainer);
     } catch (error) {
       logger.error('Could not set baseline');
       logger.error(error);

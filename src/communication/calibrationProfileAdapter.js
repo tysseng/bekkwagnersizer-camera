@@ -55,6 +55,10 @@ export const loadCalibrationProfilesFromServer = async (): Promise<Array<Calibra
       } else {
         return response.json();
       }
+    })
+    .catch(err => {
+      logger.error('Could not read calibration profiles from server');
+      return [];
     });
 
   const profilesForCurrentScene = calibrationProfiles.filter(

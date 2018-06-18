@@ -1,7 +1,7 @@
 const objMapper = (toMap, mapper) => {
   const mapped = {};
-  Object.keys(toMap).forEach(key => {
-    mapped[key] = mapper(toMap[key]);
+  Object.entries(toMap).forEach(([key, value]) => {
+    mapped[key] = mapper(value);
   });
   return mapped;
 };

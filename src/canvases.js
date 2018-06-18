@@ -1,5 +1,5 @@
 // @flow
-import { clearCtx } from "./utils/gfx/context.utils";
+import { clearCtx } from "./utils/gfx/canvas.utils";
 import config from "./config";
 import type { Container, Containers, Size } from "./types";
 import logger from "./utils/logger";

@@ -1,6 +1,6 @@
 // @flow
 import nearest from 'nearest-color';
-import { copyCanvas } from "../utils/gfx/context.utils";
+import { copyCanvas } from "../utils/gfx/canvas.utils";
 import { getNextColoredContainer } from "../canvases";
 import {
   getColorsForAllImages, getPhotoColorCodesFromKeys,
