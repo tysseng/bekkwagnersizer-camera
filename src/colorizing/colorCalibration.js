@@ -8,7 +8,7 @@ import type { Container, PhotoColorCodesMap, RgbaColor, SheetParams } from "../t
 
 const LOCAL_STORAGE_KEY = 'colorCalibration';
 
-const persistColors = (colors: PhotoColorCodesMap) => {
+export const persistColors = (colors: PhotoColorCodesMap) => {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(colors));
   logger.info('Persisted calibrated colors');
 };

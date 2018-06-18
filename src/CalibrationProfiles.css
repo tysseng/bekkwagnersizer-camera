@@ -1,0 +1,19 @@
+.calibration-profiles__status-message {
+  color: green;
+}
+
+.calibration-profiles__error-message {
+  color: red;
+}
+
+.calibration-profiles input {
+  padding: 2rem;
+  font-size: 2rem;
+  margin: 1rem;
+}
+
+.calibration-profiles button {
+  padding: 2rem;
+  font-size: 2rem;
+  margin: 1rem;
+}

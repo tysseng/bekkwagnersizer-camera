@@ -12,7 +12,7 @@ import {
   waitUntilNotOccluded,
   waitUntilOccluded
 } from "./detection/occlusionDetection";
-import { uploadFile } from "./communication/fileUploader";
+import { uploadFile } from "./communication/imageUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent } from "./detection/sheetPresence";
@@ -20,7 +20,7 @@ import { calibrate, drawPhotoColors, loadPersistedColors } from "./colorizing/co
 import { initColorMaps } from "./colorizing/colorRepository";
 import { resetCanvases } from "./canvases";
 import { removeShadows } from "./detection/shadowCatcher";
-import type { Container, Containers, SheetParams, SourceElement } from "./types";
+import type { Container, Containers, SourceElement } from "./types";
 
 // STATE! OH NO!
 let oldSheetParams = null;

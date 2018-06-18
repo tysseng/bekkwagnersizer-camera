@@ -18,7 +18,6 @@ import Image from "./sources/Image";
 import { captureBaselineVideoFrame, captureWhitePixelsVideoFrame } from "./detection/capturing";
 import { captureOriginalCircle } from "./detection/occlusionDetection";
 import { captureOriginalSheetPresenceLine } from "./detection/sheetPresence";
-import { uploadFile } from "./communication/fileUploader";
 import { extractAndResizeCanvases } from "./canvases";
 import type { Containers, SourceElement } from "./types";
 import CalibrationProfiles from "./CalibrationProfiles";
@@ -57,7 +56,6 @@ const App = keydown(class App extends Component<Props, AppState> {
     this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
     this.getSourceElement = this.getSourceElement.bind(this);
     this.handleUploadAfterCaptureChange = this.handleUploadAfterCaptureChange.bind(this);
-    this.testUpload = this.testUpload.bind(this);
   }
 
   componentWillReceiveProps = function(nextProps: Props) {
@@ -137,10 +135,6 @@ const App = keydown(class App extends Component<Props, AppState> {
     stopRunning();
   };
 
-  testUpload = function() {
-    uploadFile(this.state.canvases.uploadable1, 1, '2');
-  };
-
   setBaseline = function() {
     logger.info("Process baseline image");
 
@@ -193,15 +187,6 @@ const App = keydown(class App extends Component<Props, AppState> {
           <button onClick={() => this.runSingleCycle()}>Run single</button>
           <button className='primary' onClick={() => this.run()}>Run forever</button>
           <button className='initial' onClick={() => this.stop()}>Stop!</button>
-        </div>
-        <div>
-          <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
-          <button className='initial' onClick={() => this.setWhitePixels()}>Set white pixels
-          </button>
-          <button className='initial' onClick={() => this.testUpload()}>Test upload!</button>
-          <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors
-          </button>
-          <CalibrationProfiles/>
           <label>
             <input
               type='checkbox'
@@ -209,6 +194,14 @@ const App = keydown(class App extends Component<Props, AppState> {
               onChange={this.handleUploadAfterCaptureChange}/>
             Upload image after capture
           </label>
+        </div>
+        <div>
+          <button className='initial' onClick={() => this.setBaseline()}>Set initial</button>
+          <button className='initial' onClick={() => this.setWhitePixels()}>Set white pixels
+          </button>
+          <button className='initial' onClick={() => this.runColorCalibration()}>Calibrate colors
+          </button>
+          <CalibrationProfiles/>
         </div>
         <div>
           {config.source === 'video' ?

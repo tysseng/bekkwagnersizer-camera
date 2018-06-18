@@ -104,7 +104,7 @@ export const readBitCode = (
         return pos;
       }
     });
-  const bitCodeColorCodes = getBitCodePhotoColors(getBitCodeColorMappings()));
+  const bitCodeColorCodes = getBitCodePhotoColors(getBitCodeColorMappings());
   const nearestPhotoColorMapper = (nearest.from(bitCodeColorCodes): NearestColorMapper); // todo - better way to type nearest?
 
   const bits = bitPositions.map(

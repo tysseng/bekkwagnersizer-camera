@@ -31,6 +31,19 @@ button.primary {
   background-color: #11ff44;
 }
 
+input {
+  padding: 3rem;
+  font-size: 3rem;
+  margin: 1rem;
+}
+
+select, option {
+  padding: 3rem;
+  font-size: 3rem;
+  margin: 1rem;
+}
+
+
 h3 {
   font-size: 3rem;
 }

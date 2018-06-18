@@ -1,7 +1,6 @@
 // @flow
 import nearest from 'nearest-color';
 import { copyCanvas } from "../utils/gfx/context.utils";
-import logger from "../utils/logger";
 import { getNextColoredContainer } from "../canvases";
 import {
   getColorsForAllImages, getPhotoColorCodesFromKeys,
@@ -13,10 +12,10 @@ import type {
 } from "../types";
 
 const writeColorReplaced = (
-  sourceData: Array<number>,
+  sourceData: Uint8ClampedArray,
   dataLength: number,
   intermediate: Array<PhotoColorKey>,
-  target:  Container,
+  target: Container,
   colorMap: SceneColorCodes
 ) => {
   const { width, height } = target.size;
@@ -39,11 +38,11 @@ const replaceColors = (
   key: SceneKey,
   colorsForImage: ColorsForAllScenes,
   sourceContainer: Container,
-  sourceData: Array<number>,
+  sourceData: Uint8ClampedArray,
   dataLength: number,
   intermediate: Array<PhotoColorKey>
 ) => {
-  const coloredContainer = getNextColoredContainer(sourceContainer.size);
+  const coloredContainer = getNextColoredContainer(sourceContainer.size, 'Replaced colors for ' + key);
   copyCanvas(sourceContainer, coloredContainer);
   const colors = colorsForImage.scenes[key];
   writeColorReplaced(sourceData, dataLength, intermediate, coloredContainer, colors);
@@ -51,44 +50,39 @@ const replaceColors = (
 };
 
 export const correctColors = (source: Container, imageCode: BitCode): { [SceneKey]: Container } => {
-  try {
+  const { width, height } = source.size;
+  const ctx = source.ctx;
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const sourceData = imageData.data;
+  const dataLength = height * width * 4;
 
-    const { width, height } = source.size;
-    const ctx = source.ctx;
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const sourceData = imageData.data;
-    const dataLength = height * width * 4;
+  const intermediate: Array<PhotoColorKey> = [];
 
-    const intermediate: Array<PhotoColorKey> = [];
+  const colorsForImage = getColorsForAllImages()[imageCode];
+  const photoColorCodesToSearchFor = getPhotoColorCodesFromKeys(colorsForImage.photo);
 
-    const colorsForImage = getColorsForAllImages()[imageCode];
-    const photoColorCodesToSearchFor = getPhotoColorCodesFromKeys(colorsForImage.photo);
+  const nearestPhotoColor = nearest.from(photoColorCodesToSearchFor);
 
-    const nearestPhotoColor = nearest.from(photoColorCodesToSearchFor);
+  // detect closest photo colors
+  for (let i = 0; i < dataLength; i += 4) {
+    if (sourceData[i + 3] > 0) {
+      const oldColor = { r: sourceData[i], g: sourceData[i + 1], b: sourceData[i + 2] };
+      const newPhotoColor = nearestPhotoColor(oldColor);
 
-    // detect closest photo colors
-    for (let i = 0; i < dataLength; i += 4) {
-      if (sourceData[i + 3] > 0) {
-        const oldColor = { r: sourceData[i], g: sourceData[i + 1], b: sourceData[i + 2] };
-        const newPhotoColor = nearestPhotoColor(oldColor);
-
-        // using name instead of value as this lets us change the color codes for the color in the
-        // photo without changing the mapping from photo color to variation color.
-        intermediate[i / 4] = newPhotoColor.name;
-      }
+      // using name instead of value as this lets us change the color codes for the color in the
+      // photo without changing the mapping from photo color to variation color.
+      intermediate[i / 4] = newPhotoColor.name;
     }
-
-    // replace colors for all scenes
-    const coloredContainers = {};
-    const scenes = config.sceneConfig.scenes;
-    Object.keys(scenes).forEach(sceneKey => {
-      coloredContainers[sceneKey] = replaceColors(
-        sceneKey, colorsForImage, source, sourceData, dataLength, intermediate
-      );
-    });
-
-    return coloredContainers;
-  } catch (err) {
-    logger.error(err);
   }
+
+  // replace colors for all scenes
+  const coloredContainers = {};
+  const scenes = config.sceneConfig.scenes;
+  Object.keys(scenes).forEach(sceneKey => {
+    coloredContainers[sceneKey] = replaceColors(
+      sceneKey, colorsForImage, source, sourceData, dataLength, intermediate
+    );
+  });
+
+  return coloredContainers;
 };

@@ -120,6 +120,13 @@ const config = {
     'http://169.254.43.21:3000/image',
   ],
 
+  // calibration is loaded from a single server but may be saved to multiple
+  loadCalibrationProfiles: true,
+  loadCalibrationUrl: 'http://169.254.43.21:3000/calibration',
+  saveCalibrationUrls: [
+    'http://169.254.43.21:3000/calibration',
+  ],
+
   debug: {
     drawSheetCorners: true,
     drawBoundingBox: true,

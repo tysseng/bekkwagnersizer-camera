@@ -59,8 +59,8 @@ export type NearestColorMapper = (color: RgbColor) => NearestColor;
 // a hex rgb color code
 export type HexColor = string;
 
-// maps from a key to a hex rgb color code
-export type ColorCodeMap = { [string]: HexColor }
+// maps from a key to an rgb color code
+export type ColorCodeMap = { [string]: RgbColor }
 
 // key in the map of colors to search for in a photo
 export type PhotoColorKey = string;
@@ -89,7 +89,7 @@ export type ImageBitCodes = { [string]: BitCode }
 // maps a photo color to a variation color through the NAME of the color in the photo instead
 // of through the value, which makes it possible to change the value when calibration without
 // changing anything else.
-export type SceneColorCodes = {| [PhotoColorKey]: HexColor |}
+export type SceneColorCodes = {| [PhotoColorKey]: RgbColor |}
 
 export type SceneColorsMap = {
   // names of all colors to search for in an image
@@ -143,6 +143,14 @@ export type SceneConfig = {
   logoDetectionPositionMM: Point,
   logoBoundingBoxMM: { upperLeft: Point, size: Size },
   calibrationColorPositionsMM: { [string]: Point },
+}
+
+export type CalibrationProfile = {
+  id: string,
+  sceneId: SceneKey,
+  time: number,
+  name: string,
+  colors: PhotoColorCodesMap,
 }
 
 export type Logger = {
