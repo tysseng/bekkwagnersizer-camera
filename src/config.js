@@ -122,9 +122,10 @@ const config = {
 
   // calibration is loaded from a single server but may be saved to multiple
   loadCalibrationProfiles: true,
-  loadCalibrationUrl: 'http://169.254.43.21:3000/calibration',
+  loadCalibrationUrl: 'http://localhost:3000/calibration',
   saveCalibrationUrls: [
-    'http://169.254.43.21:3000/calibration',
+    //'http://169.254.43.21:3000/calibration',
+    'http://localhost:3000/calibration',
   ],
 
   debug: {

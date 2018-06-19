@@ -4,6 +4,7 @@ import logger from "./utils/logger";
 import config from "./config";
 import { loadColors, loadPersistedColors, persistColors } from "./colorizing/colorCalibration";
 import {
+  loadCalibrationProfileFromServer,
   loadCalibrationProfilesFromServer,
   saveCalibrationProfileToServer
 } from "./communication/calibrationProfileAdapter";
@@ -12,7 +13,7 @@ import { getPhotoColorCodes } from "./colorizing/colorRepository";
 import './CalibrationProfiles.css';
 
 type State = {
-  calibrationProfiles: Array<CalibrationProfile>,
+  calibrationProfiles: Array<string>,
   error: ?string,
   statusMessage: ?string
 }
@@ -43,7 +44,7 @@ class CalibrationProfiles extends Component<*, State> {
       } else if (id === LOCALSTORAGE) {
         loadPersistedColors();
       } else {
-        const profile = this.state.calibrationProfiles.find(profile => profile.id === id);
+        const profile = loadCalibrationProfileFromServer(id);
         if (profile) {
           loadColors(profile.colors);
         } else {
@@ -98,7 +99,7 @@ class CalibrationProfiles extends Component<*, State> {
             <option key='none' value={NONE}>--- change color calibration ---</option>
             <option key='localstorage' value={LOCALSTORAGE}>From local storage</option>
             {this.state.calibrationProfiles.map(profile =>
-              <option key={profile.id} value={profile.id}>{profile.name}</option>
+              <option key={profile} value={profile}>{profile}</option>
             )}
           </select>
         </div>
