@@ -15,15 +15,16 @@ export const persistColors = (colors: PhotoColorCodesMap) => {
 
 export const loadPersistedColors = (): PhotoColorCodesMap => {
   const persistedColors = localStorage.getItem(LOCAL_STORAGE_KEY);
-  loadColors(persistedColors);
-  logger.info('Loaded persisted calibrated colors');
+  if(persistedColors){
+    loadColors(JSON.parse(persistedColors));
+    logger.info('Loaded persisted calibrated colors');
+  }
 };
 
 export const loadColors = (colors: PhotoColorCodesMap) => {
   const colorTarget = getPhotoColorCodes();
   if (colors) {
-    const parsedColors = JSON.parse(colors);
-    Object.entries(parsedColors).forEach(([key, color]) => {
+    Object.entries(colors).forEach(([key, color]) => {
       colorTarget[key] = color;
     })
   }

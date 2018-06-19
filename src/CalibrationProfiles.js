@@ -34,17 +34,16 @@ class CalibrationProfiles extends Component<*, State> {
     this.loadCalibrationProfiles = this.loadCalibrationProfiles.bind(this);
   }
 
-  onDropdownChange = function (event: Event) {
+  onDropdownChange = async (event: Event) => {
     const target = event.target;
     if (target instanceof HTMLSelectElement) {
-      console.log('dropdown changed', target.value);
       const id = target.value;
       if (id === NONE) {
         return;
       } else if (id === LOCALSTORAGE) {
         loadPersistedColors();
       } else {
-        const profile = loadCalibrationProfileFromServer(id);
+        const profile = await loadCalibrationProfileFromServer(id);
         if (profile) {
           loadColors(profile.colors);
         } else {
@@ -79,6 +78,7 @@ class CalibrationProfiles extends Component<*, State> {
       logger.error(err);
       this.setState({ error: 'Saving failed' })
     }
+    this.loadCalibrationProfiles();
   };
 
   saveToLocalStorage = function () {

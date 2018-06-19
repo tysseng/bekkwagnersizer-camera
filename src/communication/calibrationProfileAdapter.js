@@ -26,8 +26,8 @@ const uploadCalibrationProfile = async (url: string, calibrationProfile: string)
 
 export const saveCalibrationProfileToServer = async (name: string, colors: PhotoColorCodesMap) => {
   const sceneId = config.sceneConfig.id;
-  const time = Date.now();
-  const profileName = `${name} (${time})`;
+  const time = new Date().toLocaleString().replace(/[\/:]/g, '-').replace(',','');
+  const profileName = `${sceneId} ${name} (${time})`;
   const profile = {
     id: uuid(),
     sceneId,
