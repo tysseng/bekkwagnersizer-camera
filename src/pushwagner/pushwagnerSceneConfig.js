@@ -68,6 +68,9 @@ const calibrationColorPositionsMM = {
   black: { x: colorColsMM[1], y: colorRowsMM[4] },
 };
 
+const imageNameGenerator = (variation: string, image: Object, uuid: string) =>
+  `${variation}-${image.gender}-${image.id}-${uuid}.png`;
+
 const sceneConfig: SceneConfig = {
   id: 'pushwagnesizer',
 
@@ -76,6 +79,7 @@ const sceneConfig: SceneConfig = {
 
   // bit codes - codes that tell us what version of an input sheet we've photographed
   imageBitCodes: imageBitCodes,
+  imageNameGenerator,
   bitCodeToImageMap: bitCodeToImageMap,
   bitCodeColorMappings: getBitCodeMappings(),
   bitPositionsMM,

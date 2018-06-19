@@ -128,6 +128,7 @@ export type SceneConfig = {
 
   // bit codes - codes that tell us what version of an input sheet we've photographed
   imageBitCodes: ImageBitCodes,
+  imageNameGenerator: (variation: string, image: Object, uuid: string) => string,
   bitCodeToImageMap: BitCodeToImageMap,
   bitCodeColorMappings: BitCodeColorMap,
   bitPositionsMM: Array<Point>,

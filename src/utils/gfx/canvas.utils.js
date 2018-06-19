@@ -56,7 +56,7 @@ export const convertCanvasToBase64Png = (canvas: HTMLCanvasElement) => {
   return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
 };
 
-export const drawBase64PngToContext = (pngString: string, ctx: CanvasRenderingContext2D) => {
+export const drawBase64PngToContext = (pngString: ?string, ctx: CanvasRenderingContext2D) => {
   if(pngString) {
     const image = new Image();
     image.onload = function () {

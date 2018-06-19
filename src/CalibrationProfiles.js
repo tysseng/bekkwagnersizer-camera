@@ -17,6 +17,9 @@ type State = {
   statusMessage: ?string
 }
 
+const NONE = 'none';
+const LOCALSTORAGE = 'localstorage';
+
 class CalibrationProfiles extends Component<*, State> {
 
   constructor(props: *) {
@@ -30,21 +33,24 @@ class CalibrationProfiles extends Component<*, State> {
     this.loadCalibrationProfiles = this.loadCalibrationProfiles.bind(this);
   }
 
-  onDropdownChange = function (event) {
-    const id = event.target.value;
-    if (id === 'none') {
-      return;
-    } else if (id === 'localstorage') {
-      loadPersistedColors();
-    } else {
-      const profile = this.state.calibrationProfiles[id];
-      if (profile) {
-        loadColors(profile.colors);
+  onDropdownChange = function (event: Event) {
+    const target = event.target;
+    if (target instanceof HTMLSelectElement) {
+      console.log('dropdown changed', target.value);
+      const id = target.value;
+      if (id === NONE) {
+        return;
+      } else if (id === LOCALSTORAGE) {
+        loadPersistedColors();
       } else {
-        logger.error('Could not load calibration profile')
+        const profile = this.state.calibrationProfiles.find(profile => profile.id === id);
+        if (profile) {
+          loadColors(profile.colors);
+        } else {
+          logger.error('Could not load calibration profile')
+        }
       }
     }
-    console.log('dropdown changed', event.target.value);
   };
 
   loadCalibrationProfiles = async function () {
@@ -89,8 +95,8 @@ class CalibrationProfiles extends Component<*, State> {
         <div>
           <h3>Load calibration profile</h3>
           <select onChange={this.onDropdownChange}>
-            <option key='none' value='none'>--- change color calibration ---</option>
-            <option key='localstorage' value='none'>From local storage</option>
+            <option key='none' value={NONE}>--- change color calibration ---</option>
+            <option key='localstorage' value={LOCALSTORAGE}>From local storage</option>
             {this.state.calibrationProfiles.map(profile =>
               <option key={profile.id} value={profile.id}>{profile.name}</option>
             )}

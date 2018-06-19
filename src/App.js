@@ -57,7 +57,7 @@ const App = keydown(class App extends Component<Props, AppState> {
     this.handleUploadAfterCaptureChange = this.handleUploadAfterCaptureChange.bind(this);
   }
 
-  componentWillReceiveProps = function(nextProps: Props) {
+  componentWillReceiveProps = function (nextProps: Props) {
     const { keydown: { event } } = nextProps;
     if (event) {
       logger.info('KEY', event.which);
@@ -67,19 +67,19 @@ const App = keydown(class App extends Component<Props, AppState> {
     }
   };
 
-  componentDidMount = function() {
+  componentDidMount = function () {
     const canvases = this.captureCanvases();
     initRunner(canvases);
   };
 
-  sourceHasLoaded = function() {
+  sourceHasLoaded = function () {
     logger.info('image has loaded');
     this.setState({
       sourceImageHasLoaded: true
     })
   };
 
-  getSourceElement = function(): SourceElement {
+  getSourceElement = function (): SourceElement {
     if (config.source === 'video') {
       return this.refs.videoSource.refs.video;
     } else {
@@ -87,11 +87,11 @@ const App = keydown(class App extends Component<Props, AppState> {
     }
   };
 
-  handleUploadAfterCaptureChange = function(event: Event) {
+  handleUploadAfterCaptureChange = function (event: Event) {
     const target = event.target;
     if (target instanceof HTMLInputElement) {
       const value = target.checked;
-      if(value){
+      if (value) {
         logger.info('Turned on upload');
       } else {
         logger.info('Turned off upload');
@@ -103,7 +103,7 @@ const App = keydown(class App extends Component<Props, AppState> {
     }
   };
 
-  run = function() {
+  run = function () {
     try {
       runIndefinitely(this.getSourceElement(), this.state.canvases);
     } catch (error) {
@@ -112,7 +112,7 @@ const App = keydown(class App extends Component<Props, AppState> {
     }
   };
 
-  runSingleCycle = function() {
+  runSingleCycle = function () {
     try {
       runOnce(this.getSourceElement(), this.state.canvases);
     } catch (error) {
@@ -121,7 +121,7 @@ const App = keydown(class App extends Component<Props, AppState> {
     }
   };
 
-  runColorCalibration = function() {
+  runColorCalibration = function () {
     try {
       calibrateColors(this.getSourceElement(), this.state.canvases);
     } catch (error) {
@@ -130,11 +130,11 @@ const App = keydown(class App extends Component<Props, AppState> {
     }
   };
 
-  stop = function() {
+  stop = function () {
     stopRunning();
   };
 
-  setBaseline = function() {
+  setBaseline = function () {
     logger.info("Process baseline image");
 
     try {
@@ -146,7 +146,7 @@ const App = keydown(class App extends Component<Props, AppState> {
     }
   };
 
-  setWhitePixels = function() {
+  setWhitePixels = function () {
     try {
       captureWhitePixelsVideoFrame(this.getSourceElement(), this.state.canvases.whitePixelsVideoFrame);
     } catch (error) {
@@ -155,18 +155,26 @@ const App = keydown(class App extends Component<Props, AppState> {
     }
   };
 
-  captureCanvases = function(): Containers {
+  captureCanvases = function (): Containers {
 
     const canvasesDiv = document.querySelector('.canvases');
-    if(canvasesDiv === null){
+    if (canvasesDiv === null) {
       throw Error('Could not find any canvases')
     }
     const all = canvasesDiv.querySelectorAll('.canvas');
+    const processingCanvasesDiv = document.querySelector('.processingCanvases');
+    const coloredCanvasesDiv = document.querySelector('.coloredCanvases');
+    const uploadableCanvasesDiv = document.querySelector('.uploadableCanvases');
+
+    if(processingCanvasesDiv == null || coloredCanvasesDiv == null || uploadableCanvasesDiv == null){
+      throw new Error('Could not get all canvas divs!')
+    }
+
     const canvases = extractAndResizeCanvases(
       all,
-      document.querySelector('.processingCanvases'),
-      document.querySelector('.coloredCanvases'),
-      document.querySelector('.uploadableCanvases'),
+      processingCanvasesDiv,
+      coloredCanvasesDiv,
+      uploadableCanvasesDiv,
     );
     this.setState({ canvases });
     return canvases;

@@ -52,9 +52,8 @@ export const uploadFile = async (
   const blob = b64toBlob(realData, contentType);
 
   const image = config.sceneConfig.bitCodeToImageMap[bitCode];
-
-  //const filenameStem = filenames[bitCode] || 'fallback';
-  const filename = `${variation}-${image.gender}-${image.id}-${uuid()}.png`;
+  const nameGenerator = config.sceneConfig.imageNameGenerator;
+  const filename = nameGenerator(variation, image, uuid());
 
   const formData = new FormData();
   formData.append("image", blob, filename);

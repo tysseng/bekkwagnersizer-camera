@@ -104,8 +104,8 @@ const runSingleCycle = async (
     if (config.uploadFile && uploadAfterCapture) {
 
       // upload all variations
-      await Promise.all(Object.entries(uploadable).map(([key, value]) => {
-        return uploadFile(value, bitCode, key);
+      await Promise.all(Object.keys(uploadable).map(key => {
+        return uploadFile(uploadable[key], bitCode, key);
       }));
       status.success();
     }

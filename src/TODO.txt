@@ -1,2 +1,2 @@
 
-- Fjerne direktereferanse til image props i uploader, ha filnavngenerator i config isteden
+Store calibrations on server (fix in MiraServer)

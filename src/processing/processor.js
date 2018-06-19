@@ -66,8 +66,8 @@ export const process = (videoFrameContainer: Container, sheetParams: SheetParams
 
   // resize to uploadable size
   const uploadContainers = {};
-  Object.entries(coloredContainers).forEach(([key, container]) => {
-    uploadContainers[key] = resizeToUploadSize(container);
+  Object.keys(coloredContainers).forEach(key => {
+    uploadContainers[key] = resizeToUploadSize(coloredContainers[key]);
   });
 
   return {

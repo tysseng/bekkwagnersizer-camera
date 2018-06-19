@@ -85,7 +85,8 @@ const drawBitOutline = (bitPos: Point, target: Container) => {
 const getBitCodePhotoColors = (map: BitCodeColorMap) => {
   const photoColorCodesMap = getPhotoColorCodes();
   const photoColorCodes = {};
-  Object.entries(map).forEach(([key, photoColorName]) => {
+  Object.keys(map).forEach(key => {
+    const photoColorName = map[key];
     photoColorCodes[key] = photoColorCodesMap[photoColorName];
   });
   return photoColorCodes;
