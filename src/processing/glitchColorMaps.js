@@ -15,7 +15,7 @@ export const photoColors = {
 
 // All colors to use for replacing.
 const screenColorsGlitch = {
-  white: color('#ffffff'),
+  white: color('#ffffff', 0),
   black: color('#000000'),
   blue: color('#00e7e2'),
   red: color('#c92128'),

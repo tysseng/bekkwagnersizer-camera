@@ -31,6 +31,7 @@ const writeColorReplaced = (sourceData, dataLength, intermediate, target, colorM
       targetData[i] = newOutputColor.r;
       targetData[i + 1] = newOutputColor.g;
       targetData[i + 2] = newOutputColor.b;
+      targetData[i + 3] = newOutputColor.a;
     }
   }
   targetCtx.putImageData(imageData, 0, 0);
