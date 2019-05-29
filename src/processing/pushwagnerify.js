@@ -1,7 +1,7 @@
 import nearest from 'nearest-color';
 import { copyCanvas } from "../utils/gfx/context.utils";
 import { getImageMappingsWithDefaults } from "./colorMapping";
-import { getDefaultMappings, getMappings } from "./pushwagnerColorMaps";
+import { getDefaultMappings, getMappings } from "./glitchColorMaps";
 import { imageCodes } from "./imageCodes";
 import variations from "./sceneVariations";
 import logger from "../utils/logger";
@@ -66,18 +66,10 @@ export const correctColors = (containers, imageCode) => {
       }
     }
 
-    const peopleColors = colorsForImage.variations[variations.people];
-    const manhattanColors = colorsForImage.variations[variations.manhattan];
-    const kingscross1Colors = colorsForImage.variations[variations.kingscross1];
-    const kingscross2Colors = colorsForImage.variations[variations.kingscross2];
-
-    console.log(kingscross2Colors);
+    const glitchColors = colorsForImage.variations[variations.glitch];
 
     // replace with screen colors
-    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored1, peopleColors);
-    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored2, manhattanColors);
-    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored3, kingscross1Colors);
-    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored4, kingscross2Colors);
+    writeColorReplaced(sourceData, dataLength, intermediate, containers.colored1, glitchColors);
   } catch (err) {
     logger.error(err);
   }

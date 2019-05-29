@@ -13,7 +13,7 @@ import { resizeToUploadSize } from "./uploadResizer";
 import { floodFillWithoutPadding, floodFillWithPadding } from "./floodFiller";
 import { correctColors, updateColorsForAllImages } from "./pushwagnerify";
 import logger from "../utils/logger";
-import { photoColors } from "./pushwagnerColorMaps";
+import { photoColors } from "./glitchColorMaps";
 import { calibrateColors, drawPhotoColors } from "./colorCalibration";
 
 
@@ -67,10 +67,13 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
 
   // detect bit code to see what image this is
   logger.info('Looking for bitcode');
+  const bitCode = 0;
+  /*
   const bitCode = timed(() => readBitCode(canvases.correctedSheetFlipping, sheetWidth, sheetHeight, canvases), 'Reading bit code');
   if(bitCode === 0){
     throw new Error('No bitcode found, aborting');
   }
+  */
 
   // find lines to prepare for flood fill
   const jsFeatImageWithDilutedLines = timed(() => detectEdges(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');

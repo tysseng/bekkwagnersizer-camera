@@ -68,17 +68,13 @@ const colorRows = colorRowsMM.map(pos => Math.floor(pos * sheetPPMM));
 const colorCols = colorColsMM.map(pos => Math.floor(pos * sheetPPMM));
 
 const colorPositions = {
-  lightBlue:  {x: colorCols[0], y: colorRows[0]},
-  green:  {x: colorCols[0], y: colorRows[1]},
-  yellow:  {x: colorCols[0], y: colorRows[2]},
-  purple:  {x: colorCols[0], y: colorRows[3]},
-  pink:  {x: colorCols[0], y: colorRows[4]},
+  blue:  {x: colorCols[0], y: colorRows[0]},
+  red:  {x: colorCols[0], y: colorRows[2]},
+  yellow:  {x: colorCols[0], y: colorRows[3]},
+  pink:  {x: colorCols[1], y: colorRows[0]},
+  green:  {x: colorCols[1], y: colorRows[2]},
   white:  {x: colorCols[0], y: colorRows[5]},
-  orange:  {x: colorCols[1], y: colorRows[0]},
-  skin:  {x: colorCols[1], y: colorRows[1]},
-  wine:  {x: colorCols[1], y: colorRows[2]},
-  darkBlue:  {x: colorCols[1], y: colorRows[3]},
-  black: {x: colorCols[1], y: colorRows[4]},
+  black:  {x: colorCols[1], y: colorRows[2]},
 };
 
 export default {
@@ -152,7 +148,7 @@ export default {
   videoCircle: { // relative to videoSize
     x: 2950,
     y: 2010,
-    radius: 1840,
+    diameter: 1840,
   },
 */
   //HD cam
@@ -161,15 +157,21 @@ export default {
   videoCircle: { // relative to videoSize
     x: 1470,
     y: 1010,
-    radius: 920,
+    diameter: 920,
   },
   */
 
   videoCircle: { // relative to videoSize
+    x: 2000 / 2,
+    y: 1080 / 2,
+    diameter: 870,
+  },
+  /*
+  videoCircle: { // relative to videoSize
     x: 1440,
     y: 980,
     diameter: 870,
-  },
+  },*/
 
   sourceSize: source === 'video' ? videoFrameSize : imageSize,
 

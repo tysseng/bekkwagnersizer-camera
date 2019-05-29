@@ -15,7 +15,7 @@ import { uploadFile } from "./communication/fileUploader";
 import { abortable, timeout } from "./utils/promises";
 import { isRunning, startRunning, stopRunning } from "./runstatus";
 import { isSheetPresent } from "./detection/sheetPresence";
-import { photoColors } from "./processing/pushwagnerColorMaps";
+import { photoColors } from "./processing/glitchColorMaps";
 import { drawPhotoColors, loadColors } from "./processing/colorCalibration";
 import { updateColorsForAllImages } from "./processing/pushwagnerify";
 import sceneVariations from "./processing/sceneVariations";
@@ -64,7 +64,7 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   logger.info('Sheet is present, looking for corners');
 
   // TODO: This should be moved elsewhere, just here for testing.
-  removeShadows(canvases.videoFrame, canvases.whiteCorrectedVideoFrame, canvases.whitePixelsVideoFrame);
+  //removeShadows(canvases.videoFrame, canvases.whiteCorrectedVideoFrame, canvases.whitePixelsVideoFrame);
 
   const sheetParams = await abortable(() => findSheet(canvases));
   if (sheetParams === null) {
