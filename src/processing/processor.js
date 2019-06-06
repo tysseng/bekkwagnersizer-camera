@@ -76,6 +76,7 @@ export const process = (canvases, sheetParams, isCalibration = false) => {
   */
 
   // find lines to prepare for flood fill
+  drawJsFeatImageOnContext(sheetImageBW, canvases.bwSheet.ctx, sheetWidth, sheetHeight);
   const jsFeatImageWithDilutedLines = timed(() => detectEdges(sheetImageBW, sheetWidth, sheetHeight), 'detect lines');
   drawJsFeatImageOnContext(jsFeatImageWithDilutedLines, canvases.edges.ctx, sheetWidth, sheetHeight);
 

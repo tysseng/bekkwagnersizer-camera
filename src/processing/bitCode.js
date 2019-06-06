@@ -15,7 +15,7 @@ const bit = (sourceContainer, imageWidth, padding, x, y) => {
 
   const colorsInPhoto = {
     white: photoColors.white,
-    dotColor: photoColors.pink,
+    dotColor: photoColors.purple,
     black: photoColors.black,
   };
 

@@ -235,6 +235,10 @@ const App = keydown(class App extends Component {
             <canvas/>
           </div>
           <div>
+            <h3>B & W sheet</h3>
+            <canvas/>
+          </div>
+          <div>
             <h3>Edges</h3>
             <canvas/>
           </div>

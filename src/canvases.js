@@ -22,6 +22,7 @@ export const extractAndResizeCanvases = (all) => {
     correctedSheetScaling: { canvas: all[curr++] },
     correctedSheetFlipping: { canvas: all[curr++] },
     bitCodeDetection: { canvas: all[curr++] },
+    bwSheet: { canvas: all[curr++] },
     edges: { canvas: all[curr++] },
     removedElements: { canvas: all[curr++] },
     filledExpanded: { canvas: all[curr++] },
@@ -58,6 +59,7 @@ export const extractAndResizeCanvases = (all) => {
   setSize(canvases.correctedSheetScaling, sheetSize);
   setSize(canvases.correctedSheetFlipping, sheetSize);
   setSize(canvases.bitCodeDetection, sheetSize);
+  setSize(canvases.bwSheet, sheetSize);
   setSize(canvases.edges, sheetSize);
   setSize(canvases.removedElements, sheetSize);
   setSize(canvases.filledExpanded, {
@@ -89,6 +91,7 @@ export const clearCanvases = (canvases) => {
   clearCtx(canvases.correctedSheetScaling);
   clearCtx(canvases.correctedSheetFlipping);
   clearCtx(canvases.bitCodeDetection);
+  clearCtx(canvases.bwSheet);
   clearCtx(canvases.edges);
   clearCtx(canvases.removedElements);
   clearCtx(canvases.filledExpanded);

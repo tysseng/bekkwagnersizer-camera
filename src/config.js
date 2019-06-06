@@ -69,12 +69,11 @@ const colorCols = colorColsMM.map(pos => Math.floor(pos * sheetPPMM));
 
 const colorPositions = {
   blue:  {x: colorCols[0], y: colorRows[0]},
-  red:  {x: colorCols[0], y: colorRows[2]},
-  yellow:  {x: colorCols[0], y: colorRows[3]},
-  pink:  {x: colorCols[1], y: colorRows[0]},
-  green:  {x: colorCols[1], y: colorRows[2]},
+  teal:  {x: colorCols[0], y: colorRows[1]},
+  green:  {x: colorCols[1], y: colorRows[0]},
+  purple:  {x: colorCols[1], y: colorRows[1]},
   white:  {x: colorCols[0], y: colorRows[5]},
-  black:  {x: colorCols[1], y: colorRows[2]},
+  black:  {x: colorCols[1], y: colorRows[4]},
 };
 
 export default {
