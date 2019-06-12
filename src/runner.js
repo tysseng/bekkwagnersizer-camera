@@ -94,9 +94,10 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
     status.colorsCalibrated();
   } else if (config.uploadFile && uploadAfterCapture) {
     await uploadFile(canvases.uploadable1.canvas, bitCode, sceneVariations.people);
+    /*
     await uploadFile(canvases.uploadable2.canvas, bitCode, sceneVariations.manhattan);
     await uploadFile(canvases.uploadable3.canvas, bitCode, sceneVariations.kingscross1);
-    await uploadFile(canvases.uploadable4.canvas, bitCode, sceneVariations.kingscross2);
+    await uploadFile(canvases.uploadable4.canvas, bitCode, sceneVariations.kingscross2);*/
     status.success();
   }
   await timeout(4000);
