@@ -1,14 +1,14 @@
 import logger from "../utils/logger";
 
 const success = () => {
-  fetch('http://localhost:3007/blink?r=0&g=255&b=0&duration=1000&times=4', {
+  fetch('http://localhost:3007/blink?r=63&g=255&b=92&duration=1000&times=4', {
     method: 'GET',
   });
   logger.info('SUCCESS!');
 };
 
 const failure = () => {
-  fetch('http://localhost:3007/blink?r=255&g=0&b=255&duration=1000&times=4', {
+  fetch('http://localhost:3007/blink?r=223&g=75&b=249&duration=1000&times=4', {
     method: 'GET',
   });
   logger.info('FAILURE!');
@@ -22,7 +22,7 @@ const colorsCalibrated = () => {
 };
 
 const processing = () => {
-  fetch('http://localhost:3007/spin?r=0&g=255&b=255&speed=20', {
+  fetch('http://localhost:3007/spin?r=23&g=23&b=229&speed=20', {
     method: 'GET',
   });
   logger.info('PROCESSING');
