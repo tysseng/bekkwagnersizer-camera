@@ -69,7 +69,6 @@ const colorCols = colorColsMM.map(pos => Math.floor(pos * sheetPPMM));
 
 const colorPositions = {
   blue:  {x: colorCols[0], y: colorRows[0]},
-  teal:  {x: colorCols[0], y: colorRows[1]},
   green:  {x: colorCols[1], y: colorRows[0]},
   purple:  {x: colorCols[1], y: colorRows[1]},
   white:  {x: colorCols[0], y: colorRows[5]},
@@ -161,9 +160,9 @@ export default {
   */
 
   videoCircle: { // relative to videoSize
-    x: 2000 / 2,
+    x: 2010 / 2,
     y: 1080 / 2,
-    diameter: 870,
+    diameter: 920,
   },
   /*
   videoCircle: { // relative to videoSize

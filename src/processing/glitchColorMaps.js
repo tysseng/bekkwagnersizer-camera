@@ -7,7 +7,6 @@ export const photoColors = {
   white: '#eeeeee',
   black: '#4C5556',
   blue: '#039cd5',
-  teal: '#66ffcd',
   green: '#00ef07',
   purple: '#db69ff',
 };
@@ -17,7 +16,6 @@ const screenColorsGlitch = {
   white: color('#ffffff', 0),
   black: color('#000000'),
   blue: color('#0c9ee7'),
-  teal: color('#8fc9ad'),
   green: color('#00ff02'),
   purple: color('#f104f5'),
 };
@@ -30,7 +28,6 @@ export const getDefaultMappings = () => {
     [photoColors.black]: screenColorsGlitch.black,
     [photoColors.white]: screenColorsGlitch.white,
     [photoColors.blue]: screenColorsGlitch.blue,
-    [photoColors.teal]: screenColorsGlitch.teal,
     [photoColors.purple]: screenColorsGlitch.purple,
     [photoColors.green]: screenColorsGlitch.green,
   };
@@ -46,7 +43,6 @@ export const getMappings = () => ({
     photo: [
       photoColors.white,
       photoColors.blue,
-      photoColors.teal,
       photoColors.purple,
       photoColors.green,
     ],
@@ -54,7 +50,6 @@ export const getMappings = () => ({
     // Color mappings
     [variations.glitch]: {
       [photoColors.blue]: screenColorsGlitch.blue,
-      [photoColors.teal]: screenColorsGlitch.teal,
       [photoColors.green]: screenColorsGlitch.green,
       [photoColors.purple]: screenColorsGlitch.purple,
     },
