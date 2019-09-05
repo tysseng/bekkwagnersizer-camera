@@ -8,7 +8,7 @@ const success = () => {
 };
 
 const failure = () => {
-  fetch('http://localhost:3007/blink?r=223&g=75&b=249&duration=1000&times=4', {
+  fetch('http://localhost:3007/blink?r=255&g=0&b=0&duration=1000&times=4', {
     method: 'GET',
   });
   logger.info('FAILURE!');
@@ -18,7 +18,7 @@ const colorsCalibrated = () => {
   fetch('http://localhost:3007/blink?r=255&g=255&b=0&duration=1000&times=4', {
     method: 'GET',
   });
-  logger.info('FAILURE!');
+  logger.info('CALIBRATED!');
 };
 
 const processing = () => {
