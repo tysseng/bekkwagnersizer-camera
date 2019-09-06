@@ -18,6 +18,7 @@ Dette repoet inneholder kamerakoden for Glitch or Die. For resten, se https://gi
 ### Koble til elektronikk-brett
 - skal holde å sette fordeler i stikkontakt
 - Koble elektronittbrettet til stikkontakten
+- Koble 4-kontakters LED ledning til elektronikk brett
 
 # Starte laptop'er
 
