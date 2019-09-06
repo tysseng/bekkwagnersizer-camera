@@ -7,7 +7,7 @@ Dette repoet inneholder kamerakoden for Glitch or Die. For resten, se https://gi
 ### Koble til camera-laptop
 - webkamera via grå usbdongle
 - lyskontroll (arduino) via grå usbdongle
-- strøm 
+- strøm
 - kensingtonlås
 
 ### Koble til render-maskin
@@ -41,7 +41,7 @@ Logg på trådløst nettverk
 Åpne terminal (evt stå i terminal og trykk command-t hvis terminal alt er startet)
 ````
 cd
-cd pushwagnesizer/ed-awards-2018/serverstuff
+cd bekkwagnersizer/serverstuff
 node lysserver.js
 ````
 
@@ -49,7 +49,7 @@ node lysserver.js
 Åpne terminal (evt stå i terminal og trykk command-t hvis terminal alt er startet)
 ````
 cd
-cd pushwagnesizer/edawards
+cd bekkwagnersizer-camera
 npm start
 ````
 
@@ -75,11 +75,11 @@ Gå tilbake til Chrome
 - Trykk 'set initial'
 - se at rød ring i baseline video frame overlapper sort ring.
   Hvis ikke kan dette endres fra terminal med
-  
-  `nano pushwagnesizer/edawards/src/config.js`
-  
+
+  `nano bekkwagnersizer-camera/src/config.js`
+
   og endre videoCircle x, y og diameter, men det er litt vanskelig.
-  
+
 Kalibrere farger.
 - Legg på kalibreringsark.
 - Trykk calibrate colors.
@@ -105,7 +105,7 @@ Debugging:
 Åpne terminal (evt stå i terminal og trykk command-t hvis terminal alt er startet)
 ````
 cd
-cd pushwagner/ed-awards-2018/serverstuff
+cd bekkwagnersizer/serverstuff
 node server
 ````
 
@@ -113,7 +113,7 @@ node server
 Åpne terminal (evt stå i terminal og trykk command-t hvis terminal alt er startet)
 ````
 cd
-cd pushwagner/glitch/fagdag-push/webglstuff
+cd bekkwagnersizer/webglstuff
 npm start
 ````
 
