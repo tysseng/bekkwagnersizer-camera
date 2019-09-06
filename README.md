@@ -1,4 +1,4 @@
-Dette repoet inneholder kamerakoden for Glitch or Die. For resten, se https://github.com/bekk/ed-awards-2018/tree/feature/glitch-game
+Dette repoet inneholder kamerakoden for Glitch or Die. For resten, se https://github.com/bekk/bekkwagnersizer/tree/feature/glitch-game
 
 # Hvordan bruke Glitch or Die
 
