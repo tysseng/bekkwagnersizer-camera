@@ -69,7 +69,7 @@ const runSingleCycle = async (canvases, uploadAfterCapture, isCalibration) => {
   const sheetParams = await abortable(() => findSheet(canvases));
   if (sheetParams === null) {
     logger.error('Sheet should be present but I couldnt find it');
-    throw new Error('Sheet should be present but I couldnt find it')
+    throw new Error('RETRY');
   }
 
   logger.info('Corners found, checking if position has changed');
@@ -129,7 +129,11 @@ export const run = async (canvases, sourceElement) => {
       try {
         await runSingleCycle(canvases, globalUploadAfterCapture, false);
       } catch (error) {
-        if (error !== 'ABORT') {
+        if(error && error.message === 'RETRY'){
+          await timeout('500');
+          captureImage(canvases, sourceElement);
+          await runSingleCycle(canvases, globalUploadAfterCapture, false);
+        } else if (error !== 'ABORT') {
           await indicateFailure(error);
         }
       }
